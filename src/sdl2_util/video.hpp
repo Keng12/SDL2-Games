@@ -10,7 +10,7 @@ namespace sdl2_util
         SDL_Window *mWindow{};
 
     public:
-        Window(const std::string &title, int x, int y, int w, int h, unsigned long flags);
+        Window(const std::string &title, const int x, const int y, const int w, const int h,  const unsigned long flags=0);
         ~Window();
         operator SDL_Window *() const { return mWindow; }
     };
@@ -20,7 +20,7 @@ namespace sdl2_util
 
     public:
         Renderer(SDL_Window *window,
-                 int index = -1, unsigned long flags = 0);
+                 const int index = -1, const unsigned long flags = 0);
         ~Renderer();
         operator SDL_Renderer *() const { return mRenderer; }
     };
@@ -30,9 +30,9 @@ namespace sdl2_util
 
     public:
         Texture(SDL_Renderer *renderer,
-                unsigned long format,
-                int access, int width,
-                int height);
+                const unsigned long format,
+                const int access,const int width,
+                const int height);
         ~Texture();
         operator SDL_Texture *() const { return mTexture; }
     };

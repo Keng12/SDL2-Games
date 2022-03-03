@@ -5,7 +5,7 @@
 
 namespace sdl2_util
 {
-    Window::Window(const std::string &title, int x, int y, int w, int h, unsigned long flags)
+    Window::Window(const std::string &title, const int x, const int y,const int w, const int h, const unsigned long flags)
     {
         mWindow = SDL_CreateWindow(title.c_str(),
                                    x, y, w,
@@ -23,7 +23,7 @@ namespace sdl2_util
         }
     }
     Renderer::Renderer(SDL_Window *window,
-                       int index, unsigned long flags)
+                       const int index, const unsigned long flags)
     {
         mRenderer = SDL_CreateRenderer(window, index, flags);
         if (nullptr == mRenderer)
@@ -39,9 +39,9 @@ namespace sdl2_util
         }
     }
     Texture::Texture(SDL_Renderer *renderer,
-                     unsigned long format,
-                     int access, int width,
-                     int height)
+                     const unsigned long format,
+                     const int access, const int width,
+                     const int height)
     {
         mTexture = SDL_CreateTexture(renderer, format, access, width,
                                      height);

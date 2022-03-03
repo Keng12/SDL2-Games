@@ -1,16 +1,97 @@
 #include <iostream>
+#include <array>
+#include <chrono>
+#include <thread>
+#include <random>
 #include <SDL2/SDL.h>
 
-using namespace std;
+#include "src/sdl2_util/video.hpp"
 
 int main()
 {
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
+    SDL_Init(SDL_INIT_VIDEO); // Initialize SDL2
+    const int WINDOW_HEIGHT = 500;
+    const int CELL_HEIGHT = 10;
+    constexpr int vertical_remainder = WINDOW_HEIGHT % CELL_HEIGHT;
+    if (vertical_remainder != 0)
     {
-        SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
-        return 1;
+        throw std::runtime_error{"Window height should be multiple of no. of rows"};
     }
-    cout << "Hello World!" << endl;
+    constexpr int N_ROWS = WINDOW_HEIGHT / CELL_HEIGHT;
+    const int WINDOW_WIDTH = 500;
+    const int CELL_WIDTH = 10;
+    constexpr int horizontal_remainder = WINDOW_WIDTH % CELL_WIDTH;
+    if (horizontal_remainder != 0)
+    {
+        throw std::runtime_error{"Window width should be multiple of no. of columns"};
+    }
+    constexpr int N_COLUMNS = WINDOW_HEIGHT / CELL_WIDTH;
+
+    constexpr int N_CELLS = N_COLUMNS * N_ROWS;
+    sdl2_util::Window window{
+        "Game of Life",          // window title
+        SDL_WINDOWPOS_UNDEFINED, // initial x position
+        SDL_WINDOWPOS_UNDEFINED, // initial y position
+        WINDOW_HEIGHT,           // width, in pixels
+        WINDOW_WIDTH,            // height, in pixels
+        SDL_WINDOW_RESIZABLE};   // Declare a pointer
+    sdl2_util::Renderer renderer{window, -1, 0};
+    sdl2_util::Texture texture{renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, WINDOW_HEIGHT, WINDOW_WIDTH};
+    // Close and destroy the window
+    std::array<SDL_Rect, N_CELLS> rect_array{};
+    SDL_Event event{};
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_int_distribution<> dist(0, 1);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0x00); // Set color to black
+    SDL_RenderClear(renderer); // Clear to black screen
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0x00); //Set color to white
+    for (int i = 0; i < rect_array.size(); ++i)
+    {
+        rect_array.at(i).w = CELL_WIDTH;
+        rect_array.at(i).h = CELL_HEIGHT;
+        int row = i / N_COLUMNS;
+        int col = i % N_COLUMNS;
+        rect_array.at(i).x = row * CELL_WIDTH;
+        rect_array.at(i).y = col * CELL_HEIGHT;
+        // SDL_RenderDrawRect(renderer, &rect_array.at(i));
+        int result = dist(mt);
+        std::cout << result << std::endl;
+        if (1 == result)
+        {
+            SDL_RenderFillRect(renderer, &rect_array.at(i)); // Fill rectangle with white color
+        }
+        else
+        {
+        }
+    }
+    SDL_RenderPresent(renderer);
+    SDL_Log("Finished init");
+    while (true)
+    {
+        SDL_PollEvent(&event);
+        if (SDL_QUIT == event.type)
+            break;
+        for (int i = 0; i < rect_array.size(); ++i)
+        {
+            //     SDL_RenderDrawRect(renderer, &rect_array.at(i));
+            int result = dist(mt);
+            if (1 == result)
+            {
+                //         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0x00);
+            }
+            else
+            {
+                //         SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0x00);
+            }
+            //    SDL_RenderFillRect(renderer, &rect_array.at(i));
+        }
+        //  SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+        //                SDL_RenderClear(renderer);
+
+        //      SDL_RenderPresent(renderer);
+    }
+    // Clean up
     SDL_Quit();
     return 0;
 }
