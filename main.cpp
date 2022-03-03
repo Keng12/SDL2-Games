@@ -43,9 +43,9 @@ int main()
     std::random_device rd;
     std::mt19937 mt(rd());
     std::uniform_int_distribution<> dist(0, 1);
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0x00); // Set color to black
-    SDL_RenderClear(renderer); // Clear to black screen
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0x00); //Set color to white
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0x00);       // Set color to black
+    SDL_RenderClear(renderer);                             // Clear to black screen
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0x00); // Set color to white
     for (int i = 0; i < rect_array.size(); ++i)
     {
         rect_array.at(i).w = CELL_WIDTH;
@@ -56,40 +56,38 @@ int main()
         rect_array.at(i).y = col * CELL_HEIGHT;
         // SDL_RenderDrawRect(renderer, &rect_array.at(i));
         int result = dist(mt);
-        std::cout << result << std::endl;
         if (1 == result)
         {
             SDL_RenderFillRect(renderer, &rect_array.at(i)); // Fill rectangle with white color
         }
-        else
-        {
-        }
     }
     SDL_RenderPresent(renderer);
+    SDL_RenderClear(renderer); // Clear to black screen
+
     SDL_Log("Finished init");
-    while (true)
-    {
-        SDL_PollEvent(&event);
-        if (SDL_QUIT == event.type)
+    while (SDL_PollEvent(&event))
+    { std::cout<<event.type<<std::endl;
+        switch (event.type)
+        {
+        case SDL_QUIT:
             break;
+        }
         for (int i = 0; i < rect_array.size(); ++i)
         {
-            //     SDL_RenderDrawRect(renderer, &rect_array.at(i));
             int result = dist(mt);
             if (1 == result)
             {
-                //         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0x00);
+                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0x00);
             }
             else
             {
-                //         SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0x00);
+                SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0x00);
             }
-            //    SDL_RenderFillRect(renderer, &rect_array.at(i));
+            SDL_RenderFillRect(renderer, &rect_array.at(i));
         }
-        //  SDL_RenderCopy(renderer, texture, nullptr, nullptr);
-        //                SDL_RenderClear(renderer);
-
-        //      SDL_RenderPresent(renderer);
+        SDL_RenderPresent(renderer);
+        SDL_RenderClear(renderer); // Clear to black screen
+        SDL_Delay(1000);
     }
     // Clean up
     SDL_Quit();
