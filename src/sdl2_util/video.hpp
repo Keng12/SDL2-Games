@@ -12,18 +12,30 @@ namespace sdl2_util
     public:
         Window(const std::string &title, int x, int y, int w, int h, unsigned long flags);
         ~Window();
-        get() { return mWindow; }
+        operator SDL_Window *() const { return mWindow; }
     };
     class Renderer
     {
         SDL_Renderer *mRenderer{};
 
     public:
-        Renderer(const SDL_Window *window,
+        Renderer(SDL_Window *window,
                  int index = -1, unsigned long flags = 0);
         ~Renderer();
-        SDL_Window *get() { return mRenderer; }
-    }
+        operator SDL_Renderer *() const { return mRenderer; }
+    };
+    class Texture
+    {
+        SDL_Texture *mTexture{};
+
+    public:
+        Texture(SDL_Renderer *renderer,
+                unsigned long format,
+                int access, int width,
+                int height);
+        ~Texture();
+        operator SDL_Texture *() const { return mTexture; }
+    };
 }
 
 #endif

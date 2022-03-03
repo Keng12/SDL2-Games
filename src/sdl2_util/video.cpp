@@ -22,13 +22,39 @@ namespace sdl2_util
             SDL_DestroyWindow(mWindow);
         }
     }
-    Renderer::Renderer(const SDL_Window *window,
+    Renderer::Renderer(SDL_Window *window,
                        int index, unsigned long flags)
     {
         mRenderer = SDL_CreateRenderer(window, index, flags);
         if (nullptr == mRenderer)
         {
             throw std::runtime_error("Creating renderer failed with error: " + std::string{SDL_GetError()});
+        }
+    }
+    Renderer::~Renderer()
+    {
+        if (mRenderer != nullptr)
+        {
+            SDL_DestroyRenderer(mRenderer);
+        }
+    }
+    Texture::Texture(SDL_Renderer *renderer,
+                     unsigned long format,
+                     int access, int width,
+                     int height)
+    {
+        mTexture = SDL_CreateTexture(renderer, format, access, width,
+                                     height);
+        if (nullptr == mTexture)
+        {
+            throw std::runtime_error("Creating texture failed with error: " + std::string{SDL_GetError()});
+        }
+    }
+    Texture::~Texture()
+    {
+        if (mTexture != nullptr)
+        {
+            SDL_DestroyTexture(mTexture);
         }
     }
 }
