@@ -11,16 +11,16 @@
 int main()
 {
     SDL_Init(SDL_INIT_VIDEO); // Initialize SDL2
-    constexpr int WINDOW_HEIGHT = 1080;
-    constexpr int N_ROWS = 540;
+    constexpr int WINDOW_HEIGHT = 720;
+    constexpr int N_ROWS = 360;
     constexpr int vertical_remainder = WINDOW_HEIGHT % N_ROWS;
     if (vertical_remainder != 0)
     {
         throw std::runtime_error{"Window height should be multiple of no. of rows"};
     }
     constexpr int CELL_HEIGHT = WINDOW_HEIGHT / N_ROWS;
-    constexpr int WINDOW_WIDTH = 1920;
-    constexpr int N_COLUMNS = 810;
+    constexpr int WINDOW_WIDTH = 1280;
+    constexpr int N_COLUMNS = 640;
     constexpr int horizontal_remainder = WINDOW_WIDTH % N_COLUMNS;
     if (horizontal_remainder != 0)
     {
@@ -32,8 +32,8 @@ int main()
         "Game of Life",          // window title
         SDL_WINDOWPOS_UNDEFINED, // initial x position
         SDL_WINDOWPOS_UNDEFINED, // initial y position
-        WINDOW_HEIGHT,           // width, in pixels
-        WINDOW_WIDTH,            // height, in pixels
+        WINDOW_WIDTH,            // width, in pixels
+        WINDOW_HEIGHT,           // height, in pixels
         SDL_WINDOW_RESIZABLE};   // Declare a pointer
     sdl2_util::Renderer renderer{window, -1, 0};
     SDL_Event event{};
@@ -52,8 +52,8 @@ int main()
         {
             rect_array.at(row).at(col).w = CELL_WIDTH;
             rect_array.at(row).at(col).h = CELL_HEIGHT;
-            rect_array.at(row).at(col).x = row * CELL_WIDTH;
-            rect_array.at(row).at(col).y = col * CELL_HEIGHT;
+            rect_array.at(row).at(col).x = col * CELL_WIDTH;
+            rect_array.at(row).at(col).y = row * CELL_HEIGHT;
             int result = dist(mt);
             if (1 == result)
             {
@@ -68,17 +68,15 @@ int main()
     do
     {
         SDL_PollEvent(&event);
-        std::cout << event.type << std::endl;
         switch (event.type)
         {
         case SDL_QUIT:
-            std::cout << "break" << std::endl;
             quit = true;
         }
         gol_util::next_state<N_ROWS, N_COLUMNS>(old_cell_state, new_cell_state, renderer, rect_array);
-       renderer.present();
-       old_cell_state = std::move(new_cell_state);
-       SDL_Delay(100);
+        renderer.present();
+        old_cell_state = std::move(new_cell_state);
+        SDL_Delay(100);
     } while (!quit);
     // Clean up
     std::cout << "Quit" << std::endl;
