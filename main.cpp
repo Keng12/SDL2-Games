@@ -27,7 +27,6 @@ int main()
         throw std::runtime_error{"Window width should be multiple of no. of columns"};
     }
     constexpr int N_COLUMNS = WINDOW_HEIGHT / CELL_WIDTH;
-
     constexpr int N_CELLS = N_COLUMNS * N_ROWS;
     sdl2_util::Window window{
         "Game of Life",          // window title
@@ -46,22 +45,23 @@ int main()
     renderer.setRenderDrawColor("black"); // Set color to black
     renderer.renderClear();               // Clear to black screen
     renderer.setRenderDrawColor("white"); // Set color to white
-    std::array<SDL_Rect, N_CELLS> rect_array{};
-    std::array<char, N_CELLS> old_cell_state{};
-    std::array<char, N_CELLS> new_cell_state{};
-    for (size_t i = 0; i < rect_array.size(); ++i)
+    std::array<std::array<SDL_Rect, N_COLUMNS>, N_ROWS> rect_array{};
+    std::array<std::array<char, N_COLUMNS + 2>, N_ROWS + 2> old_cell_state{};
+    std::array<std::array<char, N_COLUMNS + 2>, N_ROWS + 2> new_cell_state{};
+    for (std::size_t row = 0; row < N_ROWS; row++)
     {
-        rect_array.at(i).w = CELL_WIDTH;
-        rect_array.at(i).h = CELL_HEIGHT;
-        int row = i / N_COLUMNS;
-        int col = i % N_COLUMNS;
-        rect_array.at(i).x = row * CELL_WIDTH;
-        rect_array.at(i).y = col * CELL_HEIGHT;
-        int result = dist(mt);
-        if (1 == result)
+        for (std::size_t col = 0; col < N_COLUMNS; col++)
         {
-            old_cell_state.at(i) = 1;
-            renderer.renderFillRect(&rect_array.at(i)); // Fill rectangle with white color
+            rect_array.at(row).at(col).w = CELL_WIDTH;
+            rect_array.at(row).at(col).h = CELL_HEIGHT;
+            rect_array.at(row).at(col).x = row * CELL_WIDTH;
+            rect_array.at(row).at(col).y = col * CELL_HEIGHT;
+            int result = dist(mt);
+            if (1 == result)
+            {
+                old_cell_state.at(row + 1).at(col + 1) = 1;
+                renderer.renderFillRect(&rect_array.at(row).at(col)); // Fill rectangle with white color
+            }
         }
     }
     renderer.presentTexture(texture);
@@ -75,10 +75,10 @@ int main()
             break;
         }
         renderer.setRenderTarget(texture);
-        gol_util::next_state<N_CELLS>(old_cell_state, new_cell_state, renderer, rect_array);
+        gol_util::next_state<N_COLUMNS, N_ROWS>(old_cell_state, new_cell_state, renderer, rect_array);
         renderer.presentTexture(texture);
         old_cell_state = std::move(new_cell_state);
-        SDL_Delay(1000);
+        SDL_Delay(2000);
     }
     // Clean up
     SDL_Quit();
