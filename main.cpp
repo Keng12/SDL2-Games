@@ -47,8 +47,8 @@ int main()
     renderer.renderClear();               // Clear to black screen
     renderer.setRenderDrawColor("white"); // Set color to white
     std::array<SDL_Rect, N_CELLS> rect_array{};
-    std::array<bool, N_CELLS> old_cell_state{};
-    std::array<bool, N_CELLS> new_cell_state{};
+    std::array<char, N_CELLS> old_cell_state{};
+    std::array<char, N_CELLS> new_cell_state{};
     for (size_t i = 0; i < rect_array.size(); ++i)
     {
         rect_array.at(i).w = CELL_WIDTH;
@@ -60,7 +60,7 @@ int main()
         int result = dist(mt);
         if (1 == result)
         {
-            old_cell_state.at(i) = true;
+            old_cell_state.at(i) = 1;
             renderer.renderFillRect(&rect_array.at(i)); // Fill rectangle with white color
         }
     }
@@ -76,19 +76,6 @@ int main()
         }
         renderer.setRenderTarget(texture);
         gol_util::next_state<N_CELLS>(old_cell_state, new_cell_state, renderer, rect_array);
-        for (int i = 0; i < rect_array.size(); ++i)
-        {
-            int result = dist(mt);
-            if (1 == result)
-            {
-                renderer.setRenderDrawColor("white");
-            }
-            else
-            {
-                renderer.setRenderDrawColor("black");
-            }
-            renderer.renderFillRect(&rect_array.at(i));
-        }
         renderer.presentTexture(texture);
         old_cell_state = std::move(new_cell_state);
         SDL_Delay(1000);
