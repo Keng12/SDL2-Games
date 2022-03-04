@@ -15,14 +15,16 @@ namespace gol_util
         {
             for (size_t col = 1; col < n_col + 1; col++)
             {
-                char live_neighbours = countNeighbours<n_row, n_col>(old_state, row, col);
+                char live_neighbours = old_state.at(row - 1).at(col - 1) + old_state.at(row).at(col - 1) + old_state.at(row + 1).at(col - 1) + old_state.at(row + 1).at(col) + old_state.at(row + 1).at(col + 1) + old_state.at(row).at(col + 1) + old_state.at(row - 1).at(col + 1) + old_state.at(row - 1).at(col);
                 if (old_state.at(row).at(col) == 1 && (live_neighbours == 2 || live_neighbours == 3))
-                { // Cell does survives, rerendered as it is cleared after each frame
+                { // Cell survives, rerendered as it is cleared after each frame
+
                     new_state.at(row).at(col) = 1;
                     renderer.setRenderDrawColor("white");
                 }
                 else if (old_state.at(row).at(col) == 0 && (live_neighbours == 3))
                 { // Cell is revived
+
                     new_state.at(row).at(col) = 1;
                     renderer.setRenderDrawColor("white");
                 }
@@ -31,16 +33,9 @@ namespace gol_util
                     new_state.at(row).at(col) = 0;
                     renderer.setRenderDrawColor("black");
                 }
-                std::cout << col << std::endl;
                 renderer.renderFillRect(&rect_array.at(row - 1).at(col - 1)); // Fill rectangle with white color
             }
         }
-    }
-    template <size_t n_row, size_t n_col>
-    char countNeighbours(const std::array<std::array<char, n_col + 2>, n_row + 2> &state, size_t col, size_t row)
-    {
-        char live_neighbours = state.at(row - 1).at(col - 1) + state.at(row).at(col - 1) + state.at(row + 1).at(col - 1) + state.at(row + 1).at(col) + state.at(row + 1).at(col + 1) + state.at(row).at(col + 1) + state.at(row - 1).at(col + 1) + state.at(row - 1).at(col);
-        return live_neighbours;
     }
 }
 

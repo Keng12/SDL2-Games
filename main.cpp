@@ -11,22 +11,22 @@
 int main()
 {
     SDL_Init(SDL_INIT_VIDEO); // Initialize SDL2
-    const int WINDOW_HEIGHT = 500;
-    const int CELL_HEIGHT = 10;
-    constexpr int vertical_remainder = WINDOW_HEIGHT % CELL_HEIGHT;
+    constexpr int WINDOW_HEIGHT = 500;
+    constexpr int N_ROWS = 20;
+    constexpr int vertical_remainder = WINDOW_HEIGHT % N_ROWS;
     if (vertical_remainder != 0)
     {
         throw std::runtime_error{"Window height should be multiple of no. of rows"};
     }
-    constexpr int N_ROWS = WINDOW_HEIGHT / CELL_HEIGHT;
-    const int WINDOW_WIDTH = 500;
-    const int CELL_WIDTH = 10;
-    constexpr int horizontal_remainder = WINDOW_WIDTH % CELL_WIDTH;
+    constexpr int CELL_HEIGHT = WINDOW_HEIGHT / N_ROWS;
+    constexpr int WINDOW_WIDTH = 500;
+    constexpr int N_COLUMNS = 20;
+        constexpr int horizontal_remainder = WINDOW_WIDTH % N_COLUMNS;
     if (horizontal_remainder != 0)
     {
         throw std::runtime_error{"Window width should be multiple of no. of columns"};
     }
-    constexpr int N_COLUMNS = WINDOW_HEIGHT / CELL_WIDTH;
+    constexpr int CELL_WIDTH = WINDOW_WIDTH / N_COLUMNS;
     constexpr int N_CELLS = N_COLUMNS * N_ROWS;
     sdl2_util::Window window{
         "Game of Life",          // window title
@@ -68,17 +68,16 @@ int main()
     SDL_Log("Finished init");
     while (SDL_PollEvent(&event))
     {
-        std::cout << event.type << std::endl;
         switch (event.type)
         {
         case SDL_QUIT:
             break;
         }
         renderer.setRenderTarget(texture);
-        gol_util::next_state<N_COLUMNS, N_ROWS>(old_cell_state, new_cell_state, renderer, rect_array);
+        gol_util::next_state<N_ROWS, N_COLUMNS>(old_cell_state, new_cell_state, renderer, rect_array);
         renderer.presentTexture(texture);
         old_cell_state = std::move(new_cell_state);
-        SDL_Delay(2000);
+        SDL_Delay(1000);
     }
     // Clean up
     SDL_Quit();
