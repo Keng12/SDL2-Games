@@ -26,9 +26,11 @@ namespace sdl2_util
         void setRenderTarget(SDL_Texture *texture);
         void renderCopy(SDL_Texture *texture);
         void renderClear();
-        void presentTexture(SDL_Texture * texture);
+        void present();
         void setRenderDrawColor(const std::string& color);
-        void renderFillRect(SDL_Rect * rect);
+        void setLiveColor(){setRenderDrawColor("white");};
+        void setDeadColor(){setRenderDrawColor("black");};
+        void fillRect(SDL_Rect * rect);
     };
     class Texture
     {

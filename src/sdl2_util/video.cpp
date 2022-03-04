@@ -62,10 +62,8 @@ namespace sdl2_util
             throw std::runtime_error("Failure clearing render: " + std::string{SDL_GetError()});
         }
     }
-    void Renderer::presentTexture(SDL_Texture *texture)
+    void Renderer::present()
     {
-        setRenderTarget(nullptr);
-        renderCopy(texture);
         SDL_RenderPresent(mRenderer);
         renderClear();
     }
@@ -85,14 +83,15 @@ namespace sdl2_util
             throw std::runtime_error("Failure setting render color: " + std::string{SDL_GetError()});
         }
     }
-    void Renderer::renderFillRect(SDL_Rect * rect){
+    void Renderer::fillRect(SDL_Rect *rect)
+    {
         int result = SDL_RenderFillRect(mRenderer, rect);
         if (result != 0)
         {
             throw std::runtime_error("Failure filling rectangle: " + std::string{SDL_GetError()});
         }
-
     }
+
     Texture::Texture(SDL_Renderer *renderer,
                      const unsigned long format,
                      const int access, const int width,
