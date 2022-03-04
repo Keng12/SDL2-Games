@@ -6,6 +6,7 @@
 #include <SDL2/SDL.h>
 
 #include "src/sdl2_util/video.hpp"
+#include "src/gol_util.hpp"
 
 int main()
 {
@@ -37,18 +38,18 @@ int main()
         SDL_WINDOW_RESIZABLE};   // Declare a pointer
     sdl2_util::Renderer renderer{window, -1, 0};
     sdl2_util::Texture texture{renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, WINDOW_HEIGHT, WINDOW_WIDTH};
-    // Close and destroy the window
-    std::array<SDL_Rect, N_CELLS> rect_array{};
     SDL_Event event{};
     std::random_device rd;
     std::mt19937 mt(rd());
     std::uniform_int_distribution<> dist(0, 1);
     renderer.setRenderTarget(texture);
-    renderer.setRenderDrawColor("black");       // Set color to black
-    renderer.renderClear();                                // Clear to black screen
+    renderer.setRenderDrawColor("black"); // Set color to black
+    renderer.renderClear();               // Clear to black screen
     renderer.setRenderDrawColor("white"); // Set color to white
-    std::array<bool, N_CELLS> cell_state{};
-    for (int i = 0; i < rect_array.size(); ++i)
+    std::array<SDL_Rect, N_CELLS> rect_array{};
+    std::array<bool, N_CELLS> old_cell_state{};
+    std::array<bool, N_CELLS> new_cell_state{};
+    for (size_t i = 0; i < rect_array.size(); ++i)
     {
         rect_array.at(i).w = CELL_WIDTH;
         rect_array.at(i).h = CELL_HEIGHT;
@@ -59,7 +60,7 @@ int main()
         int result = dist(mt);
         if (1 == result)
         {
-            cell_state.at(i) = true;
+            old_cell_state.at(i) = true;
             renderer.renderFillRect(&rect_array.at(i)); // Fill rectangle with white color
         }
     }
@@ -73,7 +74,8 @@ int main()
         case SDL_QUIT:
             break;
         }
-        SDL_SetRenderTarget(renderer, texture);
+        renderer.setRenderTarget(texture);
+        gol_util::next_state<N_CELLS>(old_cell_state, new_cell_state, renderer, rect_array);
         for (int i = 0; i < rect_array.size(); ++i)
         {
             int result = dist(mt);
@@ -88,6 +90,7 @@ int main()
             renderer.renderFillRect(&rect_array.at(i));
         }
         renderer.presentTexture(texture);
+        old_cell_state = std::move(new_cell_state);
         SDL_Delay(1000);
     }
     // Clean up
