@@ -23,6 +23,7 @@ namespace sdl2_util
                  const int index = -1, const unsigned long flags = 0);
         ~Renderer();
         operator SDL_Renderer *() const { return mRenderer; }
+        void presentTexture(SDL_Texture * texture);
     };
     class Texture
     {

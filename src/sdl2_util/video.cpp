@@ -5,7 +5,7 @@
 
 namespace sdl2_util
 {
-    Window::Window(const std::string &title, const int x, const int y,const int w, const int h, const unsigned long flags)
+    Window::Window(const std::string &title, const int x, const int y, const int w, const int h, const unsigned long flags)
     {
         mWindow = SDL_CreateWindow(title.c_str(),
                                    x, y, w,
@@ -37,6 +37,13 @@ namespace sdl2_util
         {
             SDL_DestroyRenderer(mRenderer);
         }
+    }
+    void Renderer::presentTexture(SDL_Texture *texture)
+    {
+        SDL_SetRenderTarget(mRenderer, nullptr);
+        SDL_RenderCopy(mRenderer, texture, nullptr, nullptr);
+        SDL_RenderPresent(mRenderer);
+        SDL_RenderClear(mRenderer); // Clear to black screen
     }
     Texture::Texture(SDL_Renderer *renderer,
                      const unsigned long format,
