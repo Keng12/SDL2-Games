@@ -38,12 +38,60 @@ namespace sdl2_util
             SDL_DestroyRenderer(mRenderer);
         }
     }
+    void Renderer::setRenderTarget(SDL_Texture *texture)
+    {
+        int result = SDL_SetRenderTarget(mRenderer, texture);
+        if (result != 0)
+        {
+            throw std::runtime_error("Failure setting render target: " + std::string{SDL_GetError()});
+        }
+    }
+    void Renderer::renderCopy(SDL_Texture *texture)
+    {
+        int result = SDL_RenderCopy(mRenderer, texture, nullptr, nullptr);
+        if (result != 0)
+        {
+            throw std::runtime_error("Failure copying texture: " + std::string{SDL_GetError()});
+        }
+    }
+    void Renderer::renderClear()
+    {
+        int result = SDL_RenderClear(mRenderer); // Clear to black screen
+        if (result != 0)
+        {
+            throw std::runtime_error("Failure clearing render: " + std::string{SDL_GetError()});
+        }
+    }
     void Renderer::presentTexture(SDL_Texture *texture)
     {
-        SDL_SetRenderTarget(mRenderer, nullptr);
-        SDL_RenderCopy(mRenderer, texture, nullptr, nullptr);
+        setRenderTarget(nullptr);
+        renderCopy(texture);
         SDL_RenderPresent(mRenderer);
-        SDL_RenderClear(mRenderer); // Clear to black screen
+        renderClear();
+    }
+    void Renderer::setRenderDrawColor(const std::string &color)
+    {
+        int result{};
+        if (color == "white")
+        {
+            result = SDL_SetRenderDrawColor(mRenderer, 255, 255, 255, 0);
+        }
+        else if (color == "black")
+        {
+            result = SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, 0);
+        }
+        if (result != 0)
+        {
+            throw std::runtime_error("Failure setting render color: " + std::string{SDL_GetError()});
+        }
+    }
+    void Renderer::renderFillRect(SDL_Rect * rect){
+        int result = SDL_RenderFillRect(mRenderer, rect);
+        if (result != 0)
+        {
+            throw std::runtime_error("Failure filling rectangle: " + std::string{SDL_GetError()});
+        }
+
     }
     Texture::Texture(SDL_Renderer *renderer,
                      const unsigned long format,

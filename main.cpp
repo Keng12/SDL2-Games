@@ -43,12 +43,11 @@ int main()
     std::random_device rd;
     std::mt19937 mt(rd());
     std::uniform_int_distribution<> dist(0, 1);
-    SDL_SetRenderTarget(renderer, texture);
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0x00);   // Set color to black
-    SDL_RenderClear(renderer);                             // Clear to black screen
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0x00); // Set color to white
-    int * pixels{};
-    int * pitch{};
+    renderer.setRenderTarget(texture);
+    renderer.setRenderDrawColor("black");       // Set color to black
+    renderer.renderClear();                                // Clear to black screen
+    renderer.setRenderDrawColor("white"); // Set color to white
+    std::array<bool, N_CELLS> cell_state{};
     for (int i = 0; i < rect_array.size(); ++i)
     {
         rect_array.at(i).w = CELL_WIDTH;
@@ -60,7 +59,8 @@ int main()
         int result = dist(mt);
         if (1 == result)
         {
-            SDL_RenderFillRect(renderer, &rect_array.at(i)); // Fill rectangle with white color
+            cell_state.at(i) = true;
+            renderer.renderFillRect(&rect_array.at(i)); // Fill rectangle with white color
         }
     }
     renderer.presentTexture(texture);
@@ -79,13 +79,13 @@ int main()
             int result = dist(mt);
             if (1 == result)
             {
-                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0x00);
+                renderer.setRenderDrawColor("white");
             }
             else
             {
-                SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0x00);
+                renderer.setRenderDrawColor("black");
             }
-            SDL_RenderFillRect(renderer, &rect_array.at(i));
+            renderer.renderFillRect(&rect_array.at(i));
         }
         renderer.presentTexture(texture);
         SDL_Delay(1000);
