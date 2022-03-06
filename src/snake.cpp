@@ -37,7 +37,7 @@ int main()
             throw std::runtime_error{"Window width must be multiple of no. of columns"};
         }
         std::array<std::array<char, N_COLUMNS + 2>, N_ROWS + 2> board_state = init_board_state;
-        std::vector<std::pair<int, int>> snake_position{std::begin(init_snake_position), std::end(init_snake_position)};
+        std::vector<std::pair<int, int>> snake_position{std::cbegin(init_snake_position), std::cend(init_snake_position)};
         std::pair<int, int> food_idx = snake::get_food_idx<N_COLUMNS, N_ROWS>(snake_position);
         snake::set_food<N_COLUMNS, N_ROWS>(board_state, food_idx);
         snake_position.reserve(INIT_SNAKE_LENGTH * 2);
