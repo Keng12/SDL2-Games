@@ -6,10 +6,10 @@
 
 #include "sdl2_util/video.hpp"
 
-namespace game
+namespace snake
 {
-    template <size_t n_row, size_t n_col>
-    std::array<std::array<SDL_Rect, n_col>, n_row> constexpr init_rect(const int cell_width,const int cell_height)
+    template <size_t len_snake>
+    std::vector<std::pair<int, int>, n_row> constexpr init_snake(int board_width,int board_height)
     {
         std::array<std::array<SDL_Rect, n_col>, n_row> rect_array{};
         for (size_t row = 0; row < n_row; row++)

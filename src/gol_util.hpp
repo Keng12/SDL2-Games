@@ -9,8 +9,9 @@
 namespace gol
 {
     template <size_t n_row, size_t n_col> 
-    void next_state(const std::array<std::array<char, n_col>, n_row> &old_state, std::array<std::array<char, n_col>, n_row> &new_state, sdl2_util::Renderer &renderer, const std::array<std::array<SDL_Rect, n_col>, n_row> &rect_array)
+    std::array<std::array<char, n_col>, n_row> next_state(const std::array<std::array<char, n_col>, n_row> &old_state, sdl2_util::Renderer &renderer, const std::array<std::array<SDL_Rect, n_col>, n_row> &rect_array)
     {
+        std::array<std::array<char, n_col>, n_row> new_state{};
         for (size_t row = 0; row < n_row; row++)
         {
             for (size_t col = 0; col < n_col; col++)
@@ -34,6 +35,7 @@ namespace gol
                 renderer.fillRect(&rect_array.at(row).at(col)); // Fill rectangle with white color
             }
         }
+        return new_state;
     }
     template <size_t n_row, size_t n_col>
     char getLiveNeighbours(const std::array<std::array<char, n_col>, n_row> &state, size_t row, size_t col)

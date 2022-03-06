@@ -45,7 +45,7 @@ int main()
     renderer.setDeadColor(); // Set color to black
     renderer.renderClear();  // Clear to black screen
     renderer.setLiveColor(); // Set color to white
-    std::array<std::array<char, N_COLUMNS>, N_ROWS> old_cell_state{};
+    std::array<std::array<char, N_COLUMNS>, N_ROWS> cell_state{};
     for (std::size_t row = 0; row < N_ROWS; row++)
     {
         for (std::size_t col = 0; col < N_COLUMNS; col++)
@@ -53,7 +53,7 @@ int main()
             int result = dist(mt);
             if (1 == result)
             {
-                old_cell_state.at(row).at(col) = 1;
+                cell_state.at(row).at(col) = 1;
                 renderer.fillRect(&rect_array.at(row).at(col)); // Fill rectangle with white color
             }
         }
@@ -63,16 +63,14 @@ int main()
     bool quit = false;
     while (!quit)
     {
-        std::array<std::array<char, N_COLUMNS>, N_ROWS> new_cell_state{};
         SDL_PollEvent(&event);
         switch (event.type)
         {
         case SDL_QUIT:
             quit = true;
         }
-        gol::next_state<N_ROWS, N_COLUMNS>(old_cell_state, new_cell_state, renderer, rect_array);
+        cell_state = gol::next_state<N_ROWS, N_COLUMNS>(cell_state, renderer, rect_array);
         renderer.present();
-        old_cell_state = std::move(new_cell_state);
         SDL_Delay(100);
     }
     // Clean up
