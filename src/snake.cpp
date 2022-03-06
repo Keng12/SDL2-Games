@@ -3,8 +3,8 @@
 #include <chrono>
 #include <thread>
 #include <random>
-#include "SDL.h"
 
+#include "SDL.h"
 #include "sdl2_util/video.hpp"
 #include "snake_util.hpp"
 #include "game_util.hpp"
@@ -49,7 +49,6 @@ int main()
             SDL_WINDOW_RESIZABLE};   // Declare a pointer
         sdl2_util::Renderer renderer{window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED};
         bool quit = false;
-        SDL_Event event{};
         renderer.setDeadColor(); // Set color to black
         renderer.renderClear();  // Clear to black screen
         renderer.setLiveColor(); // Set color to white
@@ -59,23 +58,27 @@ int main()
         std::uniform_int_distribution<> row_dist(1, N_ROWS);
         // Set food randomly
         bool food_set{};
-        constexpr N_BUFFER=100;
-        size_t rand_counter=0;
+        constexpr int N_BUFFER = 500;
+        size_t rand_counter = 0;
         std::array<int, N_BUFFER> row_idx{};
         std::array<int, N_BUFFER> col_idx{};
-        for (i=0; i < N_BUFFER; i++){
+        for (size_t i = 0; i < N_BUFFER; i++)
+        {
             row_idx.at(i) = row_dist(mt);
-            col_idx.at(i) = col_dist(mt)
+            col_idx.at(i) = col_dist(mt);
         }
         do
         {
             food_set = snake::set_food<N_ROWS, N_COLUMNS>(board_state, row_idx.at(rand_counter), col_idx.at(rand_counter));
+            rand_counter++;
         } while (!food_set);
         snake::draw_board(renderer, board_state, rect_array);
         renderer.present();
         SDL_Log("Finished init");
         std::pair<int, int> old_direction = std::pair{0, 1};
         const unsigned char *keystate = SDL_GetKeyboardState(nullptr);
+        SDL_Event event{};
+
         while (!quit)
         {
             SDL_PollEvent(&event);
@@ -95,24 +98,18 @@ int main()
             std::pair<int, int> new_direction{};
             if (keystate[SDL_SCANCODE_LEFT])
             {
-                SDL_FlushEvent(SDL_MOUSEMOTION);
                 new_direction = std::pair{0, -1};
             }
             else if (keystate[SDL_SCANCODE_RIGHT])
             {
-                SDL_FlushEvent(SDL_MOUSEMOTION);
                 new_direction = std::pair{0, 1};
             }
             else if (keystate[SDL_SCANCODE_UP])
             {
-                SDL_FlushEvent(SDL_MOUSEMOTION);
-
                 new_direction = std::pair{-1, 0};
             }
             else if (keystate[SDL_SCANCODE_DOWN])
             {
-                SDL_FlushEvent(SDL_MOUSEMOTION);
-
                 new_direction = std::pair{1, 0};
             }
 
@@ -132,9 +129,12 @@ int main()
                 point_counter++;
                 do
                 {
-                    const int col_idx = col_dist(mt);
-                    const int row_idx = row_dist(mt);
-                    food_set = snake::set_food<N_ROWS, N_COLUMNS>(board_state, row_idx, col_idx);
+                    food_set = snake::set_food<N_ROWS, N_COLUMNS>(board_state, row_idx.at(rand_counter), col_idx.at(rand_counter));
+                    rand_counter++;
+                    if (rand_counter == N_BUFFER)
+                    {
+                        std::runtime_error("Max points reached");
+                    }
                 } while (!food_set);
             }
             snake::draw_board(renderer, board_state, rect_array);
