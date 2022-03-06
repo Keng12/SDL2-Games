@@ -1,5 +1,5 @@
-#ifndef GAME_UTIL_HPP
-#define GAME_UTIL_HPP
+#ifndef SNAKE_UTIL_HPP
+#define SNAKE_UTIL_HPP
 
 #include <array>
 #include "SDL.h"
@@ -8,21 +8,17 @@
 
 namespace snake
 {
-    template <size_t len_snake>
-    std::vector<std::pair<int, int>, n_row> constexpr init_snake(int board_width,int board_height)
+    std::vector<std::pair<int, int>> constexpr init_snake(const int board_width, const int board_height, const int init_length)
     {
-        std::array<std::array<SDL_Rect, n_col>, n_row> rect_array{};
-        for (size_t row = 0; row < n_row; row++)
+        std::vector<std::pair<int, int>> init_snake_position{};
+        init_snake_position.reserve(init_length);
+        int half_width = board_width / 2;
+        int half_height = board_height / 2;
+        for (size_t i = 0; row < init_length; row++)
         {
-            for (size_t col = 0; col < n_col; col++)
-            {
-                rect_array.at(row).at(col).w = cell_width;
-                rect_array.at(row).at(col).h = cell_height;
-                rect_array.at(row).at(col).x = col * cell_width;
-                rect_array.at(row).at(col).y = row * cell_height;
-            }
+            init_snake_position.push_back(std::pair<int, int>{half_width + i, half_height});
         }
-        return rect_array;
+        return init_snake_position;
     }
 }
 

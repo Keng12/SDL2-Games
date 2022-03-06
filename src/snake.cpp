@@ -6,7 +6,7 @@
 #include "SDL.h"
 
 #include "sdl2_util/video.hpp"
-#include "gol_util.hpp"
+#include "snake_util.hpp"
 #include "game_util.hpp"
 
 int main()
@@ -21,7 +21,9 @@ int main()
     constexpr int horizontal_remainder = WINDOW_WIDTH % N_COLUMNS;
     constexpr int CELL_WIDTH = WINDOW_WIDTH / N_COLUMNS;
     constexpr int N_CELLS = N_COLUMNS * N_ROWS;
+    constexpr int SNAKE_LENGTH = 3;
     constexpr std::array<std::array<SDL_Rect, N_COLUMNS>, N_ROWS> rect_array = game::init_rect<N_ROWS, N_COLUMNS>(CELL_WIDTH, CELL_HEIGHT);
+    constexpr std::vector<std::pair<int, int>> snake_position = snake::init_snake(WINDOW_WIDTH, WINDOW_HEIGHT, SNAKE_LENGTH);
     if (vertical_remainder != 0)
     {
         throw std::runtime_error{"Window height must be multiple of no. of rows"};
