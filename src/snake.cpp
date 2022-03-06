@@ -7,7 +7,6 @@
 
 #include "sdl2_util/video.hpp"
 #include "gol_util.hpp"
-#include "game_util.hpp"
 
 int main()
 {
@@ -21,7 +20,7 @@ int main()
     constexpr int horizontal_remainder = WINDOW_WIDTH % N_COLUMNS;
     constexpr int CELL_WIDTH = WINDOW_WIDTH / N_COLUMNS;
     constexpr int N_CELLS = N_COLUMNS * N_ROWS;
-    constexpr std::array<std::array<SDL_Rect, N_COLUMNS>, N_ROWS> rect_array = game::init_rect<N_ROWS, N_COLUMNS>(CELL_WIDTH, CELL_HEIGHT);
+    constexpr std::array<std::array<SDL_Rect, N_COLUMNS>, N_ROWS> rect_array = gol_util::init_array<N_ROWS, N_COLUMNS>(CELL_WIDTH, CELL_HEIGHT);
     if (vertical_remainder != 0)
     {
         throw std::runtime_error{"Window height must be multiple of no. of rows"};
@@ -70,7 +69,7 @@ int main()
         case SDL_QUIT:
             quit = true;
         }
-        gol::next_state<N_ROWS, N_COLUMNS>(old_cell_state, new_cell_state, renderer, rect_array);
+        gol_util::next_state<N_ROWS, N_COLUMNS>(old_cell_state, new_cell_state, renderer, rect_array);
         renderer.present();
         old_cell_state = std::move(new_cell_state);
         SDL_Delay(100);
