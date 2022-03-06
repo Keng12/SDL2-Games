@@ -48,7 +48,7 @@ namespace snake
         return board;
     }
     template <size_t N_COLUMNS, size_t N_ROWS>
-    void set_food(const std::vector<std::pair<int, int>> &snake)
+    void set_food(std::array<std::array<char, N_COLUMNS + 2>, N_ROWS + 2> &board, const std::vector<std::pair<int, int>> &snake)
     {
         std::random_device rd{};
         std::mt19937 mt(rd());
@@ -107,6 +107,26 @@ namespace snake
         if (add_piece)
         {
             snake.push_back(tail);
+        }
+    }
+    template <size_t N_COLUMNS, size_t N_ROWS>
+    void draw_board(sdl2_util::Renderer &renderer, const std::array<std::array<char, N_COLUMNS + 2>, N_ROWS + 2> &board, std::array<std::array<SDL_Rect, N_COLUMNS>, N_ROWS> rect_array)
+    {
+        for (size_t row = 1; row < N_ROWS; row++)
+        {
+            for (size_t col = 1; col < N_COLUMNS; col++)
+            {
+                char board_state = board.at(row).at(col);
+                if (board_state == 1 || board_state == 2)
+                {
+                    renderer.setLiveColor();
+                }
+                else
+                {
+                    renderer.setDeadColor();
+                }
+                renderer.fillRect(&rect_array.at(row-1).at(col-1));
+            }
         }
     }
 }

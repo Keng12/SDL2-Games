@@ -13,7 +13,6 @@ int main()
 {
     try
     {
-        SDL_Init(SDL_INIT_VIDEO); // Initialize SDL2
         constexpr int WINDOW_HEIGHT = 720;
         constexpr int N_ROWS = 72;
         constexpr int vertical_remainder = WINDOW_HEIGHT % N_ROWS;
@@ -38,8 +37,8 @@ int main()
         }
         std::array<std::array<char, N_COLUMNS + 2>, N_ROWS + 2> board_state = init_board_state;
         std::vector<std::pair<int, int>> snake_position{std::cbegin(init_snake_position), std::cend(init_snake_position)};
-        std::pair<int, int> food_idx = snake::set_food<N_COLUMNS, N_ROWS>(snake_position);
         snake_position.reserve(INIT_SNAKE_LENGTH * 2);
+        SDL_Init(SDL_INIT_VIDEO); // Initialize SDL2
         sdl2_util::Window window{
             "Snake",                 // window title
             SDL_WINDOWPOS_UNDEFINED, // initial x position
@@ -48,22 +47,32 @@ int main()
             WINDOW_HEIGHT,           // height, in pixels
             SDL_WINDOW_RESIZABLE};   // Declare a pointer
         sdl2_util::Renderer renderer{window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED};
-        SDL_Log("Finished init");
+
         bool quit = false;
         SDL_Event event{};
+        renderer.setDeadColor(); // Set color to black
+        renderer.renderClear();  // Clear to black screen
+        renderer.setLiveColor(); // Set color to white
+        snake::set_food<N_COLUMNS, N_ROWS>(board_state, snake_position);
+        snake::draw_board(renderer, board, rect_array);
+        renderer.present();
+        SDL_Log("Finished init");
         while (!quit)
         {
             SDL_PollEvent(&event);
             char direction{};
+            // Render board
             switch (event.type)
             {
             case SDL_QUIT:
                 quit = true;
                 // Insert direction case
             }
+            snake::set_food<N_COLUMNS, N_ROWS>(board_state, snake_position);
+            snake::draw_board(renderer, board, rect_array);
+            renderer.present()
             // Check hit and remove food
             // snake::set_snake(snake_position, )
-            snake::set_food<N_COLUMNS, N_ROWS>(snake_position);
         }
     }
     catch (const std::exception &ex)
