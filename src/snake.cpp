@@ -130,7 +130,7 @@ int main()
                     {
                         if (rand_counter == N_BUFFER)
                         {
-                            // Calculate numbers in separate thread and join here to retrieve them
+                            // Calculate numbers in separate thread/async and join here to retrieve them
                             throw std::runtime_error{"Finished"};
                         }
                         food_set = snake::set_food<N_ROWS, N_COLUMNS>(board_state, food_idx.at(rand_counter).first, food_idx.at(rand_counter).second);
