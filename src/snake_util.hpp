@@ -83,19 +83,20 @@ namespace snake
         board.at(food_idx.first).at(food_idx.second) = 2;
     }
     template <size_t N_COLUMNS, size_t N_ROWS>
-    void update_snake(std::vector<std::valarray<int>> &snake, const std::valarray<int> &direction, const std::array<std::array<char, N_COLUMNS + 2>, N_ROWS + 2> &board)
+    void update_snake(std::vector<std::pair<int, int>> &snake, const std::pair<int, int> &direction, const std::array<std::array<char, N_COLUMNS + 2>, N_ROWS + 2> &board)
     {
-        std::valarray<int> old_head = snake.front();
-        std::valarray<int> new_head = old_head + direction;
+        std::pair<int, int> old_head = snake.front();
+        std::pair<int, int>new_head = old_head + direction;
         char board_state = board.at(new_head[0]).at(new_head[1]);
         bool add_piece{};
+        std::pair<int, int> tail{};
         if (board_state == 1) // Hit border or itself
         {
             throw std::runtime_error("Game over");
         }
         else if (board_state == 2) // Hit food
-        {
-            std::valarray<int> tail = snake.back();
+        {   
+            tail = snake.back()
             add_piece = true;
         }
         // Update snake in reverse order after moving head
@@ -114,5 +115,4 @@ namespace snake
         }
     }
 }
-
 #endif
