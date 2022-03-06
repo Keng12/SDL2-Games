@@ -51,13 +51,15 @@ namespace snake
     {
         std::random_device rd{};
         std::mt19937 mt(rd());
-        std::uniform_int_distribution<> col_dist(1, N_COLUMNS + 1);
-        std::uniform_int_distribution<> row_dist(1, N_ROWS + 1);
+        std::uniform_int_distribution<> col_dist(1, N_COLUMNS);
+        std::uniform_int_distribution<> row_dist(1, N_ROWS);
         while (true)
-        {
+        {   
+            // Set food randomly
             int col_idx = col_dist(mt);
             int row_idx = row_dist(mt);
             bool overlap{};
+            // Check if snake exists on index
             for (auto position : snake)
             {
                 if (position.first == col_idx && position.second == row_idx)
@@ -68,7 +70,7 @@ namespace snake
             }
             if (overlap == false)
             {
-                old_board.at(col_idx, row_idx) = 2;
+                old_board.at(col_idx).at(row_idx) = 2;
                 break;
             }
         }

@@ -23,6 +23,7 @@ int main()
     constexpr int N_CELLS = N_COLUMNS * N_ROWS;
     constexpr int INIT_SNAKE_LENGTH = 3;
     constexpr std::array<std::array<SDL_Rect, N_COLUMNS>, N_ROWS> rect_array = game::init_rect<N_ROWS, N_COLUMNS>(CELL_WIDTH, CELL_HEIGHT);
+    // Initialise snake position as cosntexpr array and convert to vector afterwards
     constexpr std::array<std::pair<int, int>, INIT_SNAKE_LENGTH> init_snake_position = snake::init_snake<INIT_SNAKE_LENGTH>(N_ROWS, N_COLUMNS);
     constexpr std::array<std::array<char, N_COLUMNS + 2>, N_ROWS + 2> init_board_state = snake::init_board<N_COLUMNS, N_ROWS, INIT_SNAKE_LENGTH>(init_snake_position);
     if (vertical_remainder != 0)
@@ -33,15 +34,18 @@ int main()
     {
         throw std::runtime_error{"Window width must be multiple of no. of columns"};
     }
+    std::array<std::array<char, N_COLUMNS + 2>, N_ROWS + 2> board_state = init_board_state;
     std::vector<std::pair<int, int>> snake_position{std::begin(init_snake_position), std::end(init_snake_position)};
     snake_position.reserve(INIT_SNAKE_LENGTH * 2);
-    sdl2_util::Window window{
-        "Snake",                 // window title
-        SDL_WINDOWPOS_UNDEFINED, // initial x position
-        SDL_WINDOWPOS_UNDEFINED, // initial y position
-        WINDOW_WIDTH,            // width, in pixels
-        WINDOW_HEIGHT,           // height, in pixels
-        SDL_WINDOW_RESIZABLE};   // Declare a pointer
+    snake::set_food<N_COLUMNS, N_ROWS>(board_state, snake_position);
+
+        sdl2_util::Window window{
+            "Snake",                 // window title
+            SDL_WINDOWPOS_UNDEFINED, // initial x position
+            SDL_WINDOWPOS_UNDEFINED, // initial y position
+            WINDOW_WIDTH,            // width, in pixels
+            WINDOW_HEIGHT,           // height, in pixels
+            SDL_WINDOW_RESIZABLE};   // Declare a pointer
     sdl2_util::Renderer renderer{window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED};
     SDL_Log("Finished init");
     bool quit = false;
