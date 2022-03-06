@@ -3,6 +3,7 @@
 #include <chrono>
 #include <thread>
 #include <random>
+#include <forward_list>
 
 #include "SDL.h"
 #include "sdl2_util/video.hpp"
@@ -60,16 +61,14 @@ int main()
         bool food_set{};
         constexpr int N_BUFFER = 500;
         size_t rand_counter = 0;
-        std::array<int, N_BUFFER> row_idx{};
-        std::array<int, N_BUFFER> col_idx{};
+        std::array<std::pair<int, int>, N_BUFFER> food_idx{};
         for (size_t i = 0; i < N_BUFFER; i++)
         {
-            row_idx.at(i) = row_dist(mt);
-            col_idx.at(i) = col_dist(mt);
+            food_idx.at(i) = std::pair<int, int>{row_dist(mt), col_dist(mt)};
         }
         do
         {
-            food_set = snake::set_food<N_ROWS, N_COLUMNS>(board_state, row_idx.at(rand_counter), col_idx.at(rand_counter));
+            food_set = snake::set_food<N_ROWS, N_COLUMNS>(board_state, food_idx.at(rand_counter).first, food_idx.at(rand_counter).second);
             rand_counter++;
         } while (!food_set);
         snake::draw_board(renderer, board_state, rect_array);
@@ -78,7 +77,6 @@ int main()
         std::pair<int, int> old_direction = std::pair{0, 1};
         const unsigned char *keystate = SDL_GetKeyboardState(nullptr);
         SDL_Event event{};
-
         while (!quit)
         {
             SDL_PollEvent(&event);
@@ -127,15 +125,19 @@ int main()
             if (hit)
             {
                 point_counter++;
-                do
                 {
-                    food_set = snake::set_food<N_ROWS, N_COLUMNS>(board_state, row_idx.at(rand_counter), col_idx.at(rand_counter));
-                    rand_counter++;
-                    if (rand_counter == N_BUFFER)
+                    do
                     {
-                        std::runtime_error("Max points reached");
-                    }
-                } while (!food_set);
+                        if (rand_counter == N_BUFFER)
+                        {
+                            // Calculate numbers in separate thread and join here to retrieve them
+                            throw std::runtime_error{"Finished"};
+                        }
+                        food_set = snake::set_food<N_ROWS, N_COLUMNS>(board_state, food_idx.at(rand_counter).first, food_idx.at(rand_counter).second);
+                        rand_counter++;
+
+                    } while (!food_set);
+                }
             }
             snake::draw_board(renderer, board_state, rect_array);
             renderer.present();
@@ -151,7 +153,7 @@ int main()
         std::cerr << ex.what() << std::endl;
     }
     // Clean up
-    std::cout << "Quit, points: " << point_counter << "snake length: " << snake_length << std::endl;
+    std::cout << "Quit, points: " << point_counter << ", snake length: " << snake_length << std::endl;
     SDL_Quit();
     return 0;
 }
