@@ -8,8 +8,8 @@
 
 namespace gol_util
 {
-    template <size_t n_row, size_t n_col>
-    void next_state(const std::array<std::array<char, n_col>, n_row> &old_state, std::array<std::array<char, n_col>, n_row> &new_state, sdl2_util::Renderer &renderer, std::array<std::array<SDL_Rect, n_col>, n_row> &rect_array)
+    template <size_t n_row, size_t n_col> 
+    void next_state(const std::array<std::array<char, n_col>, n_row> &old_state, std::array<std::array<char, n_col>, n_row> &new_state, sdl2_util::Renderer &renderer, const std::array<std::array<SDL_Rect, n_col>, n_row> &rect_array)
     {
         for (size_t row = 0; row < n_row; row++)
         {
@@ -62,7 +62,7 @@ namespace gol_util
         return live_neighbours;
     }
     template <size_t n_row, size_t n_col>
-    std::array<std::array<SDL_Rect, n_col>, n_row> init_array(int cell_width,int cell_height)
+    std::array<std::array<SDL_Rect, n_col>, n_row> constexpr init_array(int cell_width,int cell_height)
     {
         std::array<std::array<SDL_Rect, n_col>, n_row> rect_array{};
         for (size_t row = 0; row < n_row; row++)

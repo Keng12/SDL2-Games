@@ -83,7 +83,7 @@ namespace sdl2_util
             throw std::runtime_error("Failure setting render color: " + std::string{SDL_GetError()});
         }
     }
-    void Renderer::fillRect(SDL_Rect *rect)
+    void Renderer::fillRect(const SDL_Rect *rect)
     {
         int result = SDL_RenderFillRect(mRenderer, rect);
         if (result != 0)

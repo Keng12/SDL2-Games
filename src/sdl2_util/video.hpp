@@ -30,7 +30,7 @@ namespace sdl2_util
         void setRenderDrawColor(const std::string& color);
         void setLiveColor(){setRenderDrawColor("white");};
         void setDeadColor(){setRenderDrawColor("black");};
-        void fillRect(SDL_Rect * rect);
+        void fillRect(const SDL_Rect * rect);
     };
     class Texture
     {
