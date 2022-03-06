@@ -8,6 +8,7 @@
 #include "SDL.h"
 
 #include "sdl2_util/video.hpp"
+#include "game_util.hpp"
 
 namespace snake
 {
@@ -86,8 +87,8 @@ namespace snake
     void update_snake(std::vector<std::pair<int, int>> &snake, const std::pair<int, int> &direction, const std::array<std::array<char, N_COLUMNS + 2>, N_ROWS + 2> &board)
     {
         std::pair<int, int> old_head = snake.front();
-        std::pair<int, int>new_head = old_head + direction;
-        char board_state = board.at(new_head[0]).at(new_head[1]);
+        std::pair<int, int>new_head = game::add_pairs<int, int>(old_head, direction);
+        char board_state = board.at(new_head.first).at(new_head.second);
         bool add_piece{};
         std::pair<int, int> tail{};
         if (board_state == 1) // Hit border or itself
