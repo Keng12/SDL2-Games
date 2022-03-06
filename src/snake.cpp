@@ -38,8 +38,7 @@ int main()
         }
         std::array<std::array<char, N_COLUMNS + 2>, N_ROWS + 2> board_state = init_board_state;
         std::vector<std::pair<int, int>> snake_position{std::cbegin(init_snake_position), std::cend(init_snake_position)};
-        std::pair<int, int> food_idx = snake::get_food_idx<N_COLUMNS, N_ROWS>(snake_position);
-        snake::set_food<N_COLUMNS, N_ROWS>(board_state, food_idx);
+        std::pair<int, int> food_idx = snake::set_food<N_COLUMNS, N_ROWS>(snake_position);
         snake_position.reserve(INIT_SNAKE_LENGTH * 2);
         sdl2_util::Window window{
             "Snake",                 // window title
@@ -64,9 +63,7 @@ int main()
             }
             // Check hit and remove food
             // snake::set_snake(snake_position, )
-            std::pair<int, int>
-                food_idx = snake::get_food_idx<N_COLUMNS, N_ROWS>(snake_position);
-            snake::set_food<N_COLUMNS, N_ROWS>(board_state, food_idx);
+            snake::set_food<N_COLUMNS, N_ROWS>(snake_position);
         }
     }
     catch (const std::exception &ex)

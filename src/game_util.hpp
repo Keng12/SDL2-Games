@@ -29,7 +29,7 @@ namespace game
     {
         std::pair<T1, T2> result{};
         result.first = pair1.first + pair2.first;
-        resutl.second = pair1.second + pair2.second;
+        result.second = pair1.second + pair2.second;
         return result;
     }
 }

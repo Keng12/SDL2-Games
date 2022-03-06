@@ -48,7 +48,7 @@ namespace snake
         return board;
     }
     template <size_t N_COLUMNS, size_t N_ROWS>
-    std::pair<int, int> get_food_idx(const std::vector<std::pair<int, int>> &snake)
+    void set_food(const std::vector<std::pair<int, int>> &snake)
     {
         std::random_device rd{};
         std::mt19937 mt(rd());
@@ -72,22 +72,16 @@ namespace snake
             }
             if (overlap == false)
             {
-                food_idx = std::pair{col_idx, row_idx};
+                board.at(row_idx).at(col_idx) = 2;
                 break;
             }
         }
-        return food_idx;
-    }
-    template <size_t N_COLUMNS, size_t N_ROWS>
-    void set_food(std::array<std::array<char, N_COLUMNS + 2>, N_ROWS + 2> &board, std::pair<int, int> &food_idx)
-    {
-        board.at(food_idx.first).at(food_idx.second) = 2;
     }
     template <size_t N_COLUMNS, size_t N_ROWS>
     void update_snake(std::vector<std::pair<int, int>> &snake, const std::pair<int, int> &direction, const std::array<std::array<char, N_COLUMNS + 2>, N_ROWS + 2> &board)
     {
         std::pair<int, int> old_head = snake.front();
-        std::pair<int, int>new_head = game::add_pairs<int, int>(old_head, direction);
+        std::pair<int, int> new_head = game::add_pairs<int, int>(old_head, direction);
         char board_state = board.at(new_head.first).at(new_head.second);
         bool add_piece{};
         std::pair<int, int> tail{};
@@ -96,8 +90,8 @@ namespace snake
             throw std::runtime_error("Game over");
         }
         else if (board_state == 2) // Hit food
-        {   
-            tail = snake.back()
+        {
+            tail = snake.back();
             add_piece = true;
         }
         // Update snake in reverse order after moving head
