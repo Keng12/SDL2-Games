@@ -47,17 +47,18 @@ namespace snake
         return board;
     }
     template <size_t N_COLUMNS, size_t N_ROWS>
-    void set_food(std::array<std::array<char, N_COLUMNS + 2>, N_ROWS + 2> &old_board, const std::vector<std::pair<int, int>> &snake)
+    std::pair<int, int> get_food_idx(const std::vector<std::pair<int, int>> &snake)
     {
         std::random_device rd{};
         std::mt19937 mt(rd());
         std::uniform_int_distribution<> col_dist(1, N_COLUMNS);
         std::uniform_int_distribution<> row_dist(1, N_ROWS);
+        std::pair<int, int> food_idx{};
         while (true)
-        {   
+        {
             // Set food randomly
-            int col_idx = col_dist(mt);
-            int row_idx = row_dist(mt);
+            const int col_idx = col_dist(mt);
+            const int row_idx = row_dist(mt);
             bool overlap{};
             // Check if snake exists on index
             for (auto position : snake)
@@ -70,10 +71,16 @@ namespace snake
             }
             if (overlap == false)
             {
-                old_board.at(col_idx).at(row_idx) = 2;
+                food_idx = std::pair{col_idx, row_idx};
                 break;
             }
         }
+        return food_idx;
+    }
+    template <size_t N_COLUMNS, size_t N_ROWS>
+    void set_food(std::array<std::array<char, N_COLUMNS + 2>, N_ROWS + 2> &board, std::pair<int, int> &food_idx)
+    {
+        board.at(food_idx.first).at(food_idx.second) = 3;
     }
 }
 
