@@ -13,113 +13,74 @@
 namespace snake
 {
     template <size_t init_length>
-    std::array<std::pair<int, int>, init_length> constexpr init_snake(const int n_col, const int n_row)
+    std::array<std::pair<int, int>, init_length> constexpr init_snake(const int n_row, const int n_col)
     {
         std::array<std::pair<int, int>, init_length> init_snake_position{};
         const int half_width = n_col / 2;
         const int half_height = n_row / 2;
         for (size_t i = 0; i < init_length; i++)
         {
-            init_snake_position.at(i).first = half_width + i;
-            init_snake_position.at(i).second = half_height;
+            init_snake_position.at(i).first = half_height + i;
+            init_snake_position.at(i).second = half_width;
         }
         return init_snake_position;
     };
-    template <size_t N_COLUMNS, size_t N_ROWS, size_t init_snake_length>
-    std::array<std::array<char, N_COLUMNS + 2>, N_ROWS + 2> constexpr init_board(const std::array<std::pair<int, int>, init_snake_length> &snake)
+    template <size_t N_ROWS, size_t N_COLUMNS, size_t init_snake_length>
+    std::array<std::array<char, N_COLUMNS>, N_ROWS> constexpr init_board(const std::array<std::pair<int, int>, init_snake_length> &snake)
     {
-        std::array<std::array<char, N_COLUMNS + 2>, N_ROWS + 2> board{};
+        std::array<std::array<char, N_COLUMNS>, N_ROWS> board{};
         // Set snake
         for (auto position : snake)
         {
-            board.at(position.first + 1).at(position.second + 1) = 1;
-        }
-        // Set border
-        for (size_t row = 0; row < N_ROWS + 2; row++)
-        {
-            board.at(row).at(0) = 1;
-            board.at(row).at(N_COLUMNS + 1) = 1;
-        }
-        for (size_t col = 0; col < N_ROWS + 2; col++)
-        {
-            board.at(0).at(col) = 1;
-            board.at(N_ROWS + 1).at(col) = 1;
+            board.at(position.first).at(position.second) = 1;
         }
         return board;
     }
-    template <size_t N_COLUMNS, size_t N_ROWS>
-    void set_food(std::array<std::array<char, N_COLUMNS + 2>, N_ROWS + 2> &board, const std::vector<std::pair<int, int>> &snake)
+    template <size_t N_ROWS, size_t N_COLUMNS>
+    bool set_food(std::array<std::array<char, N_COLUMNS>, N_ROWS> &board, const int row_idx, const int col_idx)
     {
-        std::random_device rd{};
-        std::mt19937 mt(rd());
-        std::uniform_int_distribution<> col_dist(1, N_COLUMNS);
-        std::uniform_int_distribution<> row_dist(1, N_ROWS);
-        std::pair<int, int> food_idx{};
-        while (true)
+        // Check if snake exists on index
+        if (board.at(row_idx).at(col_idx) == 1)
         {
-            // Set food randomly
-            const int col_idx = col_dist(mt);
-            const int row_idx = row_dist(mt);
-            bool overlap{};
-            // Check if snake exists on index
-            for (auto position : snake)
-            {
-                if (position.first == col_idx && position.second == row_idx)
-                {
-                    overlap = true;
-                    break;
-                }
-            }
-            if (overlap == false)
-            {
-                board.at(row_idx).at(col_idx) = 2;
-                break;
-            }
-        }
-    }
-    template <size_t N_COLUMNS, size_t N_ROWS>
-    void update_snake(std::vector<std::pair<int, int>> &snake, const std::pair<int, int> &direction, const std::array<std::array<char, N_COLUMNS + 2>, N_ROWS + 2> &board)
-    {
-        std::pair<int, int> old_head = snake.front();
-        std::pair<int, int> new_head = game::add_pairs<int, int>(old_head, direction);
-        char board_state = board.at(new_head.first).at(new_head.second);
-        bool add_piece{};
-        std::pair<int, int> tail{};
-        if (board_state == 1) // Hit border or itself
-        {
-            throw std::runtime_error("Game over");
-        }
-        else if (board_state == 2) // Hit food
-        {
-            tail = snake.back();
-            add_piece = true;
-        }
-        // Update snake in reverse order after moving head
-        snake.front() = new_head;
-        board.at(new_head.first).at(new_head.second) = 1; // Set to snake cell
-        for (size_t i = snake.size() - 1; i > 0; i--)
-        {
-            snake.at(i) = snake.at(i - 1);
-            if (i == 1)
-            {
-                snake.at(i) = old_head;
-            }
-        }
-        if (add_piece)
-        {
-            snake.push_back(tail);
+            return false;
         }
         else
         {
-            board.at(tail.first).at(tail.second) = 0; // Set to empty cell
+            board.at(row_idx).at(col_idx) = 2;
+            return true;
         }
     }
-    template <size_t N_COLUMNS, size_t N_ROWS>
-    void draw_board(sdl2_util::Renderer &renderer, const std::array<std::array<char, N_COLUMNS + 2>, N_ROWS + 2> &board, std::array<std::array<SDL_Rect, N_COLUMNS>, N_ROWS> rect_array)
+
+    template <size_t N_ROWS, size_t N_COLUMNS>
+    bool update_snake(std::pair<int, int> &snake_head, const std::pair<int, int> &direction, std::array<std::array<char, N_COLUMNS>, N_ROWS> &board)
     {
-        for (size_t row = 1; row < N_ROWS; row++)
+        std::pair<int, int> new_head = game::add_pairs<int, int>(snake_head, direction);
+        bool boundary_check = (new_head.first == -1) || (new_head.second == -1) || (new_head.first == N_ROWS) || (new_head.second == N_COLUMNS);
+        if (boundary_check)
         {
-            for (size_t col = 1; col < N_COLUMNS; col++)
+            throw std::runtime_error("Snake touched boundary");
+        }
+        char board_state = board.at(new_head.first).at(new_head.second);
+        bool hit_food{};
+        if (board_state == 1) // Hit border or itself
+        {
+            throw std::runtime_error("Snake hit itself");
+        }
+        else if (board_state == 2) // Hit food
+        {
+            hit_food = true;
+        }
+        // Update snake head
+        snake_head = new_head;
+        board.at(new_head.first).at(new_head.second) = 1; // Set to snake cell
+        return hit_food;
+    }
+    template <size_t N_COLUMNS, size_t N_ROWS>
+    void draw_board(sdl2_util::Renderer &renderer, const std::array<std::array<char, N_COLUMNS>, N_ROWS> &board, std::array<std::array<SDL_Rect, N_COLUMNS>, N_ROWS> rect_array)
+    {
+        for (size_t row = 0; row < N_ROWS ; row++)
+        {
+            for (size_t col = 0; col < N_COLUMNS ; col++)
             {
                 char board_state = board.at(row).at(col);
                 if (board_state == 1 || board_state == 2)
@@ -130,7 +91,7 @@ namespace snake
                 {
                     renderer.setDeadColor();
                 }
-                renderer.fillRect(&rect_array.at(row - 1).at(col - 1));
+                renderer.fillRect(&rect_array.at(row ).at(col ));
             }
         }
     }

@@ -25,7 +25,7 @@ namespace game
         return rect_array;
     }
     template <class T1, class T2>
-    std::pair<T1, T2> add_pairs(std::pair<T1, T2> pair1, std::pair<T1, T2> pair2)
+    std::pair<T1, T2> add_pairs(const std::pair<T1, T2> &pair1,const std::pair<T1, T2>& pair2)
     {
         std::pair<T1, T2> result{};
         result.first = pair1.first + pair2.first;
