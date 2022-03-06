@@ -96,6 +96,7 @@ namespace snake
         }
         // Update snake in reverse order after moving head
         snake.front() = new_head;
+        board.at(new_head.first).at(new_head.second) = 1; // Set to snake cell
         for (size_t i = snake.size() - 1; i > 0; i--)
         {
             snake.at(i) = snake.at(i - 1);
@@ -107,6 +108,10 @@ namespace snake
         if (add_piece)
         {
             snake.push_back(tail);
+        }
+        else
+        {
+            board.at(tail.first).at(tail.second) = 0; // Set to empty cell
         }
     }
     template <size_t N_COLUMNS, size_t N_ROWS>
@@ -125,7 +130,7 @@ namespace snake
                 {
                     renderer.setDeadColor();
                 }
-                renderer.fillRect(&rect_array.at(row-1).at(col-1));
+                renderer.fillRect(&rect_array.at(row - 1).at(col - 1));
             }
         }
     }

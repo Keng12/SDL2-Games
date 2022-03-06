@@ -54,23 +54,43 @@ int main()
         renderer.renderClear();  // Clear to black screen
         renderer.setLiveColor(); // Set color to white
         snake::set_food<N_COLUMNS, N_ROWS>(board_state, snake_position);
-        snake::draw_board(renderer, board, rect_array);
+        snake::draw_board(renderer, board_state, rect_array);
         renderer.present();
         SDL_Log("Finished init");
+        std::pair<int, int> direction = std::pair{1, 0};
         while (!quit)
         {
             SDL_PollEvent(&event);
-            char direction{};
             // Render board
             switch (event.type)
             {
             case SDL_QUIT:
                 quit = true;
+                break;
                 // Insert direction case
+            case SDL_KEYDOWN:
+                switch (event.key.keysym.sym)
+                {
+                case SDLK_LEFT:
+                    direction = std::pair{-1, 0};
+                    break;
+                case SDLK_RIGHT:
+                    direction = std::pair{1, 0};
+                    break;
+                case SDLK_UP:
+                    direction = std::pair{0, 1};
+                    break;
+                case SDLK_DOWN:
+                    direction = std::pair{0, -1};
+                    break;
+                }
+                break;
             }
+            snake::update_snake(snake_position, direction, board_state);
             snake::set_food<N_COLUMNS, N_ROWS>(board_state, snake_position);
-            snake::draw_board(renderer, board, rect_array);
-            renderer.present()
+            snake::draw_board(renderer, board_state, rect_array);
+            renderer.present();
+            SDL_Delay(100);
             // Check hit and remove food
             // snake::set_snake(snake_position, )
         }
