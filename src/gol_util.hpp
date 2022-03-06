@@ -2,7 +2,7 @@
 #define GOL_UTIL_HPP
 
 #include <array>
-#include <SDL2/SDL.h>
+#include "SDL.h"
 
 #include "sdl2_util/video.hpp"
 
@@ -60,6 +60,22 @@ namespace gol_util
         }
         char live_neighbours = state.at(prev_row_idx).at(prev_col_idx) + state.at(row).at(prev_col_idx) + state.at(next_row_idx).at(prev_col_idx) + state.at(next_row_idx).at(col) + state.at(next_row_idx).at(next_col_idx) + state.at(row).at(next_col_idx) + state.at(prev_row_idx).at(next_col_idx) + state.at(prev_row_idx).at(col);
         return live_neighbours;
+    }
+    template <size_t n_row, size_t n_col>
+    std::array<std::array<SDL_Rect, n_col>, n_row> init_array(int cell_width,int cell_height)
+    {
+        std::array<std::array<SDL_Rect, n_col>, n_row> rect_array{};
+        for (size_t row = 0; row < n_row; row++)
+        {
+            for (size_t col = 0; col < n_col; col++)
+            {
+                rect_array.at(row).at(col).w = cell_width;
+                rect_array.at(row).at(col).h = cell_height;
+                rect_array.at(row).at(col).x = col * cell_width;
+                rect_array.at(row).at(col).y = row * cell_height;
+            }
+        }
+        return rect_array;
     }
 }
 

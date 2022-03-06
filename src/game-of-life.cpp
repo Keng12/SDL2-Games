@@ -5,8 +5,8 @@
 #include <random>
 #include "SDL.h"
 
-#include "src/sdl2_util/video.hpp"
-#include "src/gol_util.hpp"
+#include "sdl2_util/video.hpp"
+#include "gol_util.hpp"
 
 int main()
 {
@@ -35,7 +35,7 @@ int main()
         WINDOW_WIDTH,            // width, in pixels
         WINDOW_HEIGHT,           // height, in pixels
         SDL_WINDOW_RESIZABLE};   // Declare a pointer
-    sdl2_util::Renderer renderer{window, -1, 0};
+    sdl2_util::Renderer renderer{window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED};
     SDL_Event event{};
     std::random_device rd;
     std::mt19937 mt(rd());
@@ -43,16 +43,12 @@ int main()
     renderer.setDeadColor(); // Set color to black
     renderer.renderClear();  // Clear to black screen
     renderer.setLiveColor(); // Set color to white
-    std::array<std::array<SDL_Rect, N_COLUMNS>, N_ROWS> rect_array{};
+    std::array<std::array<SDL_Rect, N_COLUMNS>, N_ROWS> rect_array = gol_util::init_array<N_ROWS, N_COLUMNS>(CELL_WIDTH, CELL_HEIGHT);
     std::array<std::array<char, N_COLUMNS>, N_ROWS> old_cell_state{};
     for (std::size_t row = 0; row < N_ROWS; row++)
     {
         for (std::size_t col = 0; col < N_COLUMNS; col++)
         {
-            rect_array.at(row).at(col).w = CELL_WIDTH;
-            rect_array.at(row).at(col).h = CELL_HEIGHT;
-            rect_array.at(row).at(col).x = col * CELL_WIDTH;
-            rect_array.at(row).at(col).y = row * CELL_HEIGHT;
             int result = dist(mt);
             if (1 == result)
             {
@@ -65,7 +61,8 @@ int main()
     SDL_Log("Finished init");
     bool quit = false;
     do
-    {
+    {   
+        unsigned long long start = SDL_GetPerformanceCounter();
         std::array<std::array<char, N_COLUMNS>, N_ROWS> new_cell_state{};
         SDL_PollEvent(&event);
         switch (event.type)
@@ -77,6 +74,9 @@ int main()
         renderer.present();
         old_cell_state = std::move(new_cell_state);
         SDL_Delay(100);
+        unsigned long long end = SDL_GetPerformanceCounter();
+	    float elapsed = (end - start) / (float)SDL_GetPerformanceFrequency();
+	    std::cout << "Current FPS: " << std::to_string(1.0 / elapsed) << std::endl;
     } while (!quit);
     // Clean up
     std::cout << "Quit" << std::endl;
