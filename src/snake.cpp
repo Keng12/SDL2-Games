@@ -24,11 +24,10 @@ int main()
         constexpr int N_COLUMNS = 128;
         constexpr int horizontal_remainder = WINDOW_WIDTH % N_COLUMNS;
         constexpr int CELL_WIDTH = WINDOW_WIDTH / N_COLUMNS;
-        constexpr int N_CELLS = N_COLUMNS * N_ROWS;
         constexpr std::array<std::array<SDL_Rect, N_COLUMNS>, N_ROWS> rect_array = game::init_rect<N_ROWS, N_COLUMNS>(CELL_WIDTH, CELL_HEIGHT);
+        constexpr std::array<int, 2> init_snake_head{N_ROWS / 2, N_COLUMNS / 2};
         // Initialise snake position as cosntexpr array
-        constexpr std::array<std::pair<int, int>, INIT_SNAKE_LENGTH> init_snake_position = snake::init_snake<INIT_SNAKE_LENGTH>(N_ROWS, N_COLUMNS);
-        constexpr std::array<std::array<char, N_COLUMNS>, N_ROWS> init_board_state = snake::init_board<N_ROWS, N_COLUMNS, INIT_SNAKE_LENGTH>(init_snake_position);
+        constexpr std::array<std::array<char, N_COLUMNS>, N_ROWS> init_board_state = snake::init_board<N_ROWS, N_COLUMNS>(INIT_SNAKE_LENGTH, init_snake_head);
         if (vertical_remainder != 0)
         {
             throw std::runtime_error{"Window height must be multiple of no. of rows"};
@@ -39,7 +38,7 @@ int main()
         }
 
         std::array<std::array<char, N_COLUMNS>, N_ROWS> board_state = init_board_state;
-        std::pair<int, int> snake_head = init_snake_position.at(0);
+        std::array<int, 2> snake_head = init_snake_head;
         SDL_Init(SDL_INIT_VIDEO); // Initialize SDL2
         sdl2_util::Window window{
             "Snake",                 // window title
@@ -49,33 +48,33 @@ int main()
             WINDOW_HEIGHT,           // height, in pixels
             SDL_WINDOW_RESIZABLE};   // Declare a pointer
         sdl2_util::Renderer renderer{window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED};
-        bool quit = false;
         renderer.setDeadColor(); // Set color to black
         renderer.renderClear();  // Clear to black screen
         renderer.setLiveColor(); // Set color to white
         std::random_device rd{};
         std::mt19937 mt(rd());
-        std::uniform_int_distribution<> col_dist(1, N_COLUMNS);
-        std::uniform_int_distribution<> row_dist(1, N_ROWS);
+        std::uniform_int_distribution<> col_dist(0, N_COLUMNS - 1);
+        std::uniform_int_distribution<> row_dist(0, N_ROWS - 1);
         // Set food randomly
         bool food_set{};
         constexpr int N_BUFFER = 500;
-        size_t rand_counter = 0;
-        std::array<std::pair<int, int>, N_BUFFER> food_idx{};
+        size_t rand_counter = -1;
+        std::array<std::array<int, 2>, N_BUFFER> food_idx{};
         for (size_t i = 0; i < N_BUFFER; i++)
         {
-            food_idx.at(i) = std::pair<int, int>{row_dist(mt), col_dist(mt)};
+            food_idx.at(i) = std::array<int, 2>{row_dist(mt), col_dist(mt)};
         }
         do
         {
-            food_set = snake::set_food<N_ROWS, N_COLUMNS>(board_state, food_idx.at(rand_counter).first, food_idx.at(rand_counter).second);
             rand_counter++;
+            food_set = snake::set_food<N_ROWS, N_COLUMNS>(board_state, food_idx.at(rand_counter));
         } while (!food_set);
         snake::draw_board(renderer, board_state, rect_array);
         renderer.present();
         SDL_Log("Finished init");
-        std::pair<int, int> old_direction = std::pair{0, 1};
+        std::array<int, 2> current_direction{0, 1};
         const unsigned char *keystate = SDL_GetKeyboardState(nullptr);
+        bool quit{};
         SDL_Event event{};
         while (!quit)
         {
@@ -93,55 +92,74 @@ int main()
                 SDL_FlushEvents(SDL_TEXTINPUT, SDL_MOUSEWHEEL);
                 break;
             }
-            std::pair<int, int> new_direction{};
+            std::array<int, 2> new_direction{};
             if (keystate[SDL_SCANCODE_LEFT])
             {
-                new_direction = std::pair{0, -1};
+                new_direction = std::array<int, 2>{0, -1};
             }
             else if (keystate[SDL_SCANCODE_RIGHT])
             {
-                new_direction = std::pair{0, 1};
+                new_direction = std::array<int, 2>{0, 1};
             }
             else if (keystate[SDL_SCANCODE_UP])
             {
-                new_direction = std::pair{-1, 0};
+                new_direction = std::array<int, 2>{-1, 0};
             }
             else if (keystate[SDL_SCANCODE_DOWN])
             {
-                new_direction = std::pair{1, 0};
+                new_direction = std::array<int, 2>{1, 0};
             }
-
-            std::pair<int, int> sum_direction = game::add_pairs<int, int>(old_direction, new_direction);
-            if ((new_direction.first == 0) && (new_direction.second == 0))
+            std::array<int, 2> sum_direction = game::add_arrays<int, 2>(current_direction, new_direction);
+            if ((game::sum_array(new_direction) == 0) || ((sum_direction[0] == 0) && (sum_direction[1] == 0)))
             {
-                new_direction = old_direction;
-            }
-            else if ((sum_direction.first == 0) && (sum_direction.second == 0))
-            {
-                new_direction = old_direction;
+                new_direction = current_direction;
             }
             snake_length += 1;
-            bool hit = snake::update_snake<N_ROWS, N_COLUMNS>(snake_head, new_direction, board_state);
-            if (hit)
+            char game_over = snake::update_snake<N_ROWS, N_COLUMNS>(snake_head, new_direction, board_state);
+            if (game_over > 0)
+            {
+                switch (game_over)
+                {
+                case 1:
+                    std::cout << "Snake hit border" << std::endl;
+                    break;
+                case 2:
+                    std::cout << "Snake hit itself" << std::endl;
+                    break;
+                }
+                while (!quit)
+                {
+                    SDL_FlushEvents(SDL_TEXTINPUT, SDL_MOUSEWHEEL);
+                    SDL_WaitEvent(&event);
+                    // Render board
+                    switch (event.type)
+                    {
+                    case SDL_KEYDOWN:
+                        quit = true;
+                        break;
+                    }
+                }
+            }
+            current_direction = std::move(new_direction);
+            bool hit_food = game::check_equality_arrays(snake_head, food_idx.at(rand_counter));
+            if (hit_food)
             {
                 point_counter++;
                 {
                     do
                     {
-                        if (rand_counter == N_BUFFER)
+                        if (rand_counter == N_BUFFER - 1)
                         {
                             // Calculate numbers in separate thread/async and join here to retrieve them
                             throw std::runtime_error{"Finished"};
                         }
-                        food_set = snake::set_food<N_ROWS, N_COLUMNS>(board_state, food_idx.at(rand_counter).first, food_idx.at(rand_counter).second);
                         rand_counter++;
-
+                        food_set = snake::set_food<N_ROWS, N_COLUMNS>(board_state, food_idx.at(rand_counter));
                     } while (!food_set);
                 }
             }
             snake::draw_board(renderer, board_state, rect_array);
             renderer.present();
-            old_direction = std::move(new_direction);
             SDL_Delay(50);
             // Check hit and remove food
             // snake::set_snake(snake_position, )

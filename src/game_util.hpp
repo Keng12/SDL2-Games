@@ -24,12 +24,37 @@ namespace game
         }
         return rect_array;
     }
-    template <class T1, class T2>
-    std::pair<T1, T2> add_pairs(const std::pair<T1, T2> &pair1,const std::pair<T1, T2>& pair2)
+    template <class T, size_t length>
+    std::array<T, length> add_arrays(const std::array<T, length> &array1, const std::array<T, length> &array2)
     {
-        std::pair<T1, T2> result{};
-        result.first = pair1.first + pair2.first;
-        result.second = pair1.second + pair2.second;
+        std::array<T, length> result{};
+        for (size_t i = 0; i < length; i++)
+        {
+            result[i] = array1[i] + array2[i];
+        }
+        return result;
+    }
+    template <class T, size_t length>
+    T sum_array(const std::array<T, length> &array)
+    {
+        T result{};
+        for (T element : array)
+        {
+            result += element;
+        }
+        return result;
+    }
+    template <class T, size_t length>
+    bool check_equality_arrays(const std::array<T, length> &array1, const std::array<T, length> &array2){
+        std::array<unsigned int, length> equality_array{};
+        for (size_t i = 0; i<length; i++){
+            equality_array[i] = static_cast<unsigned int>(array1[i] == array2[i]);
+        }
+        unsigned int count = sum_array<unsigned int, length>(equality_array);
+        bool result{};
+        if (count == length){
+            result=true;
+        }
         return result;
     }
 }
