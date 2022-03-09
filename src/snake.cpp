@@ -76,6 +76,7 @@ int main()
         const unsigned char *keystate = SDL_GetKeyboardState(nullptr);
         bool quit{};
         SDL_Event event{};
+        int speed = 1;
         while (!quit)
         {
             SDL_PollEvent(&event);
@@ -113,7 +114,7 @@ int main()
             if ((game::sum_array(new_direction) == 0) || ((sum_direction[0] == 0) && (sum_direction[1] == 0)))
             {
                 new_direction = current_direction;
-            }
+            } 
             snake_length += 1;
             char game_over = snake::update_snake<N_ROWS, N_COLUMNS>(snake_head, new_direction, board_state);
             if (game_over > 0)
