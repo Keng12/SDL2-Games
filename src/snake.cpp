@@ -16,6 +16,8 @@ int main()
     size_t snake_length = INIT_SNAKE_LENGTH;
     try
     {
+        constexpr double FPS = 60;
+        constexpr double SLEEP = 1 / FPS;
         constexpr int WINDOW_HEIGHT = 720;
         constexpr int N_ROWS = 72;
         constexpr int vertical_remainder = WINDOW_HEIGHT % N_ROWS;
@@ -79,6 +81,7 @@ int main()
         int speed = 1;
         while (!quit)
         {
+            auto start = std::chrono::high_resolution_clock::now();
             SDL_PollEvent(&event);
             // Render board
             switch (event.type)
@@ -114,7 +117,7 @@ int main()
             if ((game::sum_array(new_direction) == 0) || ((sum_direction[0] == 0) && (sum_direction[1] == 0)))
             {
                 new_direction = current_direction;
-            } 
+            }
             snake_length += 1;
             char game_over = snake::update_snake<N_ROWS, N_COLUMNS>(snake_head, new_direction, board_state);
             if (game_over > 0)
@@ -161,9 +164,13 @@ int main()
             }
             snake::draw_board(renderer, board_state, rect_array);
             renderer.present();
-            SDL_Delay(50);
-            // Check hit and remove food
-            // snake::set_snake(snake_position, )
+            auto end = = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> diff = end - start;
+            if (diff < SLEEP)
+            {
+                double delay = SLEEP - diff;
+                std::this_thread::sleep_for(50);
+            }
         }
     }
     catch (const std::exception &ex)
