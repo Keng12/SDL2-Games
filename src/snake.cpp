@@ -16,8 +16,8 @@ int main()
     size_t snake_length = INIT_SNAKE_LENGTH;
     try
     {
-        constexpr double FPS = 60;
-        constexpr double SLEEP = 1 / FPS;
+        constexpr long int FPS = 60;
+        constexpr auto TARGET_TICK = std::chrono::duration<double, std::ratio<1, FPS>>();
         constexpr int WINDOW_HEIGHT = 720;
         constexpr int N_ROWS = 72;
         constexpr int vertical_remainder = WINDOW_HEIGHT % N_ROWS;
@@ -164,12 +164,12 @@ int main()
             }
             snake::draw_board(renderer, board_state, rect_array);
             renderer.present();
-            auto end = = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> diff = end - start;
-            if (diff < SLEEP)
+            auto end = std::chrono::high_resolution_clock::now();
+            auto diff = end - start;
+            if (diff.count() < SLEEP)
             {
-                double delay = SLEEP - diff;
-                std::this_thread::sleep_for(50);
+                auto delay = SLEEP - diff.count();
+                std::this_thread::sleep_for(delay);
             }
         }
     }
