@@ -111,8 +111,13 @@ namespace snake
         std::vector<SDL_Rect> mPieces {};
         std::string mDirection{};
         double mSpeed{};
+        int mWidth{};
+        int mHeight{};
+        int mPenultimate{};
+        char mDirection{};
+        int mDirectionAbs{};
         int moveLeft(int deltaT);
-        Snake(const int length_factor);
+        Snake(const int x, const int y, const int width, const int height, const int length_factor, const char direction);
     };
 }
 #endif
