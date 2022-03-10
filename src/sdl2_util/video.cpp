@@ -54,18 +54,19 @@ namespace sdl2_util
             throw std::runtime_error("Failure copying texture: " + std::string{SDL_GetError()});
         }
     }
-    void Renderer::renderClear()
+    void Renderer::renderClear(const std::string &color)
     {
+        setRenderDrawColor(color);
         int result = SDL_RenderClear(mRenderer); // Clear to black screen
         if (result != 0)
         {
             throw std::runtime_error("Failure clearing render: " + std::string{SDL_GetError()});
         }
     }
-    void Renderer::present()
+    void Renderer::present(const std::string &color)
     {
         SDL_RenderPresent(mRenderer);
-        renderClear();
+        renderClear(color);
     }
     void Renderer::setRenderDrawColor(const std::string &color)
     {

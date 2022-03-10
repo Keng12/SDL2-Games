@@ -42,8 +42,7 @@ int main()
     std::random_device rd{};
     std::mt19937 mt(rd());
     std::uniform_int_distribution<> dist(0, 1);
-    renderer.setDeadColor(); // Set color to black
-    renderer.renderClear();  // Clear to black screen
+    renderer.renderClear("black");  // Clear to black screen
     renderer.setLiveColor(); // Set color to white
     std::array<std::array<char, N_COLUMNS>, N_ROWS> cell_state{};
     for (std::size_t row = 0; row < N_ROWS; row++)
@@ -58,7 +57,7 @@ int main()
             }
         }
     }
-    renderer.present();
+    renderer.present("black");
     SDL_Log("Finished init");
     bool quit = false;
     while (!quit)
@@ -70,7 +69,7 @@ int main()
             quit = true;
         }
         cell_state = gol::next_state<N_ROWS, N_COLUMNS>(cell_state, renderer, rect_array);
-        renderer.present();
+        renderer.present("black");
         SDL_Delay(100);
     }
     // Clean up

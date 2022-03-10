@@ -25,8 +25,8 @@ namespace sdl2_util
         operator SDL_Renderer *() const { return mRenderer; }
         void setRenderTarget(SDL_Texture *texture);
         void renderCopy(SDL_Texture *texture);
-        void renderClear();
-        void present();
+        void renderClear(const std::string &color);
+        void present(const std::string &color);
         void setRenderDrawColor(const std::string& color);
         void setLiveColor(){setRenderDrawColor("white");};
         void setDeadColor(){setRenderDrawColor("black");};

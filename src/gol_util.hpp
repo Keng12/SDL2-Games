@@ -8,9 +8,11 @@
 
 namespace gol
 {
-    template <size_t n_row, size_t n_col> 
+    template <size_t n_row, size_t n_col>
     std::array<std::array<char, n_col>, n_row> next_state(const std::array<std::array<char, n_col>, n_row> &old_state, sdl2_util::Renderer &renderer, const std::array<std::array<SDL_Rect, n_col>, n_row> &rect_array)
     {
+        renderer.setLiveColor();
+
         std::array<std::array<char, n_col>, n_row> new_state{};
         for (size_t row = 0; row < n_row; row++)
         {
@@ -24,15 +26,13 @@ namespace gol
                 {
                     // Cell survives, rerendered as it is cleared after each frame
                     new_state.at(row).at(col) = 1;
-                    renderer.setLiveColor();
+                    renderer.fillRect(&rect_array.at(row).at(col)); // Fill rectangle with white color
                 }
                 else
                 {
                     // Cell dies
                     new_state.at(row).at(col) = 0;
-                    renderer.setDeadColor();
                 }
-                renderer.fillRect(&rect_array.at(row).at(col)); // Fill rectangle with white color
             }
         }
         return new_state;

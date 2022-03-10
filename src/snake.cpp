@@ -4,11 +4,14 @@
 #include <thread>
 #include <random>
 #include <forward_list>
+#include <future>
 
 #include "SDL.h"
 #include "sdl2_util/video.hpp"
 #include "snake_util.hpp"
 #include "game_util.hpp"
+using namespace std::chrono_literals;
+
 int main()
 {
     constexpr int INIT_SNAKE_LENGTH = 3;
@@ -16,8 +19,8 @@ int main()
     size_t snake_length = INIT_SNAKE_LENGTH;
     try
     {
-        constexpr long int FPS = 60;
-        constexpr auto TARGET_TICK = std::chrono::duration<double, std::ratio<1, FPS>>();
+        constexpr double FPS = 60;
+        constexpr std::chrono::duration<double> TARGET_DELAY = std::chrono::duration<double>{1 / FPS};
         constexpr int WINDOW_HEIGHT = 720;
         constexpr int N_ROWS = 72;
         constexpr int vertical_remainder = WINDOW_HEIGHT % N_ROWS;
@@ -50,38 +53,25 @@ int main()
             WINDOW_HEIGHT,           // height, in pixels
             SDL_WINDOW_RESIZABLE};   // Declare a pointer
         sdl2_util::Renderer renderer{window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED};
-        renderer.setDeadColor(); // Set color to black
-        renderer.renderClear();  // Clear to black screen
-        renderer.setLiveColor(); // Set color to white
-        std::random_device rd{};
-        std::mt19937 mt(rd());
-        std::uniform_int_distribution<> col_dist(0, N_COLUMNS - 1);
-        std::uniform_int_distribution<> row_dist(0, N_ROWS - 1);
+        renderer.renderClear("black"); // Clear to black screen
+        std::random_device rd;
+        std::mt19937_64 mt(rd());
+        std::uniform_int_distribution<> col_dist{0, N_COLUMNS - 1};
+        std::uniform_int_distribution<> row_dist{0, N_ROWS - 1};
         // Set food randomly
-        bool food_set{};
-        constexpr int N_BUFFER = 500;
-        size_t rand_counter = -1;
-        std::array<std::array<int, 2>, N_BUFFER> food_idx{};
-        for (size_t i = 0; i < N_BUFFER; i++)
-        {
-            food_idx.at(i) = std::array<int, 2>{row_dist(mt), col_dist(mt)};
-        }
-        do
-        {
-            rand_counter++;
-            food_set = snake::set_food<N_ROWS, N_COLUMNS>(board_state, food_idx.at(rand_counter));
-        } while (!food_set);
+        std::array<int, 2> food_idx = snake::set_food<N_ROWS, N_COLUMNS>(board_state, mt, col_dist, row_dist);
         snake::draw_board(renderer, board_state, rect_array);
-        renderer.present();
+        renderer.present("black");
         SDL_Log("Finished init");
         std::array<int, 2> current_direction{0, 1};
         const unsigned char *keystate = SDL_GetKeyboardState(nullptr);
         bool quit{};
         SDL_Event event{};
-        int speed = 1;
+        double speed = 1;
+        int speed_0 = 1;
         while (!quit)
         {
-            auto start = std::chrono::high_resolution_clock::now();
+            auto start = std::chrono::steady_clock::now();
             SDL_PollEvent(&event);
             // Render board
             switch (event.type)
@@ -145,32 +135,28 @@ int main()
                 }
             }
             current_direction = std::move(new_direction);
-            bool hit_food = game::check_equality_arrays(snake_head, food_idx.at(rand_counter));
+            bool hit_food = game::check_equality_arrays(snake_head, food_idx);
             if (hit_food)
             {
                 point_counter++;
-                {
-                    do
-                    {
-                        if (rand_counter == N_BUFFER - 1)
-                        {
-                            // Calculate numbers in separate thread/async and join here to retrieve them
-                            throw std::runtime_error{"Finished"};
-                        }
-                        rand_counter++;
-                        food_set = snake::set_food<N_ROWS, N_COLUMNS>(board_state, food_idx.at(rand_counter));
-                    } while (!food_set);
-                }
+                food_idx = snake::set_food<N_ROWS, N_COLUMNS>(board_state, mt, col_dist, row_dist);
             }
             snake::draw_board(renderer, board_state, rect_array);
-            renderer.present();
-            auto end = std::chrono::high_resolution_clock::now();
-            auto diff = end - start;
-            if (diff.count() < SLEEP)
+            renderer.present("black");
+            auto end = std::chrono::steady_clock::now();
+            std::chrono::duration<double> elapsed = end - start;
+            double speed{};
+            if (elapsed < TARGET_DELAY)
             {
-                auto delay = SLEEP - diff.count();
+                auto delay = TARGET_DELAY - elapsed;
                 std::this_thread::sleep_for(delay);
+                speed = TARGET_DELAY.count();
             }
+            else
+            {
+                speed = elapsed.count();
+            }
+            std::cout << "FPS: " << speed << std::endl;
         }
     }
     catch (const std::exception &ex)

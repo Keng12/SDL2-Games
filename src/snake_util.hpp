@@ -23,16 +23,24 @@ namespace snake
         return board;
     }
     template <size_t N_ROWS, size_t N_COLUMNS>
-    bool set_food(std::array<std::array<char, N_COLUMNS>, N_ROWS> &board, const std::array<int, 2> &food_idx)
+    std::array<int, 2> set_food(std::array<std::array<char, N_COLUMNS>, N_ROWS> &board, std::mt19937_64 &mt, std::uniform_int_distribution<> &col_dist, std::uniform_int_distribution<> &row_dist)
     {
-        bool result{};
-        // Check if snake exists on index
-        if (board.at(food_idx.at(0)).at(food_idx.at(1)) != 1)
+        bool food_set{};
+        int row_idx{};
+        int col_idx{};
+        do
         {
-            board.at(food_idx.at(0)).at(food_idx.at(1)) = 2;
-            result = true;
-        }
-        return result;
+            row_idx = row_dist(mt);
+            col_idx = col_dist(mt);
+            // Check if snake exists on index
+            if (board.at(row_idx).at(col_idx) != 1)
+            {
+                board.at(row_idx).at(col_idx) = 2;
+                food_set = true;
+            }
+        } while (!food_set);
+        std::array<int, 2> food_idx{row_idx, col_idx};
+        return food_idx;
     }
 
     template <size_t N_ROWS, size_t N_COLUMNS>
@@ -69,6 +77,7 @@ namespace snake
     template <size_t N_COLUMNS, size_t N_ROWS>
     void draw_board(sdl2_util::Renderer &renderer, const std::array<std::array<char, N_COLUMNS>, N_ROWS> &board, std::array<std::array<SDL_Rect, N_COLUMNS>, N_ROWS> rect_array)
     {
+        renderer.setLiveColor();
         for (size_t row = 0; row < N_ROWS; row++)
         {
             for (size_t col = 0; col < N_COLUMNS; col++)
@@ -76,15 +85,27 @@ namespace snake
                 char board_state = board.at(row).at(col);
                 if (board_state == 1 || board_state == 2)
                 {
-                    renderer.setLiveColor();
+                    renderer.fillRect(&rect_array.at(row).at(col));
                 }
-                else
-                {
-                    renderer.setDeadColor();
-                }
-                renderer.fillRect(&rect_array.at(row).at(col));
             }
         }
+    }
+    template <class T, size_t FOOD_BUFFER>
+    std::array<std::array<T, 2>, FOOD_BUFFER> get_food_idx(std::mt19937 &mt, std::uniform_int_distribution<> &col_dist, std::uniform_int_distribution<> &row_dist)
+    {
+        std::array<std::array<int, 2>, FOOD_BUFFER> food_idx{};
+        for (size_t i = 0; i < FOOD_BUFFER; i++)
+        {
+            food_idx.at(i) = std::array<int, 2>{row_dist(mt), col_dist(mt)};
+        }
+        return food_idx;
+    }
+    template <class T, size_t length>
+    std::array<T, length> constexpr get_indices()
+    {
+        std::array<T, length> indices{};
+        std::iota(indices.begin(), indices.end(), 0);
+        return indices;
     }
 }
 #endif
