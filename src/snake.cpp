@@ -21,9 +21,9 @@ int main()
         constexpr double FPS = 60;
         constexpr std::chrono::duration<double> TARGET_DELAY = std::chrono::duration<double>{1 / FPS};
         constexpr double defDeltaT = TARGET_DELAY.count();
-        constexpr int WINDOW_HEIGHT = 720;
+        constexpr int WINDOW_HEIGHT = 500;
         constexpr int y = WINDOW_HEIGHT / 2;
-        constexpr int SCALE_FACTOR = 100;
+        constexpr int SCALE_FACTOR = 10;
         constexpr int CELL_HEIGHT = WINDOW_HEIGHT / SCALE_FACTOR;
         constexpr int WINDOW_WIDTH = 1280;
         constexpr int x = WINDOW_WIDTH / 2;
@@ -31,7 +31,8 @@ int main()
         constexpr char INIT_DIRECTION = -1;
         constexpr int LENGTH_FACTOR = 3;
         const double SPEED = 8000;
-        snake::Snake snake_instance = snake::Snake{x, y, CELL_WIDTH, CELL_HEIGHT, LENGTH_FACTOR, INIT_DIRECTION, WINDOW_WIDTH, WINDOW_HEIGHT, SPEED};
+        constexpr int SPEED_MAX=3;
+        snake::Snake snake_instance = snake::Snake{x, y, CELL_WIDTH, CELL_HEIGHT, LENGTH_FACTOR, INIT_DIRECTION, WINDOW_WIDTH, WINDOW_HEIGHT, SPEED, SPEED_MAX};
         SDL_Init(SDL_INIT_VIDEO); // Initialize SDL2
         sdl2_util::Window window{
             "Snake",                 // window title
@@ -52,7 +53,6 @@ int main()
         // Set food randomly
         snake::setFood(food, mt, col_dist, row_dist, snake_instance);
         snake::drawFood(renderer, &food);
-        std::cout << "X " << WINDOW_WIDTH - 1 - CELL_WIDTH << "Y " << WINDOW_HEIGHT - 1 - CELL_HEIGHT << std::endl;
         snake::drawSnake(renderer, snake_instance);
         renderer.present("black");
         SDL_Log("Finished init");
@@ -97,6 +97,8 @@ int main()
             snake::drawSnake(renderer, snake_instance);
             if (hit_boundary > 0)
             {
+                snake::drawFood(renderer, &food);
+                renderer.present("black");
                 if (hit_boundary == 1)
                 {
                     std::cout << "Hit boundary" << std::endl;
@@ -125,7 +127,6 @@ int main()
             renderer.present("black");
             auto end = std::chrono::steady_clock::now();
             elapsed = end - start;
-            std::cout << elapsed.count() << std::endl;
             if (TARGET_DELAY > elapsed)
             {
                 auto delay = TARGET_DELAY - elapsed;

@@ -90,6 +90,15 @@ namespace snake
             addPiece();
         }
         int deltaXY = static_cast<int>(deltaT * mSpeed);
+        if (deltaXY > mSpeedMax)
+        {
+            deltaXY = mSpeedMax;
+        }
+        else if (deltaXY == 0)
+        {
+            deltaXY = 1;
+        }
+        std::cout << deltaXY << std::endl;
         char result{};
         switch (mDirection)
         {
@@ -114,8 +123,8 @@ namespace snake
         }
         return result;
     }
-    Snake::Snake(const int x, const int y, const int width, const int height, const int length_factor, const char direction, const int window_width, const int window_height, const double speed)
-        : mHeight{height}, mWidth{width}, mWindowWidth{window_width}, mWindowHeight{window_height}, mDirection{direction}, mSpeed{speed}
+    Snake::Snake(const int x, const int y, const int width, const int height, const int length_factor, const char direction, const int window_width, const int window_height, const double speed, const double speedMax)
+        : mHeight{height}, mWidth{width}, mWindowWidth{window_width}, mWindowHeight{window_height}, mDirection{direction}, mSpeed{speed}, mSpeedMax{speedMax}
     {
         SDL_Rect init_piece{};
         if (direction == 1)
@@ -148,7 +157,11 @@ namespace snake
         for (int i = 0; i < mPieces.size() - 3; i++)
         {
             SDL_bool head_hit = SDL_HasIntersection(&mPieces.at(i), &mPieces.back());
-            SDL_bool penum_hit = SDL_HasIntersection(&mPieces.at(i), &mPieces.at(mPenultimate));
+            SDL_bool penum_hit = SDL_FALSE;
+            if (i != mPieces.size() - 4)
+            {
+                penum_hit = SDL_HasIntersection(&mPieces.at(i), &mPieces.at(mPenultimate));
+            }
             if ((head_hit == SDL_TRUE) || (penum_hit == SDL_TRUE))
             {
                 result = true;

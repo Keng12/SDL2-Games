@@ -22,13 +22,14 @@ namespace snake
         int mPenultimate{};
         char mDirection{};
         int mDirectionAbs{};
+        double mSpeedMax{};
         char moveLeft(int deltaXY);
         char moveUp(int deltaXY);
         char moveDown(int deltaXY);
         char moveRight(int deltaXY);
         void addPiece();
         char move(double deltaT, char new_direction);
-        Snake(const int x, const int y, const int width, const int height, const int length_factor, const char direction, const int window_width, const int window_height, const double speed);
+        Snake(const int x, const int y, const int width, const int height, const int length_factor, const char direction, const int window_width, const int window_height, const double speed, const double speedMax);
         bool hasHitSelf();
         bool hasHitFood(SDL_Rect *food);
         bool mCheckThirdLast{};
