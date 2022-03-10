@@ -14,22 +14,23 @@ namespace snake
     struct Snake
     {
         std::vector<SDL_Rect> mPieces{};
-        std::string mDirection{};
         double mSpeed{};
         int mWidth{};
         int mHeight{};
+        int mWindowHeight{};
+        int mWindowWidth{};
         int mPenultimate{};
         char mDirection{};
         int mDirectionAbs{};
-        int moveLeft(int deltaXY);
-        int moveUp(int deltaXY);
-        int moveDown(int deltaXY);
-        int moveRight(int deltaXY);
+        char moveLeft(int deltaXY);
+        char moveUp(int deltaXY);
+        char moveDown(int deltaXY);
+        char moveRight(int deltaXY);
         void addPiece();
-        int move(double deltaT, char new_direction);
-        Snake(const int x, const int y, const int width, const int height, const int length_factor, const char direction);
+        char move(double deltaT, char new_direction);
+        Snake(const int x, const int y, const int width, const int height, const int length_factor, const char direction, const int window_width, const int window_height);
         bool hasHitSelf();
-        bool hasHitFood(SDL_Rect food);
+        bool hasHitFood(SDL_Rect* food);
     };
     void setFood(SDL_Rect &food, std::mt19937_64 &mt, std::uniform_int_distribution<> &col_dist, std::uniform_int_distribution<> &row_dist, snake::Snake snake);
 }

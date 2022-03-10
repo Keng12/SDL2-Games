@@ -5,12 +5,12 @@
 
 namespace snake
 {
-    int Snake::moveLeft(int deltaXY)
+    char Snake::moveLeft(int deltaXY)
     {
-        int new_x = pieces.back().x - deltaXY;
+        int new_x = mPieces.back().x - deltaXY;
         if (new_x < 0)
         {
-            return 1
+            return 1;
         }
         else
         {
@@ -19,12 +19,12 @@ namespace snake
             return 0;
         }
     };
-    int Snake::moveRight(int deltaXY)
+    char Snake::moveRight(int deltaXY)
     {
-        int new_x = pieces.back().x + deltaXY;
-        if (new_x + mWidth >= mRightBound)
+        int new_x = mPieces.back().x + deltaXY;
+        if (new_x + mWidth >= mWindowWidth)
         {
-            return 1
+            return 1;
         }
         else
         {
@@ -33,12 +33,12 @@ namespace snake
             return 0;
         }
     };
-    int Snake::moveUp(int deltaXY)
+    char Snake::moveUp(int deltaXY)
     {
-        int new_y = pieces.back().y - deltaXY;
+        int new_y = mPieces.back().y - deltaXY;
         if (new_y < 0)
         {
-            return 1
+            return 1;
         }
         else
         {
@@ -47,12 +47,12 @@ namespace snake
             return 0;
         }
     };
-    int Snake::moveDown(int deltaXY)
+    char Snake::moveDown(int deltaXY)
     {
-        int new_y = pieces.back().y + deltaXY;
-        if (new_y + mHeight >= mBottomBound)
+        int new_y = mPieces.back().y + deltaXY;
+        if (new_y + mHeight >= mWindowHeight)
         {
-            return 1
+            return 1;
         }
         else
         {
@@ -70,7 +70,7 @@ namespace snake
         new_piece.h = mHeight;
         mPieces.push_back(new_piece);
     }
-    int Snake::move(double deltaT, char new_direction)
+    char Snake::move(double deltaT, char new_direction)
     {
         if (std::abs(new_direction) != mDirectionAbs) // Same or opposite direction
         {
@@ -79,7 +79,7 @@ namespace snake
             mDirectionAbs = std::abs(mDirection);
         }
         int deltaXY = static_cast<int>(deltaT * mSpeed);
-        int result{};
+        char result{};
         switch (mDirection)
         {
         case -1:
@@ -95,21 +95,19 @@ namespace snake
             result = moveDown(deltaXY);
             break;
         default:
-            throw std::runtime_error("Direction unknown")
+            throw std::runtime_error("Direction: " + std::to_string(mDirection) + " unknown");
         }
         return result;
     }
-    void Snake::Snake(const int x, const int y, const int width, const int height, const int length_factor, const char direction)
+    Snake::Snake(const int x, const int y, const int width, const int height, const int length_factor, const char direction, const int window_width, const int window_height)
+    : mHeight{height}, mWidth{width}, mWindowWidth{window_width}, mWindowHeight{window_height}, mDirection{direction}
     {
         SDL_Rect init_piece{};
-        mHeight = height;
-        mWidth = width;
         if (direction == 1)
         {
-            throw std::runtime_error("Must not move right initially")
+            throw std::runtime_error("Must not move right initially");
         }
-        mDirection = direction;
-        mDirectionAbs = std::abs(direction);
+        mDirectionAbs = std::abs(mDirection);
         switch (mDirectionAbs)
         {
         case 1:
@@ -121,7 +119,7 @@ namespace snake
             init_piece.h = mHeight * length_factor;
             break;
         default:
-            throw std::runtime_error("Direction unknown")
+            throw std::runtime_error("Direction: " + std::to_string(mDirection) + " unknown");
         }
         init_piece.x = x;
         init_piece.y = y;
@@ -153,15 +151,15 @@ namespace snake
         return result;
     }
     bool Snake::hasHitFood(SDL_Rect* food){
-        bool result = std::any_of(std::execution::un_seq, mPieces.cbegin(), mPieces.cend(), [&](SDL_Rect piece){bool result = SDL_HasIntersection(&piece, food)});
-        return result
+        bool result = std::any_of(std::execution::unseq, mPieces.cbegin(), mPieces.cend(), [&](SDL_Rect piece){bool result = SDL_HasIntersection(&piece, food); return result;});
+        return result;
     }
-    void setFood(SDL_Rect &food, std::mt19937_64 &mt, std::uniform_int_distribution<> &col_dist, std::uniform_int_distribution<> &row_dist, snake::Snake snake){
-        bool food_hit
+    void setFood(SDL_Rect &food, std::mt19937_64 &mt, std::uniform_int_distribution<> &col_dist, std::uniform_int_distribution<> &row_dist, Snake snake_instance){
+        bool food_hit;
         do {
             food.x = col_dist(mt);
             food.y = row_dist(mt);
-            food_hit = snake::hasHitFood(&food);
+            food_hit = snake_instance.hasHitFood(&food);
         } while (!food_hit);
     }
 }
