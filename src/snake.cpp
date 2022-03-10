@@ -23,28 +23,14 @@ int main()
         constexpr std::chrono::duration<double> TARGET_DELAY = std::chrono::duration<double>{1 / FPS};
         constexpr double defDeltaT = TARGET_DELAY.count(); 
         constexpr int WINDOW_HEIGHT = 720;
-        constexpr int N_ROWS = 72;
-        constexpr int vertical_remainder = WINDOW_HEIGHT % N_ROWS;
-        constexpr int CELL_HEIGHT = WINDOW_HEIGHT / N_ROWS;
+        constexpr int y = WINDOW_HEIGHT / 2;
+        constexpr int CELL_HEIGHT = 72;
         constexpr int WINDOW_WIDTH = 1280;
-        constexpr int N_COLUMNS = 128;
-        constexpr int horizontal_remainder = WINDOW_WIDTH % N_COLUMNS;
-        constexpr int CELL_WIDTH = WINDOW_WIDTH / N_COLUMNS;
-        constexpr std::array<std::array<SDL_Rect, N_COLUMNS>, N_ROWS> rect_array = game::init_rect<N_ROWS, N_COLUMNS>(CELL_WIDTH, CELL_HEIGHT);
-        constexpr std::array<int, 2> init_snake_head{N_ROWS / 2, N_COLUMNS / 2};
-        // Initialise snake position as cosntexpr array
-        constexpr std::array<std::array<char, N_COLUMNS>, N_ROWS> init_board_state = snake::init_board<N_ROWS, N_COLUMNS>(INIT_SNAKE_LENGTH, init_snake_head);
-        if (vertical_remainder != 0)
-        {
-            throw std::runtime_error{"Window height must be multiple of no. of rows"};
-        }
-        if (horizontal_remainder != 0)
-        {
-            throw std::runtime_error{"Window width must be multiple of no. of columns"};
-        }
-
-        std::array<std::array<char, N_COLUMNS>, N_ROWS> board_state = init_board_state;
-        std::array<int, 2> snake_head = init_snake_head;
+        constexpr int x = WINDOW_WIDTH /2;
+        constexpr int CELL_WIDTH = 128;
+        constexpr char INIT_DIRECTION = -1;
+        constexpr int LENGTH_FACTOR = 3;
+        snake::Snake snake = snake::Snake{x, y, CELL_WIDTH, CELL_WIDTH, LENGTH_FACTOR, INIT_DIRECTION};
         SDL_Init(SDL_INIT_VIDEO); // Initialize SDL2
         sdl2_util::Window window{
             "Snake",                 // window title
@@ -55,16 +41,18 @@ int main()
             SDL_WINDOW_RESIZABLE};   // Declare a pointer
         sdl2_util::Renderer renderer{window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED};
         renderer.renderClear("black"); // Clear to black screen
+        SDL_Rect food{};
+        food.w = CELL_WIDTH;
+        food.h = CELL_HEIGHT;
         std::random_device rd;
         std::mt19937_64 mt(rd());
         std::uniform_int_distribution<> col_dist{0, N_COLUMNS - 1};
         std::uniform_int_distribution<> row_dist{0, N_ROWS - 1};
         // Set food randomly
-        std::array<int, 2> food_idx = snake::set_food<N_ROWS, N_COLUMNS>(board_state, mt, col_dist, row_dist);
-        snake::draw_board(renderer, board_state, rect_array);
+        snake::setFood(food, mt, col_Dist, row_dist);
+        snake::draw_board(renderer);
         renderer.present("black");
         SDL_Log("Finished init");
-        std::array<int, 2> current_direction{0, 1};
         const unsigned char *keystate = SDL_GetKeyboardState(nullptr);
         bool quit{};
         SDL_Event event{};

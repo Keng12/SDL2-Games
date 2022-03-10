@@ -28,6 +28,9 @@ namespace snake
         void addPiece();
         int move(double deltaT, char new_direction);
         Snake(const int x, const int y, const int width, const int height, const int length_factor, const char direction);
+        bool hasHitSelf();
+        bool hasHitFood(SDL_Rect food);
     };
+    void setFood(SDL_Rect &food, std::mt19937_64 &mt, std::uniform_int_distribution<> &col_dist, std::uniform_int_distribution<> &row_dist, snake::Snake snake);
 }
 #endif

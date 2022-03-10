@@ -94,6 +94,8 @@ namespace snake
         case 2:
             result = moveDown(deltaXY);
             break;
+        default:
+            throw std::runtime_error("Direction unknown")
         }
         return result;
     }
@@ -118,18 +120,20 @@ namespace snake
             init_piece.w = mWidth;
             init_piece.h = mHeight * length_factor;
             break;
+        default:
+            throw std::runtime_error("Direction unknown")
         }
         init_piece.x = x;
         init_piece.y = y;
         mPieces.push_back(init_piece);
         addPiece();
     }
-    bool Snake::checkHitSelf()
+    bool Snake::hasHitSelf()
     {
         int length = mPieces.size() - 2;
         bool result{};
-        SDL_Rect * head = &(mPieces.back());
-        SDL_Rect * penultimate = &(mPieces.at(mPenultimate));
+        SDL_Rect *head = &(mPieces.back());
+        SDL_Rect *penultimate = &(mPieces.at(mPenultimate));
         std::for_each_n(mPieces.cbegin(), mPieces.size() - 2, [&](SDL_Rect rect) mutable
                         // clang-format off
                         {
@@ -147,5 +151,17 @@ namespace snake
             // clang-format on 
             );
         return result;
+    }
+    bool Snake::hasHitFood(SDL_Rect* food){
+        bool result = std::any_of(std::execution::un_seq, mPieces.cbegin(), mPieces.cend(), [&](SDL_Rect piece){bool result = SDL_HasIntersection(&piece, food)});
+        return result
+    }
+    void setFood(SDL_Rect &food, std::mt19937_64 &mt, std::uniform_int_distribution<> &col_dist, std::uniform_int_distribution<> &row_dist, snake::Snake snake){
+        bool food_hit
+        do {
+            food.x = col_dist(mt);
+            food.y = row_dist(mt);
+            food_hit = snake::hasHitFood(&food);
+        } while (!food_hit);
     }
 }
