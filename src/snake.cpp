@@ -95,12 +95,15 @@ int main()
             }
             auto end = std::chrono::steady_clock::now();
             std::chrono::duration<double> elapsed = end - start;
-            bool hit_boundary = snake_instance.move(elapsed.count(), new_direction);
+            char hit_boundary = snake_instance.move(elapsed.count(), new_direction);
             if (hit_boundary == 1)
             {
                 std::cout << "Hit boundary" << std::endl;
+            } else if (hit_boundary == 2){
+                std::cout << "Hit self" << std::endl;
             }
             bool hit_food = snake_instance.hasHitFood(&food);
+
             if (hit_food)
             {
                 std::cout << "Hit food" << std::endl;
@@ -114,7 +117,7 @@ int main()
                 auto delay = TARGET_DELAY - elapsed;
                 std::this_thread::sleep_for(delay);
             } else {
-                
+
             }
 
         }

@@ -74,6 +74,7 @@ namespace snake
     }
     char Snake::move(double deltaT, char new_direction)
     {
+        bool check_penultimate{true}; // check penultimate <-> penultimate - 1
         if ((new_direction != 0) && std::abs(new_direction) != mDirectionAbs) // Same or opposite direction
         {
             mDirection = new_direction;
@@ -81,6 +82,7 @@ namespace snake
             if ((mPieces.back().w != mWidth) || (mPieces.back().h != mHeight))
             {
                 addPiece();
+                check_penultimate = false; // DO not check penultimate - 1
             }
             addPiece();
         }
@@ -102,6 +104,9 @@ namespace snake
             break;
         default:
             throw std::runtime_error("Direction: " + std::to_string(mDirection) + " unknown");
+        }
+        if (hasHitSelf(check_penultimate)){
+            result = 2;
         }
         return result;
     }
@@ -133,28 +138,20 @@ namespace snake
         addPiece();
         mPenultimate = 0;
     }
-    bool Snake::hasHitSelf()
-    {
-        int length = mPieces.size() - 2;
+    bool Snake::hasHitSelf(const bool check_penultimate)
+    {   int end = 3;
+        if (check_penultimate){
+            end = 2;
+        }
+        int length = mPieces.size() - end;
         bool result{};
-        SDL_Rect *head = &(mPieces.back());
-        SDL_Rect *penultimate = &(mPieces.at(mPenultimate));
-        std::for_each_n(mPieces.cbegin(), mPieces.size() - 2, [&](SDL_Rect rect) mutable
-                        // clang-format off
-                        {
-                            SDL_bool head_hit = SDL_HasIntersection(&rect, head);
-                            if (head_hit == SDL_TRUE){
-                                result = true;
-                                return;
-                            } else {
-                                SDL_bool penultimate_hit = SDL_HasIntersection(&rect, penultimate);
-                                if (penultimate_hit == SDL_TRUE){
-                                    result = true;
-                                }
-                            }
-                        }
-            // clang-format on 
-            );
+        for (int i = 0; i <= length; i++){
+            SDL_bool head_hit = SDL_HasIntersection(&mPieces.at(i), &mPieces.back());
+            SDL_bool penum_hit = SDL_HasIntersection(&mPieces.at(i), &mPieces.at(mPenultimate));
+            if ((head_hit == SDL_TRUE) || (penum_hit == SDL_TRUE)){
+                result = true;
+            }
+        }
         return result;
     }
     bool Snake::hasHitFood(SDL_Rect* food){
