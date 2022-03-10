@@ -74,7 +74,6 @@ namespace snake
     }
     char Snake::move(double deltaT, char new_direction)
     {
-        bool check_penultimate{true}; // check penultimate <-> penultimate - 1
         if ((new_direction != 0) && std::abs(new_direction) != mDirectionAbs) // Same or opposite direction
         {
             mDirection = new_direction;
@@ -82,7 +81,11 @@ namespace snake
             if ((mPieces.back().w != mWidth) || (mPieces.back().h != mHeight))
             {
                 addPiece();
-                check_penultimate = false; // DO not check penultimate - 1
+                mCheckThirdLast = false;
+            }
+            else
+            {
+                mCheckThirdLast = true;
             }
             addPiece();
         }
@@ -105,7 +108,8 @@ namespace snake
         default:
             throw std::runtime_error("Direction: " + std::to_string(mDirection) + " unknown");
         }
-        if (hasHitSelf(check_penultimate)){
+        if (mPieces.size() > 3 && hasHitSelf())
+        {
             result = 2;
         }
         return result;
@@ -138,39 +142,44 @@ namespace snake
         addPiece();
         mPenultimate = 0;
     }
-    bool Snake::hasHitSelf(const bool check_penultimate)
-    {   int end = 3;
-        if (check_penultimate){
-            end = 2;
-        }
-        int length = mPieces.size() - end;
+    bool Snake::hasHitSelf()
+    {
         bool result{};
-        for (int i = 0; i <= length; i++){
+        for (int i = 0; i < mPieces.size() - 3; i++)
+        {
             SDL_bool head_hit = SDL_HasIntersection(&mPieces.at(i), &mPieces.back());
             SDL_bool penum_hit = SDL_HasIntersection(&mPieces.at(i), &mPieces.at(mPenultimate));
-            if ((head_hit == SDL_TRUE) || (penum_hit == SDL_TRUE)){
+            if ((head_hit == SDL_TRUE) || (penum_hit == SDL_TRUE))
+            {
                 result = true;
             }
         }
         return result;
     }
-    bool Snake::hasHitFood(SDL_Rect* food){
-        bool result = std::any_of(std::execution::unseq, mPieces.cbegin(), mPieces.cend(), [&](SDL_Rect piece){bool result = SDL_HasIntersection(&piece, food) == SDL_TRUE; return result;});
+    bool Snake::hasHitFood(SDL_Rect *food)
+    {
+        bool result = std::any_of(std::execution::unseq, mPieces.cbegin(), mPieces.cend(), [&](SDL_Rect piece)
+                                  {bool result = SDL_HasIntersection(&piece, food) == SDL_TRUE; return result; });
         return result;
     }
-    void setFood(SDL_Rect &food, std::mt19937_64 &mt, std::uniform_int_distribution<> &col_dist, std::uniform_int_distribution<> &row_dist, Snake snake_instance){
+    void setFood(SDL_Rect &food, std::mt19937_64 &mt, std::uniform_int_distribution<> &col_dist, std::uniform_int_distribution<> &row_dist, Snake snake_instance)
+    {
         bool food_hit{};
-        do {
+        do
+        {
             food.x = col_dist(mt);
             food.y = row_dist(mt);
             food_hit = snake_instance.hasHitFood(&food);
         } while (food_hit);
     }
-    void drawSnake(sdl2_util::Renderer &renderer, Snake snake_instance){
+    void drawSnake(sdl2_util::Renderer &renderer, Snake snake_instance)
+    {
         renderer.setLiveColor();
-        std::for_each(std::execution::unseq, snake_instance.mPieces.cbegin(), snake_instance.mPieces.cend(), [&](SDL_Rect rect){renderer.fillRect(&rect);});
+        std::for_each(std::execution::unseq, snake_instance.mPieces.cbegin(), snake_instance.mPieces.cend(), [&](SDL_Rect rect)
+                      { renderer.fillRect(&rect); });
     }
-    void drawFood(sdl2_util::Renderer &renderer, SDL_Rect* food){
+    void drawFood(sdl2_util::Renderer &renderer, SDL_Rect *food)
+    {
         renderer.setRenderDrawColor("green");
         renderer.fillRect(food);
     }

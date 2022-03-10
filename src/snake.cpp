@@ -31,7 +31,7 @@ int main()
         constexpr int CELL_WIDTH = CELL_HEIGHT;
         constexpr char INIT_DIRECTION = -1;
         constexpr int LENGTH_FACTOR = 3;
-        const double SPEED = 50000;
+        const double SPEED = 8000;
         snake::Snake snake_instance = snake::Snake{x, y, CELL_WIDTH, CELL_HEIGHT, LENGTH_FACTOR, INIT_DIRECTION, WINDOW_WIDTH, WINDOW_HEIGHT, SPEED};
         SDL_Init(SDL_INIT_VIDEO); // Initialize SDL2
         sdl2_util::Window window{
@@ -60,6 +60,7 @@ int main()
         bool quit{};
         const unsigned char *keystate = SDL_GetKeyboardState(nullptr);
         SDL_Event event{};
+        std::chrono::duration<double> elapsed = TARGET_DELAY;
         while (!quit)
         {
             auto start = std::chrono::steady_clock::now();
@@ -93,19 +94,30 @@ int main()
             {
                 new_direction = 2;
             }
-            auto end = std::chrono::steady_clock::now();
-            std::chrono::duration<double> elapsed = end - start;
             char hit_boundary = snake_instance.move(elapsed.count(), new_direction);
-            if (hit_boundary == 1)
+            if (hit_boundary > 0)
             {
-                std::cout << "Hit boundary" << std::endl;
-            } else if (hit_boundary == 2){
-                std::cout << "Hit self" << std::endl;
+                if (hit_boundary == 1)
+                {
+                    std::cout << "Hit boundary" << std::endl;
+                }
+                else if (hit_boundary == 2)
+                {
+                    std::cout << "Hit self" << std::endl;
+                }
+                SDL_FlushEvents(SDL_TEXTINPUT, SDL_MOUSEWHEEL);
+                SDL_WaitEvent(&event);
+                switch (event.type)
+                {
+                case SDL_KEYUP:
+                    quit = true;
+                    break;
+                }
             }
             bool hit_food = snake_instance.hasHitFood(&food);
-
             if (hit_food)
             {
+                point_counter++;
                 std::cout << "Hit food" << std::endl;
                 snake::setFood(food, mt, col_dist, row_dist, snake_instance);
                 snake::drawFood(renderer, &food);
@@ -113,13 +125,14 @@ int main()
             snake::drawSnake(renderer, snake_instance);
             snake::drawFood(renderer, &food);
             renderer.present("black");
-            if (TARGET_DELAY > elapsed){
+            auto end = std::chrono::steady_clock::now();
+            elapsed = end - start;
+            std::cout << elapsed.count() << std::endl;
+            if (TARGET_DELAY > elapsed)
+            {
                 auto delay = TARGET_DELAY - elapsed;
                 std::this_thread::sleep_for(delay);
-            } else {
-
             }
-
         }
     }
 
