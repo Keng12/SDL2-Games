@@ -17,7 +17,7 @@ namespace snake
         {
             mPieces.back().x = new_x;
             mPieces.back().w = mPieces.back().w + deltaXY;
-            std::cout <<mPieces.back().w << std::endl;
+            std::cout << mPieces.back().w << std::endl;
             return 0;
         }
     };
@@ -65,24 +65,25 @@ namespace snake
     };
     void Snake::addPiece()
     {
-        mPieces.push_back(mPieces.back());
-        mPieces.back().w = mWidth;
-        mPieces.back().h = mHeight;
         SDL_Rect new_piece{};
         new_piece.x = mPieces.back().x;
         new_piece.y = mPieces.back().y;
         new_piece.w = mWidth;
         new_piece.h = mHeight;
         mPieces.push_back(new_piece);
+        mPenultimate++;
     }
     char Snake::move(double deltaT, char new_direction)
     {
         if ((new_direction != 0) && std::abs(new_direction) != mDirectionAbs) // Same or opposite direction
         {
-            addPiece();
             mDirection = new_direction;
             mDirectionAbs = std::abs(mDirection);
-            mPenultimate++;
+            if ((mPieces.back().w != mWidth) || (mPieces.back().h != mHeight))
+            {
+                addPiece();
+            }
+            addPiece();
         }
         int deltaXY = static_cast<int>(deltaT * mSpeed);
         std::cout << "deltaT" << deltaT << deltaXY << std::endl;
@@ -132,7 +133,7 @@ namespace snake
         init_piece.y = y;
         mPieces.push_back(init_piece);
         addPiece();
-        mPenultimate =0;
+        mPenultimate = 0;
     }
     bool Snake::hasHitSelf()
     {
@@ -172,9 +173,6 @@ namespace snake
     }
     void drawSnake(sdl2_util::Renderer &renderer, Snake snake_instance){
         renderer.setLiveColor();
-        for (auto element: snake_instance.mPieces){
-            renderer.fillRect(&element);
-        }
-      //  std::for_each(std::execution::unseq, snake_instance.mPieces.cbegin(), snake_instance.mPieces.cend(), [&](SDL_Rect rect){renderer.fillRect(&rect);});
+        std::for_each(std::execution::unseq, snake_instance.mPieces.cbegin(), snake_instance.mPieces.cend(), [&](SDL_Rect rect){renderer.fillRect(&rect);});
     }
 }
