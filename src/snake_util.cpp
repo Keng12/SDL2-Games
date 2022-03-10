@@ -2,7 +2,8 @@
 #include <cstdlib>
 #include <algorithm>
 #include <execution>
-
+#include "sdl2_util/video.hpp"
+#include <iostream>
 namespace snake
 {
     char Snake::moveLeft(int deltaXY)
@@ -15,7 +16,8 @@ namespace snake
         else
         {
             mPieces.back().x = new_x;
-            mPieces.back().w = mWidth + deltaXY;
+            mPieces.back().w = mPieces.back().w + deltaXY;
+            std::cout <<mPieces.back().w << std::endl;
             return 0;
         }
     };
@@ -43,7 +45,7 @@ namespace snake
         else
         {
             mPieces.back().y = new_y;
-            mPieces.back().h = mHeight + deltaXY;
+            mPieces.back().h = mPieces.back().h + deltaXY;
             return 0;
         }
     };
@@ -63,6 +65,9 @@ namespace snake
     };
     void Snake::addPiece()
     {
+        mPieces.push_back(mPieces.back());
+        mPieces.back().w = mWidth;
+        mPieces.back().h = mHeight;
         SDL_Rect new_piece{};
         new_piece.x = mPieces.back().x;
         new_piece.y = mPieces.back().y;
@@ -72,13 +77,15 @@ namespace snake
     }
     char Snake::move(double deltaT, char new_direction)
     {
-        if (std::abs(new_direction) != mDirectionAbs) // Same or opposite direction
+        if ((new_direction != 0) && std::abs(new_direction) != mDirectionAbs) // Same or opposite direction
         {
             addPiece();
             mDirection = new_direction;
             mDirectionAbs = std::abs(mDirection);
+            mPenultimate++;
         }
         int deltaXY = static_cast<int>(deltaT * mSpeed);
+        std::cout << "deltaT" << deltaT << deltaXY << std::endl;
         char result{};
         switch (mDirection)
         {
@@ -99,8 +106,8 @@ namespace snake
         }
         return result;
     }
-    Snake::Snake(const int x, const int y, const int width, const int height, const int length_factor, const char direction, const int window_width, const int window_height)
-    : mHeight{height}, mWidth{width}, mWindowWidth{window_width}, mWindowHeight{window_height}, mDirection{direction}
+    Snake::Snake(const int x, const int y, const int width, const int height, const int length_factor, const char direction, const int window_width, const int window_height, const double speed)
+        : mHeight{height}, mWidth{width}, mWindowWidth{window_width}, mWindowHeight{window_height}, mDirection{direction}, mSpeed{speed}
     {
         SDL_Rect init_piece{};
         if (direction == 1)
@@ -125,6 +132,7 @@ namespace snake
         init_piece.y = y;
         mPieces.push_back(init_piece);
         addPiece();
+        mPenultimate =0;
     }
     bool Snake::hasHitSelf()
     {
@@ -161,5 +169,12 @@ namespace snake
             food.y = row_dist(mt);
             food_hit = snake_instance.hasHitFood(&food);
         } while (!food_hit);
+    }
+    void drawSnake(sdl2_util::Renderer &renderer, Snake snake_instance){
+        renderer.setLiveColor();
+        for (auto element: snake_instance.mPieces){
+            renderer.fillRect(&element);
+        }
+      //  std::for_each(std::execution::unseq, snake_instance.mPieces.cbegin(), snake_instance.mPieces.cend(), [&](SDL_Rect rect){renderer.fillRect(&rect);});
     }
 }

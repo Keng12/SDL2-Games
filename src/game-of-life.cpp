@@ -38,7 +38,6 @@ int main()
         WINDOW_HEIGHT,           // height, in pixels
         SDL_WINDOW_RESIZABLE};   // Declare a pointer
     sdl2_util::Renderer renderer{window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED};
-    SDL_Event event{};
     std::random_device rd{};
     std::mt19937 mt(rd());
     std::uniform_int_distribution<> dist(0, 1);
@@ -59,6 +58,7 @@ int main()
     }
     renderer.present("black");
     SDL_Log("Finished init");
+    SDL_Event event{};
     bool quit = false;
     while (!quit)
     {
