@@ -21,6 +21,7 @@ int main()
     {
         constexpr double FPS = 60;
         constexpr std::chrono::duration<double> TARGET_DELAY = std::chrono::duration<double>{1 / FPS};
+        constexpr double defDeltaT = TARGET_DELAY.count(); 
         constexpr int WINDOW_HEIGHT = 720;
         constexpr int N_ROWS = 72;
         constexpr int vertical_remainder = WINDOW_HEIGHT % N_ROWS;
@@ -144,17 +145,17 @@ int main()
             snake::draw_board(renderer, board_state, rect_array);
             renderer.present("black");
             auto end = std::chrono::steady_clock::now();
-            std::chrono::duration<double> elapsed = end - start;
+            std::chrono::duration<double> elapsed_time = end - start;
             double speed{};
-            if (elapsed < TARGET_DELAY)
+            if (elapsed_time < TARGET_DELAY)
             {
-                auto delay = TARGET_DELAY - elapsed;
+                auto delay = TARGET_DELAY - elapsed_time;
                 std::this_thread::sleep_for(delay);
-                speed = TARGET_DELAY.count();
+                speed = defDeltaT;
             }
             else
             {
-                speed = elapsed.count();
+                speed = elapsed_time.count();
             }
             std::cout << "FPS: " << speed << std::endl;
         }

@@ -107,5 +107,12 @@ namespace snake
         std::iota(indices.begin(), indices.end(), 0);
         return indices;
     }
+    struct Snake{
+        std::vector<SDL_Rect> mPieces {};
+        std::string mDirection{};
+        double mSpeed{};
+        int moveLeft(int deltaT);
+        Snake(const int length_factor);
+    };
 }
 #endif
