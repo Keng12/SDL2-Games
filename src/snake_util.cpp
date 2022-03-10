@@ -22,15 +22,14 @@ namespace snake
     };
     char Snake::moveRight(int deltaXY)
     {
-        int new_x = mPieces.back().x + deltaXY;
-        if (new_x + mWidth >= mWindowWidth)
+        int new_w = mPieces.back().w + deltaXY;
+        if (mPieces.back().x + new_w >= mWindowWidth)
         {
             return 1;
         }
         else
         {
-            mPieces.back().x = new_x;
-            mPieces.at(mPenultimate).w = mPieces.at(mPenultimate).w + deltaXY;
+            mPieces.back().w = new_w;
             return 0;
         }
     };
@@ -50,44 +49,45 @@ namespace snake
     };
     char Snake::moveDown(int deltaXY)
     {
-        int new_y = mPieces.back().y + deltaXY;
-        if (new_y + mHeight >= mWindowHeight)
+        int new_h = mPieces.back().h + deltaXY;
+        if (mPieces.back().y + new_h >= mWindowHeight)
         {
             return 1;
         }
         else
         {
-            mPieces.back().y = new_y;
-            mPieces.at(mPenultimate).h = mPieces.at(mPenultimate).h + deltaXY;
+            mPieces.back().h = new_h;
             return 0;
         }
     };
     void Snake::addPiece()
     {
         SDL_Rect new_piece{};
-        new_piece.x = mPieces.back().x;
-        new_piece.y = mPieces.back().y;
         new_piece.w = mWidth;
         new_piece.h = mHeight;
+        switch (mDirection)
+        {
+        case 1: // Move right
+            new_piece.x = mPieces.back().x + mPieces.back().w - mWidth;
+            new_piece.y = mPieces.back().y;
+            break;
+        case 2: // Move down
+            new_piece.x = mPieces.back().x;
+            new_piece.y = mPieces.back().y + mPieces.back().h - mHeight;
+            break;
+        default:
+            new_piece.x = mPieces.back().x;
+            new_piece.y = mPieces.back().y;
+        }
         mPieces.push_back(new_piece);
-        mPenultimate++;
     }
     char Snake::move(double deltaT, char new_direction)
     {
         if ((new_direction != 0) && std::abs(new_direction) != mDirectionAbs) // Same or opposite direction
         {
+            addPiece();
             mDirection = new_direction;
             mDirectionAbs = std::abs(mDirection);
-            if ((mPieces.back().w != mWidth) || (mPieces.back().h != mHeight))
-            {
-                addPiece();
-                mCheckThirdLast = false;
-            }
-            else
-            {
-                mCheckThirdLast = true;
-            }
-            addPiece();
         }
         int deltaXY = static_cast<int>(deltaT * mSpeed);
         if (deltaXY > mSpeedMax)
@@ -157,8 +157,7 @@ namespace snake
         for (int i = 0; i < mPieces.size() - 3; i++)
         {
             SDL_bool head_hit = SDL_HasIntersection(&mPieces.at(i), &mPieces.back());
-            SDL_bool penum_hit = SDL_HasIntersection(&mPieces.at(i), &mPieces.at(mPenultimate));
-            if ((head_hit == SDL_TRUE) || (penum_hit == SDL_TRUE))
+            if (head_hit == SDL_TRUE)
             {
                 result = true;
             }
