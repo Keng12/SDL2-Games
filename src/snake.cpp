@@ -16,7 +16,6 @@ int main()
 {
     constexpr int INIT_SNAKE_LENGTH = 3;
     size_t point_counter = 0;
-    size_t snake_length = INIT_SNAKE_LENGTH;
     try
     {
         constexpr double FPS = 60;
@@ -95,6 +94,7 @@ int main()
                 new_direction = 2;
             }
             char hit_boundary = snake_instance.move(elapsed.count(), new_direction);
+            snake::drawSnake(renderer, snake_instance);
             if (hit_boundary > 0)
             {
                 if (hit_boundary == 1)
@@ -120,9 +120,7 @@ int main()
                 point_counter++;
                 std::cout << "Hit food" << std::endl;
                 snake::setFood(food, mt, col_dist, row_dist, snake_instance);
-                snake::drawFood(renderer, &food);
             }
-            snake::drawSnake(renderer, snake_instance);
             snake::drawFood(renderer, &food);
             renderer.present("black");
             auto end = std::chrono::steady_clock::now();
@@ -142,7 +140,7 @@ int main()
         std::cerr << ex.what() << std::endl;
     }
     // Clean up
-    std::cout << "Quit, points: " << point_counter << ", snake length: " << snake_length << std::endl;
+    std::cout << "Quit, points: " << point_counter << std::endl;
     SDL_Quit();
     return 0;
 }
