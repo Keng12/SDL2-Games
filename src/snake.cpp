@@ -28,11 +28,11 @@ int main()
         constexpr int CELL_HEIGHT = WINDOW_HEIGHT / SCALE_FACTOR;
         constexpr int WINDOW_WIDTH = 1280;
         constexpr int x = WINDOW_WIDTH / 2;
-        constexpr int CELL_WIDTH = WINDOW_WIDTH / SCALE_FACTOR;
+        constexpr int CELL_WIDTH = CELL_HEIGHT;
         constexpr char INIT_DIRECTION = -1;
         constexpr int LENGTH_FACTOR = 3;
         const double SPEED = 50000;
-        snake::Snake snake_instance = snake::Snake{x, y, CELL_WIDTH, CELL_WIDTH, LENGTH_FACTOR, INIT_DIRECTION, WINDOW_WIDTH, WINDOW_HEIGHT, SPEED};
+        snake::Snake snake_instance = snake::Snake{x, y, CELL_WIDTH, CELL_HEIGHT, LENGTH_FACTOR, INIT_DIRECTION, WINDOW_WIDTH, WINDOW_HEIGHT, SPEED};
         SDL_Init(SDL_INIT_VIDEO); // Initialize SDL2
         sdl2_util::Window window{
             "Snake",                 // window title
@@ -52,6 +52,8 @@ int main()
         std::uniform_int_distribution<> row_dist{0, WINDOW_HEIGHT - 1 - CELL_HEIGHT};
         // Set food randomly
         snake::setFood(food, mt, col_dist, row_dist, snake_instance);
+        snake::drawFood(renderer, &food);
+        std::cout << "X " << WINDOW_WIDTH - 1 - CELL_WIDTH << "Y " << WINDOW_HEIGHT - 1 - CELL_HEIGHT << std::endl;
         snake::drawSnake(renderer, snake_instance);
         renderer.present("black");
         SDL_Log("Finished init");
@@ -91,7 +93,6 @@ int main()
             {
                 new_direction = 2;
             }
-            std::cout << std::to_string(new_direction) << std::endl;
             auto end = std::chrono::steady_clock::now();
             std::chrono::duration<double> elapsed = end - start;
             bool hit_boundary = snake_instance.move(elapsed.count(), new_direction);
@@ -99,9 +100,23 @@ int main()
             {
                 std::cout << "Hit boundary" << std::endl;
             }
+            bool hit_food = snake_instance.hasHitFood(&food);
+            if (hit_food)
+            {
+                std::cout << "Hit food" << std::endl;
+                snake::setFood(food, mt, col_dist, row_dist, snake_instance);
+                snake::drawFood(renderer, &food);
+            }
             snake::drawSnake(renderer, snake_instance);
+            snake::drawFood(renderer, &food);
             renderer.present("black");
-            std::this_thread::sleep_for(TARGET_DELAY - elapsed);
+            if (TARGET_DELAY > elapsed){
+                auto delay = TARGET_DELAY - elapsed;
+                std::this_thread::sleep_for(delay);
+            } else {
+                
+            }
+
         }
     }
 

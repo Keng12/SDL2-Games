@@ -17,7 +17,6 @@ namespace snake
         {
             mPieces.back().x = new_x;
             mPieces.back().w = mPieces.back().w + deltaXY;
-            std::cout << mPieces.back().w << std::endl;
             return 0;
         }
     };
@@ -86,7 +85,6 @@ namespace snake
             addPiece();
         }
         int deltaXY = static_cast<int>(deltaT * mSpeed);
-        std::cout << "deltaT" << deltaT << deltaXY << std::endl;
         char result{};
         switch (mDirection)
         {
@@ -160,19 +158,23 @@ namespace snake
         return result;
     }
     bool Snake::hasHitFood(SDL_Rect* food){
-        bool result = std::any_of(std::execution::unseq, mPieces.cbegin(), mPieces.cend(), [&](SDL_Rect piece){bool result = SDL_HasIntersection(&piece, food); return result;});
+        bool result = std::any_of(std::execution::unseq, mPieces.cbegin(), mPieces.cend(), [&](SDL_Rect piece){bool result = SDL_HasIntersection(&piece, food) == SDL_TRUE; return result;});
         return result;
     }
     void setFood(SDL_Rect &food, std::mt19937_64 &mt, std::uniform_int_distribution<> &col_dist, std::uniform_int_distribution<> &row_dist, Snake snake_instance){
-        bool food_hit;
+        bool food_hit{};
         do {
             food.x = col_dist(mt);
             food.y = row_dist(mt);
             food_hit = snake_instance.hasHitFood(&food);
-        } while (!food_hit);
+        } while (food_hit);
     }
     void drawSnake(sdl2_util::Renderer &renderer, Snake snake_instance){
         renderer.setLiveColor();
         std::for_each(std::execution::unseq, snake_instance.mPieces.cbegin(), snake_instance.mPieces.cend(), [&](SDL_Rect rect){renderer.fillRect(&rect);});
+    }
+    void drawFood(sdl2_util::Renderer &renderer, SDL_Rect* food){
+        renderer.setRenderDrawColor("green");
+        renderer.fillRect(food);
     }
 }

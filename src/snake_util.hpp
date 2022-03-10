@@ -34,5 +34,6 @@ namespace snake
     };
     void setFood(SDL_Rect &food, std::mt19937_64 &mt, std::uniform_int_distribution<> &col_dist, std::uniform_int_distribution<> &row_dist, snake::Snake snake);
     void drawSnake(sdl2_util::Renderer &renderer, Snake snake_instance);
+    void drawFood(sdl2_util::Renderer &renderer, SDL_Rect* food);
 }
 #endif
