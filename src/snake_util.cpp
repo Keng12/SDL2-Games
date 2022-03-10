@@ -61,7 +61,7 @@ namespace snake
             return 0;
         }
     };
-    int Snake::addPiece()
+    void Snake::addPiece()
     {
         SDL_Rect new_piece{};
         new_piece.x = mPieces.back().x;
@@ -106,7 +106,9 @@ namespace snake
         {
             throw std::runtime_error("Must not move right initially")
         }
-        swith(std::abs(direction))
+        mDirection = direction;
+        mDirectionAbs = std::abs(direction);
+        switch (mDirectionAbs)
         {
         case 1:
             init_piece.w = mWidth * length_factor;
@@ -117,8 +119,6 @@ namespace snake
             init_piece.h = mHeight * length_factor;
             break;
         }
-        init_piece.w = mWidth;
-        init_piece.h = mHeight;
         init_piece.x = x;
         init_piece.y = y;
         mPieces.push_back(init_piece);
