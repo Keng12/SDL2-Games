@@ -83,12 +83,6 @@ namespace snake
     }
     char Snake::move(double deltaT, char new_direction)
     {
-        if ((new_direction != 0) && std::abs(new_direction) != mDirectionAbs) // Same or opposite direction
-        {
-            addPiece();
-            mDirection = new_direction;
-            mDirectionAbs = std::abs(mDirection);
-        }
         int deltaXY = static_cast<int>(deltaT * mSpeed);
         if (deltaXY > mSpeedMax)
         {
@@ -97,6 +91,14 @@ namespace snake
         else if (deltaXY == 0)
         {
             deltaXY = 1;
+        }
+
+        if ((new_direction != 0) && std::abs(new_direction) != mDirectionAbs) // Same or opposite direction
+        {
+            addPiece();
+            deltaXY = mWidth;
+            mDirection = new_direction;
+            mDirectionAbs = std::abs(mDirection);
         }
         std::cout << deltaXY << std::endl;
         char result{};
@@ -123,7 +125,7 @@ namespace snake
         }
         return result;
     }
-    Snake::Snake(const int x, const int y, const int width, const int height, const int length_factor, const char direction, const int window_width, const int window_height, const double speed, const double speedMax)
+    Snake::Snake(const int x, const int y, const int width, const int height, const char direction, const int window_width, const int window_height, const double speed, const double speedMax)
         : mHeight{height}, mWidth{width}, mWindowWidth{window_width}, mWindowHeight{window_height}, mDirection{direction}, mSpeed{speed}, mSpeedMax{speedMax}
     {
         SDL_Rect init_piece{};
@@ -132,19 +134,8 @@ namespace snake
             throw std::runtime_error("Must not move right initially");
         }
         mDirectionAbs = std::abs(mDirection);
-        switch (mDirectionAbs)
-        {
-        case 1:
-            init_piece.w = mWidth * length_factor;
-            init_piece.h = mHeight;
-            break;
-        case 2:
-            init_piece.w = mWidth;
-            init_piece.h = mHeight * length_factor;
-            break;
-        default:
-            throw std::runtime_error("Direction: " + std::to_string(mDirection) + " unknown");
-        }
+        init_piece.w = mWidth;
+        init_piece.h = mHeight;
         init_piece.x = x;
         init_piece.y = y;
         mPieces.push_back(init_piece);

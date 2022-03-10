@@ -23,16 +23,16 @@ int main()
         constexpr double defDeltaT = TARGET_DELAY.count();
         constexpr int WINDOW_HEIGHT = 500;
         constexpr int y = WINDOW_HEIGHT / 2;
-        constexpr int SCALE_FACTOR = 10;
+        constexpr int SCALE_FACTOR = 50;
         constexpr int CELL_HEIGHT = WINDOW_HEIGHT / SCALE_FACTOR;
         constexpr int WINDOW_WIDTH = 1280;
         constexpr int x = WINDOW_WIDTH / 2;
         constexpr int CELL_WIDTH = CELL_HEIGHT;
         constexpr char INIT_DIRECTION = -1;
-        constexpr int LENGTH_FACTOR = 3;
-        const double SPEED = 8000;
+        const double SPEED = 7000;
         constexpr int SPEED_MAX=3;
-        snake::Snake snake_instance = snake::Snake{x, y, CELL_WIDTH, CELL_HEIGHT, LENGTH_FACTOR, INIT_DIRECTION, WINDOW_WIDTH, WINDOW_HEIGHT, SPEED, SPEED_MAX};
+        std::cout << "CELL HEIGHT: " << CELL_HEIGHT << std::endl;
+        snake::Snake snake_instance = snake::Snake{x, y, CELL_WIDTH, CELL_HEIGHT, INIT_DIRECTION, WINDOW_WIDTH, WINDOW_HEIGHT, SPEED, SPEED_MAX};
         SDL_Init(SDL_INIT_VIDEO); // Initialize SDL2
         sdl2_util::Window window{
             "Snake",                 // window title
