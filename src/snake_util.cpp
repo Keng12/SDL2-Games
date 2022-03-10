@@ -129,10 +129,6 @@ namespace snake
         : mHeight{height}, mWidth{width}, mWindowWidth{window_width}, mWindowHeight{window_height}, mDirection{direction}, mSpeed{speed}, mSpeedMax{speedMax}
     {
         SDL_Rect init_piece{};
-        if (direction == 1)
-        {
-            throw std::runtime_error("Must not move right initially");
-        }
         mDirectionAbs = std::abs(mDirection);
         init_piece.w = mWidth;
         init_piece.h = mHeight;

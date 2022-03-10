@@ -23,14 +23,14 @@ int main()
         constexpr double defDeltaT = TARGET_DELAY.count();
         constexpr int WINDOW_HEIGHT = 500;
         constexpr int y = WINDOW_HEIGHT / 2;
-        constexpr int SCALE_FACTOR = 50;
+        constexpr int SCALE_FACTOR = 75;
         constexpr int CELL_HEIGHT = WINDOW_HEIGHT / SCALE_FACTOR;
-        constexpr int WINDOW_WIDTH = 1280;
+        constexpr int WINDOW_WIDTH = 500;
         constexpr int x = WINDOW_WIDTH / 2;
         constexpr int CELL_WIDTH = CELL_HEIGHT;
         constexpr char INIT_DIRECTION = -1;
-        const double SPEED = 7000;
-        constexpr int SPEED_MAX=3;
+        const double SPEED = 10000;
+        constexpr int SPEED_MAX = CELL_WIDTH;
         std::cout << "CELL HEIGHT: " << CELL_HEIGHT << std::endl;
         snake::Snake snake_instance = snake::Snake{x, y, CELL_WIDTH, CELL_HEIGHT, INIT_DIRECTION, WINDOW_WIDTH, WINDOW_HEIGHT, SPEED, SPEED_MAX};
         SDL_Init(SDL_INIT_VIDEO); // Initialize SDL2
@@ -108,12 +108,15 @@ int main()
                     std::cout << "Hit self" << std::endl;
                 }
                 SDL_FlushEvents(SDL_TEXTINPUT, SDL_MOUSEWHEEL);
-                SDL_WaitEvent(&event);
-                switch (event.type)
+                while (!quit)
                 {
-                case SDL_KEYUP:
-                    quit = true;
-                    break;
+                    SDL_WaitEvent(&event);
+                    switch (event.type)
+                    {
+                    case SDL_KEYUP:
+                        quit = true;
+                        break;
+                    }
                 }
             }
             bool hit_food = snake_instance.hasHitFood(&food);
