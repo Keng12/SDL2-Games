@@ -157,11 +157,7 @@ namespace snake
         for (int i = 0; i < mPieces.size() - 3; i++)
         {
             SDL_bool head_hit = SDL_HasIntersection(&mPieces.at(i), &mPieces.back());
-            SDL_bool penum_hit = SDL_FALSE;
-            if (i != mPieces.size() - 4)
-            {
-                penum_hit = SDL_HasIntersection(&mPieces.at(i), &mPieces.at(mPenultimate));
-            }
+            SDL_bool penum_hit = SDL_HasIntersection(&mPieces.at(i), &mPieces.at(mPenultimate));
             if ((head_hit == SDL_TRUE) || (penum_hit == SDL_TRUE))
             {
                 result = true;
