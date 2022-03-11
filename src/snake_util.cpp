@@ -135,7 +135,6 @@ namespace snake
         init_piece.x = x;
         init_piece.y = y;
         mPieces.push_back(init_piece);
-        addPiece();
         mPenultimate = 0;
     }
     bool Snake::hasHitSelf()
