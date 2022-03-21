@@ -21,11 +21,11 @@ int main()
         constexpr double FPS = 60;
         constexpr std::chrono::duration<double> TARGET_DELAY = std::chrono::duration<double>{1 / FPS};
         constexpr double defDeltaT = TARGET_DELAY.count();
-        constexpr int WINDOW_HEIGHT = 500;
+        constexpr int WINDOW_HEIGHT = 750;
         constexpr int y = WINDOW_HEIGHT / 2;
         constexpr int SCALE_FACTOR = 75;
         constexpr int CELL_HEIGHT = WINDOW_HEIGHT / SCALE_FACTOR;
-        constexpr int WINDOW_WIDTH = 500;
+        constexpr int WINDOW_WIDTH = 750;
         constexpr int x = WINDOW_WIDTH / 2;
         constexpr int CELL_WIDTH = CELL_HEIGHT;
         constexpr char INIT_DIRECTION = -1;
