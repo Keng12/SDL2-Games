@@ -60,6 +60,7 @@ int main()
         const unsigned char *keystate = SDL_GetKeyboardState(nullptr);
         SDL_Event event{};
         std::chrono::duration<double> elapsed = TARGET_DELAY;
+
         while (!quit)
         {
             auto start = std::chrono::steady_clock::now();
