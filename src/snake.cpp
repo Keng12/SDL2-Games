@@ -29,7 +29,7 @@ int main()
         constexpr int x = WINDOW_WIDTH / 2;
         constexpr int CELL_WIDTH = CELL_HEIGHT;
         constexpr char INIT_DIRECTION = -1;
-        const double SPEED = 10000;
+        constexpr double SPEED = 20000;
         constexpr int SPEED_MAX = CELL_WIDTH;
         std::cout << "CELL HEIGHT: " << CELL_HEIGHT << std::endl;
         snake::Snake snake_instance = snake::Snake{x, y, CELL_WIDTH, CELL_HEIGHT, INIT_DIRECTION, WINDOW_WIDTH, WINDOW_HEIGHT, SPEED, SPEED_MAX};
