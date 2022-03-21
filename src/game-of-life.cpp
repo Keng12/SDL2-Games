@@ -39,7 +39,7 @@ int main()
         SDL_WINDOW_RESIZABLE};   // Declare a pointer
     sdl2_util::Renderer renderer{window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED};
     std::random_device rd{};
-    std::mt19937 mt(rd());
+    std::mt19937_64 mt(rd());
     std::uniform_int_distribution<> dist(0, 1);
     renderer.renderClear("black");  // Clear to black screen
     renderer.setLiveColor(); // Set color to white
