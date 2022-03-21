@@ -15,5 +15,5 @@ target_sources(game-of-life PRIVATE src/sdl2_util/video.cpp src/gol_util.hpp src
 add_executable(snake src/snake.cpp)
 target_link_libraries(snake SDL2 TBB::tbb) 
 target_include_directories(snake PRIVATE ${SDL2_INCLUDE_DIRS})
-target_sources(snake PRIVATE src/sdl2_util/video.cpp src/snake_util.hpp src/game_util.hpp)
+target_sources(snake PRIVATE src/sdl2_util/video.cpp src/snake_util.cpp src/game_util.hpp)
 

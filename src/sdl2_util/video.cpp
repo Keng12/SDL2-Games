@@ -79,6 +79,10 @@ namespace sdl2_util
         {
             result = SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, 0);
         }
+        else if (color == "green")
+        {
+            result = SDL_SetRenderDrawColor(mRenderer, 0, 255, 0, 0);
+        }
         if (result != 0)
         {
             throw std::runtime_error("Failure setting render color: " + std::string{SDL_GetError()});
