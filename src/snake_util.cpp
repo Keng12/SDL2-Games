@@ -60,18 +60,25 @@ namespace snake
             return 0;
         }
     };
+    void Snake::changeDirection()
+    {
+        addPiece();
+        mDirection = mNewDirection;
+        mDirectionAbs = mNewDirectionAbs;
+    }
     void Snake::addPiece()
     {
+        // Call BEFORE setting new direction
         SDL_Rect new_piece{};
         new_piece.w = mWidth;
         new_piece.h = mHeight;
         switch (mDirection)
         {
-        case 1: // Move right
+        case 1: // Moving right currently
             new_piece.x = mPieces.back().x + mPieces.back().w - mWidth;
             new_piece.y = mPieces.back().y;
             break;
-        case 2: // Move down
+        case 2: // Moving down currently
             new_piece.x = mPieces.back().x;
             new_piece.y = mPieces.back().y + mPieces.back().h - mHeight;
             break;
@@ -92,13 +99,21 @@ namespace snake
         {
             deltaXY = 1;
         }
-
-        if ((new_direction != 0) && std::abs(new_direction) != mDirectionAbs) // Same or opposite direction
+        if (mWaitTurn)
         {
-            addPiece();
-            deltaXY = mWidth;
-            mDirection = new_direction;
-            mDirectionAbs = std::abs(mDirection);
+            int newCellIndex = getCellIndex();
+            if (newCellIndex != mOldCellIndex)
+            {
+                changeDirection();
+                mWaitTurn = false;
+            }
+        }
+        else if (!((new_direction == 0) || (std::abs(new_direction) == mDirectionAbs))) // Not same or opposite direction
+        {
+            mOldCellIndex = getCellIndex();
+            mWaitTurn = true;
+            mNewDirection = new_direction;
+            mNewDirectionAbs = std::abs(mDirection);
         }
         std::cout << deltaXY << std::endl;
         char result{};
@@ -125,6 +140,30 @@ namespace snake
         }
         return result;
     }
+
+    unsigned int Snake::getCellIndex()
+    {
+        unsigned int cell_index{};
+        switch (mDirection)
+        {
+        case 1: // Moving right currently
+            cell_index = (mPieces.back().x + mPieces.back().w - mWidth) / mWidth;
+            break;
+        case 2: // Moving down currently
+            cell_index = (mPieces.back().y + mPieces.back().h - mHeight) / mHeight;
+            break;
+        case -1:
+            cell_index = mPieces.back().x / mWidth;
+            break;
+        case -2:
+            cell_index = mPieces.back().y / mHeight;
+            break;
+        default:
+            throw std::runtime_error("Direction: " + std::to_string(mDirection) + " unknown");
+        }
+        return cell_index;
+    }
+
     Snake::Snake(const int x, const int y, const int width, const int height, const char direction, const int window_width, const int window_height, const double speed, const double speedMax)
         : mHeight{height}, mWidth{width}, mWindowWidth{window_width}, mWindowHeight{window_height}, mDirection{direction}, mSpeed{speed}, mSpeedMax{speedMax}
     {
@@ -160,9 +199,10 @@ namespace snake
     {
         bool food_hit{};
         do
-        {
-            food.x = col_dist(mt);
-            food.y = row_dist(mt);
+        {   int x = (col_dist(mt) / snake_instance.mWidth) * snake_instance.mWidth;
+            int y = (row_dist(mt) / snake_instance.mHeight) * snake_instance.mHeight;
+            food.x = x;
+            food.y = y;
             food_hit = snake_instance.hasHitFood(&food);
         } while (food_hit);
     }
