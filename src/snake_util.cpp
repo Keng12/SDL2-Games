@@ -4,7 +4,6 @@
 #include <execution>
 #include "sdl2_util/video.hpp"
 #include <iostream>
-#include <deque>
 
 namespace snake
 {
