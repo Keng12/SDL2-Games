@@ -4,6 +4,8 @@
 #include <execution>
 #include "sdl2_util/video.hpp"
 #include <iostream>
+#include <deque>
+
 namespace snake
 {
     char Snake::moveLeft(int deltaXY)
@@ -64,7 +66,7 @@ namespace snake
     {
         addPiece();
         mDirection = mNewDirection;
-        mDirectionAbs = mNewDirectionAbs;
+        mDirectionAbs = std::abs(mNewDirection);
     }
     void Snake::addPiece()
     {
@@ -88,6 +90,7 @@ namespace snake
         }
         mPieces.push_back(new_piece);
     }
+
     char Snake::move(double deltaT, char new_direction)
     {
         int deltaXY = static_cast<int>(deltaT * mSpeed);
@@ -101,19 +104,18 @@ namespace snake
         }
         if (mWaitTurn)
         {
-            int newCellIndex = getCellIndex();
-            if (newCellIndex != mOldCellIndex)
+            unsigned int newCellIndex = getCellIndex();
+            if (mOldCellIndex != newCellIndex)
             {
                 changeDirection();
                 mWaitTurn = false;
             }
         }
-        else if (!((new_direction == 0) || (std::abs(new_direction) == mDirectionAbs))) // Not same or opposite direction
+        else if ((new_direction != 0) && (std::abs(new_direction) != mDirectionAbs)) // Not same or opposite direction
         {
             mOldCellIndex = getCellIndex();
             mWaitTurn = true;
             mNewDirection = new_direction;
-            mNewDirectionAbs = std::abs(mDirection);
         }
         std::cout << deltaXY << std::endl;
         char result{};
@@ -158,8 +160,6 @@ namespace snake
         case -2:
             cell_index = mPieces.back().y / mHeight;
             break;
-        default:
-            throw std::runtime_error("Direction: " + std::to_string(mDirection) + " unknown");
         }
         return cell_index;
     }
@@ -174,7 +174,6 @@ namespace snake
         init_piece.x = x;
         init_piece.y = y;
         mPieces.push_back(init_piece);
-        mPenultimate = 0;
     }
     bool Snake::hasHitSelf()
     {
@@ -199,7 +198,8 @@ namespace snake
     {
         bool food_hit{};
         do
-        {   int x = (col_dist(mt) / snake_instance.mWidth) * snake_instance.mWidth;
+        {
+            int x = (col_dist(mt) / snake_instance.mWidth) * snake_instance.mWidth;
             int y = (row_dist(mt) / snake_instance.mHeight) * snake_instance.mHeight;
             food.x = x;
             food.y = y;

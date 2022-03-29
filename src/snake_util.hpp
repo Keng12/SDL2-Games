@@ -19,11 +19,9 @@ namespace snake
         int mHeight{};
         int mWindowHeight{};
         int mWindowWidth{};
-        int mPenultimate{};
         char mDirection{};
         int mDirectionAbs{};
         char mNewDirection{};
-        int mNewDirectionAbs{};
         double mSpeedMax{};
         bool mWaitTurn = false;
         char moveLeft(int deltaXY);
@@ -37,7 +35,7 @@ namespace snake
         bool hasHitFood(SDL_Rect *food);
         bool mCheckThirdLast{};
         unsigned int getCellIndex();
-        unsigned int mOldCellIndex;
+        unsigned int mOldCellIndex{};
         void changeDirection();
     };
     void setFood(SDL_Rect &food, std::mt19937_64 &mt, std::uniform_int_distribution<> &col_dist, std::uniform_int_distribution<> &row_dist, snake::Snake snake);
