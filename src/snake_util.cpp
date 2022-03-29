@@ -65,7 +65,7 @@ namespace snake
     {
         addPiece();
         mDirection = mNewDirection;
-        mDirectionAbs = std::abs(mNewDirection);
+        mDirectionAbs = std::abs(mDirection);
     }
     void Snake::addPiece()
     {
