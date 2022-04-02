@@ -251,6 +251,7 @@ namespace snake
 
     void Snake::growTail()
     {
+        std::cout<<"grow tail" << std::endl;
         growSnake(mPieces.back(), (-1) * mDirection.back(), mWidth / 2);
     }
 
