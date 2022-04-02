@@ -34,8 +34,8 @@ namespace snake
         bool hasHitSelf();
         bool hasHitFood(SDL_Rect *food);
         bool mCheckThirdLast{};
-        unsigned int getCellIndex();
-        unsigned int mOldCellIndex{};
+        int getMovingBound();
+        int mTarget{};
         void changeDirection();
     };
     void setFood(SDL_Rect &food, std::mt19937_64 &mt, std::uniform_int_distribution<> &col_dist, std::uniform_int_distribution<> &row_dist, snake::Snake snake);

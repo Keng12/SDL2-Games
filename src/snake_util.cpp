@@ -70,22 +70,31 @@ namespace snake
     void Snake::addPiece()
     {
         // Call BEFORE setting new direction
-        SDL_Rect new_piece{};
-        new_piece.w = mWidth;
-        new_piece.h = mHeight;
+        SDL_Rect new_piece{.w=mWidth, .h=mHeight};
         switch (mDirection)
         {
         case 1: // Moving right currently
             new_piece.x = mPieces.back().x + mPieces.back().w - mWidth;
             new_piece.y = mPieces.back().y;
+            mPieces.back().w = mPieces.back().w - mWidth;
             break;
         case 2: // Moving down currently
             new_piece.x = mPieces.back().x;
             new_piece.y = mPieces.back().y + mPieces.back().h - mHeight;
+            mPieces.back().h = mPieces.back().h - mHeight;
             break;
-        default:
+        case -1:
             new_piece.x = mPieces.back().x;
             new_piece.y = mPieces.back().y;
+            mPieces.back().x = mPieces.back().x + mWidth;
+            mPieces.back().w = mPieces.back().w - mWidth;
+            break;
+        case -2:
+            new_piece.x = mPieces.back().x;
+            new_piece.y = mPieces.back().y;
+            mPieces.back().y = mPieces.back().y + mHeight;
+            mPieces.back().h = mPieces.back().h - mHeight;
+            break;
         }
         mPieces.push_back(new_piece);
     }
@@ -103,8 +112,8 @@ namespace snake
         }
         if (mWaitTurn)
         {
-            unsigned int newCellIndex = getCellIndex();
-            if (mOldCellIndex != newCellIndex)
+            int bound = getMovingBound();
+            if ((mDirection > 0 && bound >= mTarget) || (mDirection < 0 && bound <= mTarget))
             {
                 changeDirection();
                 mWaitTurn = false;
@@ -112,7 +121,22 @@ namespace snake
         }
         else if ((new_direction != 0) && (std::abs(new_direction) != mDirectionAbs)) // Not same or opposite direction
         {
-            mOldCellIndex = getCellIndex();
+            int bound = getMovingBound();
+            switch (mDirection)
+            {
+            case 1: // Moving right currently
+                mTarget = bound + mWidth;
+                break;
+            case 2: // Moving down currently
+                mTarget = bound + mHeight;
+                break;
+            case -1:
+                mTarget = bound - mWidth;
+                break;
+            case -2:
+                mTarget = bound - mHeight;
+                break;
+            }
             mWaitTurn = true;
             mNewDirection = new_direction;
         }
@@ -142,25 +166,25 @@ namespace snake
         return result;
     }
 
-    unsigned int Snake::getCellIndex()
+    int Snake::getMovingBound()
     {
-        unsigned int cell_index{};
+        unsigned int movingBound{};
         switch (mDirection)
         {
         case 1: // Moving right currently
-            cell_index = (mPieces.back().x + mPieces.back().w - mWidth) / mWidth;
+            movingBound = mPieces.back().x + mPieces.back().w;
             break;
         case 2: // Moving down currently
-            cell_index = (mPieces.back().y + mPieces.back().h - mHeight) / mHeight;
+            movingBound = mPieces.back().y + mPieces.back().h;
             break;
         case -1:
-            cell_index = mPieces.back().x / mWidth;
+            movingBound = mPieces.back().x;
             break;
         case -2:
-            cell_index = mPieces.back().y / mHeight;
+            movingBound = mPieces.back().y;
             break;
         }
-        return cell_index;
+        return movingBound;
     }
 
     Snake::Snake(const int x, const int y, const int width, const int height, const char direction, const int window_width, const int window_height, const double speed, const double speedMax)
