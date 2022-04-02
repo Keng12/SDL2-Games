@@ -199,14 +199,17 @@ namespace snake
     bool Snake::hasHitSelf()
     {
         bool result{};
-        for (int i = 0; i < mPieces.size() - 3; i++)
-        {
-            SDL_bool head_hit = SDL_HasIntersection(&mPieces.at(i), &mPieces.back());
-            if (head_hit == SDL_TRUE)
-            {
-                result = true;
-            }
-        }
+        std::for_each_n(std::execution::unseq, mPieces.cbegin(), mPieces.size() - 3, [&](const SDL_Rect piece)
+                        // clang-format off
+                        {
+                            SDL_bool head_hit = SDL_HasIntersection(&piece, &mPieces.back()); 
+                            if (SDL_TRUE == head_hit)
+                            {
+                                result = true;
+                            }
+                        }
+                        // clang-format on
+                        );
         return result;
     }
     bool Snake::hasHitFood(SDL_Rect *food)
