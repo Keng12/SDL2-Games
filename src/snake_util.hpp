@@ -3,6 +3,7 @@
 
 #include <array>
 #include <random>
+#include <deque>
 
 #include "SDL.h"
 
@@ -13,13 +14,13 @@ namespace snake
 {
     struct Snake
     {
-        std::vector<SDL_Rect> mPieces{};
+        std::deque<SDL_Rect> mPieces{};
         double mSpeed{};
         int mWidth{};
         int mHeight{};
         int mWindowHeight{};
         int mWindowWidth{};
-        char mDirection{};
+        std::deque<char> mDirection{};
         int mDirectionAbs{};
         char mNewDirection{};
         double mSpeedMax{};

@@ -4,6 +4,7 @@
 #include <execution>
 #include "sdl2_util/video.hpp"
 #include <iostream>
+#include <deque>
 
 namespace snake
 {
@@ -64,14 +65,14 @@ namespace snake
     void Snake::changeDirection()
     {
         addPiece();
-        mDirection = mNewDirection;
-        mDirectionAbs = std::abs(mDirection);
+        mDirection.push_back(mNewDirection);
+        mDirectionAbs = std::abs(mDirection.back());
     }
     void Snake::addPiece()
     {
         // Call BEFORE setting new direction
-        SDL_Rect new_piece{.w=mWidth, .h=mHeight};
-        switch (mDirection)
+        SDL_Rect new_piece{.w = mWidth, .h = mHeight};
+        switch (mDirection.back())
         {
         case 1: // Moving right currently
             new_piece.x = mPieces.back().x + mPieces.back().w - mWidth;
@@ -113,7 +114,7 @@ namespace snake
         if (mWaitTurn)
         {
             int bound = getMovingBound();
-            if ((mDirection > 0 && bound >= mTarget) || (mDirection < 0 && bound <= mTarget))
+            if ((mDirection.back() > 0 && bound >= mTarget) || (mDirection.back() < 0 && bound <= mTarget))
             {
                 changeDirection();
                 mWaitTurn = false;
@@ -122,7 +123,7 @@ namespace snake
         else if ((new_direction != 0) && (std::abs(new_direction) != mDirectionAbs)) // Not same or opposite direction
         {
             int bound = getMovingBound();
-            switch (mDirection)
+            switch (mDirection.back())
             {
             case 1: // Moving right currently
                 mTarget = bound + mWidth;
@@ -142,7 +143,7 @@ namespace snake
         }
         std::cout << deltaXY << std::endl;
         char result{};
-        switch (mDirection)
+        switch (mDirection.back())
         {
         case -1:
             result = moveLeft(deltaXY);
@@ -157,7 +158,7 @@ namespace snake
             result = moveDown(deltaXY);
             break;
         default:
-            throw std::runtime_error("Direction: " + std::to_string(mDirection) + " unknown");
+            std::terminate();
         }
         if (mPieces.size() > 3 && hasHitSelf())
         {
@@ -169,7 +170,7 @@ namespace snake
     int Snake::getMovingBound()
     {
         unsigned int movingBound{};
-        switch (mDirection)
+        switch (mDirection.back())
         {
         case 1: // Moving right currently
             movingBound = mPieces.back().x + mPieces.back().w;
@@ -188,14 +189,11 @@ namespace snake
     }
 
     Snake::Snake(const int x, const int y, const int width, const int height, const char direction, const int window_width, const int window_height, const double speed, const double speedMax)
-        : mHeight{height}, mWidth{width}, mWindowWidth{window_width}, mWindowHeight{window_height}, mDirection{direction}, mSpeed{speed}, mSpeedMax{speedMax}
+        : mHeight{height}, mWidth{width}, mWindowWidth{window_width}, mWindowHeight{window_height}, mSpeed{speed}, mSpeedMax{speedMax}
     {
-        SDL_Rect init_piece{};
-        mDirectionAbs = std::abs(mDirection);
-        init_piece.w = mWidth;
-        init_piece.h = mHeight;
-        init_piece.x = x;
-        init_piece.y = y;
+        SDL_Rect init_piece{.x = x, .y = y, .w = mWidth, .h = mHeight};
+        mDirection.push_back(direction);
+        mDirectionAbs = std::abs(direction);
         mPieces.push_back(init_piece);
     }
     bool Snake::hasHitSelf()
