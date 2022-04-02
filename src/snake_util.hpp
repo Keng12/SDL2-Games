@@ -15,8 +15,11 @@ namespace snake
     struct Snake
     {
         std::deque<SDL_Rect> mPieces{};
-        std::deque<int> mDirection{};
-        std::deque<int> mDirectionAbs{};
+        std::deque<char> mDirection{};
+        std::deque<char> mDirectionAbs{};
+        void growSnake(SDL_Rect &piece, char direction, int increment);
+        void growTail();
+        void growHead();
         double mSpeed{};
         int mDeltaXY{};
         int mWidth{};
@@ -26,8 +29,7 @@ namespace snake
         char mNewDirection{};
         double mSpeedMax{};
         bool mWaitTurn = false;
-        void moveHead();
-        void moveTail();
+        void shrinkTail();
         char checkHeadBoundary();
         void addPiece();
         char move(double deltaT, char new_direction);

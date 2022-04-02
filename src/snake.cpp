@@ -21,15 +21,15 @@ int main()
         constexpr double FPS = 60;
         constexpr std::chrono::duration<double> TARGET_DELAY = std::chrono::duration<double>{1 / FPS};
         constexpr double defDeltaT = TARGET_DELAY.count();
-        constexpr int WINDOW_HEIGHT = 750;
+        constexpr int WINDOW_HEIGHT = 1000;
         constexpr int y = WINDOW_HEIGHT / 2;
-        constexpr int SCALE_FACTOR = 75;
+        constexpr int SCALE_FACTOR = 100;
         constexpr int CELL_HEIGHT = WINDOW_HEIGHT / SCALE_FACTOR;
-        constexpr int WINDOW_WIDTH = 750;
+        constexpr int WINDOW_WIDTH = 1000;
         constexpr int x = WINDOW_WIDTH / 2;
         constexpr int CELL_WIDTH = CELL_HEIGHT;
         constexpr char INIT_DIRECTION = -1;
-        constexpr double SPEED = 1000;
+        constexpr double SPEED = 25000;
         constexpr int SPEED_MAX = CELL_WIDTH * 2;
         std::cout << "CELL HEIGHT: " << CELL_HEIGHT << std::endl;
         snake::Snake snake_instance = snake::Snake{x, y, CELL_WIDTH, CELL_HEIGHT, INIT_DIRECTION, WINDOW_WIDTH, WINDOW_HEIGHT, SPEED, SPEED_MAX};
@@ -48,8 +48,8 @@ int main()
         food.h = CELL_HEIGHT;
         std::random_device rd;
         std::mt19937_64 mt(rd());
-        std::uniform_int_distribution<> col_dist{0, WINDOW_WIDTH - 1 - CELL_WIDTH};
-        std::uniform_int_distribution<> row_dist{0, WINDOW_HEIGHT - 1 - CELL_HEIGHT};
+        std::uniform_int_distribution<> col_dist{0, (WINDOW_WIDTH - CELL_WIDTH - 1) / CELL_WIDTH};
+        std::uniform_int_distribution<> row_dist{0, (WINDOW_HEIGHT - CELL_HEIGHT - 1) / CELL_HEIGHT};
         // Set food randomly
         snake::setFood(food, mt, col_dist, row_dist, snake_instance);
         snake::drawFood(renderer, &food);
@@ -124,7 +124,6 @@ int main()
             if (hit_food)
             {
                 point_counter++;
-                std::cout << "Hit food" << std::endl;
                 snake::setFood(food, mt, col_dist, row_dist, snake_instance);
             }
             snake::drawFood(renderer, &food);

@@ -43,29 +43,34 @@ namespace snake
         return hit;
     }
 
-    void Snake::moveHead()
+    void Snake::growHead()
     {
-        switch (mDirection.front())
+        growSnake(mPieces.front(), mDirection.front(), mDeltaXY);
+    }
+
+    void Snake::growSnake(SDL_Rect &piece, char direction, int increment)
+    {
+        switch (direction)
         {
         case 1:
-            mPieces.front().w = mPieces.front().w + mDeltaXY;
+            piece.w = piece.w + increment;
             break;
         case 2:
-            mPieces.front().h = mPieces.front().h + mDeltaXY;
+            piece.h = piece.h + increment;
             break;
         case -1:
-            mPieces.front().x = mPieces.front().x - mDeltaXY;
-            mPieces.front().w = mPieces.front().w + mDeltaXY;
+            piece.x = piece.x - increment;
+            piece.w = piece.w + increment;
             break;
         case -2:
-            mPieces.front().y = mPieces.front().y - mDeltaXY;
-            mPieces.front().h = mPieces.front().h + mDeltaXY;
+            piece.y = piece.y - increment;
+            piece.h = piece.h + increment;
             break;
         default:
             std::terminate();
         }
     };
-    void Snake::moveTail()
+    void Snake::shrinkTail()
     {
         switch (mDirection.back())
         {
@@ -172,8 +177,8 @@ namespace snake
             mWaitTurn = true;
             mNewDirection = new_direction;
         }
-        moveHead();
-        moveTail();
+        growHead();
+        shrinkTail();
         char result = checkHeadBoundary();
         if (mPieces.size() > 3 && hasHitSelf())
         {
@@ -206,7 +211,7 @@ namespace snake
     Snake::Snake(const int x, const int y, const int width, const int height, const char direction, const int window_width, const int window_height, const double speed, const double speedMax)
         : mHeight{height}, mWidth{width}, mWindowWidth{window_width}, mWindowHeight{window_height}, mSpeed{speed}, mSpeedMax{speedMax}
     {
-        SDL_Rect init_piece{.x = x, .y = y, .w = mWidth * 3, .h = mHeight};
+        SDL_Rect init_piece{.x = x, .y = y, .w = mWidth, .h = mHeight};
         mDirection.push_front(direction);
         mDirectionAbs.push_front(std::abs(direction));
         mPieces.push_front(init_piece);
@@ -239,16 +244,23 @@ namespace snake
         );
         if (result)
         {
+            growTail();
         }
         return result;
     }
+
+    void Snake::growTail()
+    {
+        growSnake(mPieces.back(), (-1) * mDirection.back(), mWidth / 2);
+    }
+
     void setFood(SDL_Rect &food, std::mt19937_64 &mt, std::uniform_int_distribution<> &col_dist, std::uniform_int_distribution<> &row_dist, Snake snake_instance)
     {
         bool food_hit{};
         do
         {
-            int x = (col_dist(mt) / snake_instance.mWidth) * snake_instance.mWidth;
-            int y = (row_dist(mt) / snake_instance.mHeight) * snake_instance.mHeight;
+            int x = col_dist(mt)  * snake_instance.mWidth;
+            int y = row_dist(mt)  * snake_instance.mHeight;
             food.x = x;
             food.y = y;
             food_hit = snake_instance.hasHitFood(&food);
