@@ -1,13 +1,15 @@
-#include "snake_util.hpp"
 #include <cstdlib>
 #include <algorithm>
 #include <execution>
-#include "sdl2_util/video.hpp"
 #include <iostream>
 #include <deque>
-#include <unordered_map>
+#include <iostream>
 
-static std::unordered_map<char, std::string> mapDirection{{1, "right"}, {2, "up"}, {-1, "left"}, {-2, "down"}};
+#include "snake_util.hpp"
+#include "sdl2_util/video.hpp"
+
+
+
 namespace snake
 {
     char Snake::checkHeadBoundary()
@@ -67,7 +69,7 @@ namespace snake
             piece.h = piece.h + increment;
             break;
         default:
-            std::terminate();
+            throw std::runtime_error{"Unknown direction in growSnake"};
         }
     };
     void Snake::shrinkTail(int decrement)
@@ -89,7 +91,7 @@ namespace snake
             mPieces.back().h = mPieces.back().h - decrement;
             break;
         default:
-            std::terminate();
+            throw std::runtime_error{"Unknown direction in shrinkTail"};
         }
         if ((mDirectionAbs.back() == 1 && mPieces.back().w <= 0) || (mDirectionAbs.back() == 2 && mPieces.back().h <= 0))
         {
@@ -145,6 +147,8 @@ namespace snake
             mPieces.front().y = mPieces.front().y + mHeight;
             mPieces.front().h = mPieces.front().h - mHeight;
             break;
+        default:
+            throw std::runtime_error{"Unknown direction in addPiece"};
         }
         mPieces.push_front(new_piece);
     }
@@ -186,6 +190,8 @@ namespace snake
             case -2:
                 mTarget = bound - mHeight;
                 break;
+            default:
+                throw std::runtime_error{"Unknown direction in move"};
             }
             mWaitTurn = true;
             mNewDirection = new_direction;
@@ -217,6 +223,8 @@ namespace snake
         case -2:
             movingBound = mPieces.front().y;
             break;
+        default:
+            throw std::runtime_error{"Unknown direction in movingBound"};
         }
         return movingBound;
     }
@@ -272,8 +280,8 @@ namespace snake
         bool food_hit{};
         do
         {
-            int x = col_dist(mt) * snake_instance.mWidth;
-            int y = row_dist(mt) * snake_instance.mHeight;
+            int x = col_dist(mt);
+            int y = row_dist(mt);
             food.x = x;
             food.y = y;
             food_hit = snake_instance.hasHitFood(&food);

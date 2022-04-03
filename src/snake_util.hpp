@@ -8,7 +8,6 @@
 #include "SDL.h"
 
 #include "sdl2_util/video.hpp"
-#include "game_util.hpp"
 
 namespace snake
 {

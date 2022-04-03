@@ -10,7 +10,7 @@ namespace sdl2_util
         SDL_Window *mWindow{};
 
     public:
-        Window(const std::string &title, const int x, const int y, const int w, const int h,  const unsigned long flags=0);
+        Window(const std::string &title, const int x, const int y, const int w, const int h, const unsigned long flags = 0);
         ~Window();
         operator SDL_Window *() const { return mWindow; }
     };
@@ -27,10 +27,10 @@ namespace sdl2_util
         void renderCopy(SDL_Texture *texture);
         void renderClear(const std::string &color);
         void present(const std::string &color);
-        void setRenderDrawColor(const std::string& color);
-        void setLiveColor(){setRenderDrawColor("white");};
-        void setDeadColor(){setRenderDrawColor("black");};
-        void fillRect(const SDL_Rect * rect);
+        void setRenderDrawColor(const std::string &color);
+        void setLiveColor() { setRenderDrawColor("white"); };
+        void setDeadColor() { setRenderDrawColor("black"); };
+        void fillRect(const SDL_Rect *rect);
     };
     class Texture
     {
@@ -39,7 +39,7 @@ namespace sdl2_util
     public:
         Texture(SDL_Renderer *renderer,
                 const unsigned long format,
-                const int access,const int width,
+                const int access, const int width,
                 const int height);
         ~Texture();
         operator SDL_Texture *() const { return mTexture; }

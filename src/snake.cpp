@@ -3,36 +3,45 @@
 #include <chrono>
 #include <thread>
 #include <random>
-#include <forward_list>
-#include <future>
+#include <getopt.h>
 
 #include "SDL.h"
+
 #include "sdl2_util/video.hpp"
-#include "snake_util.hpp"
 #include "game_util.hpp"
+#include "snake_util.hpp"
+
 using namespace std::chrono_literals;
 
-int main()
+int main(int argc, char *const argv[])
 {
-    constexpr int INIT_SNAKE_LENGTH = 3;
-    size_t point_counter = 0;
+    unsigned long long point_counter = 0;
     try
     {
-        constexpr double FPS = 60;
-        constexpr std::chrono::duration<double> TARGET_DELAY = std::chrono::duration<double>{1 / FPS};
-        constexpr double defDeltaT = TARGET_DELAY.count();
-        constexpr int WINDOW_HEIGHT = 1000;
-        constexpr int y = WINDOW_HEIGHT / 2;
-        constexpr int SCALE_FACTOR = 100;
-        constexpr int CELL_HEIGHT = WINDOW_HEIGHT / SCALE_FACTOR;
-        constexpr int WINDOW_WIDTH = 1000;
-        constexpr int x = WINDOW_WIDTH / 2;
-        constexpr int CELL_WIDTH = CELL_HEIGHT;
+        auto [WINDOW_WIDTH, WINDOW_HEIGHT, SPEED, FPS, VSYNC] = game::parseInput(argc, argv);
+        const std::chrono::duration<double> TARGET_DELAY = std::chrono::duration<double>{1 / FPS};
+        const double defDeltaT = TARGET_DELAY.count();
+        constexpr int SCALE_FACTOR = 10;
+        const int CELL_LENGTH = WINDOW_HEIGHT / SCALE_FACTOR;
+        const int x = WINDOW_WIDTH / 2;
+        const int y = WINDOW_HEIGHT / 2;
+        const int CELL_WIDTH = CELL_LENGTH;
         constexpr char INIT_DIRECTION = -1;
-        constexpr double SPEED = 25000;
-        constexpr int SPEED_MAX = CELL_WIDTH * 2;
-        std::cout << "CELL HEIGHT: " << CELL_HEIGHT << std::endl;
-        snake::Snake snake_instance = snake::Snake{x, y, CELL_WIDTH, CELL_HEIGHT, INIT_DIRECTION, WINDOW_WIDTH, WINDOW_HEIGHT, SPEED, SPEED_MAX};
+        double SPEED_FACTOR = 15000;
+        switch (SPEED)
+        {
+        case 0:
+            SPEED_FACTOR = 15000;
+            break;
+        case 1:
+            SPEED_FACTOR = 20000;
+            break;
+        case 2:
+            SPEED_FACTOR = 30000;
+            break;
+        }
+        const double SPEED_MAX = CELL_WIDTH * 2;
+        snake::Snake snake_instance = snake::Snake{x, y, CELL_WIDTH, CELL_LENGTH, INIT_DIRECTION, WINDOW_WIDTH, WINDOW_HEIGHT, SPEED_FACTOR, SPEED_MAX};
         SDL_Init(SDL_INIT_VIDEO); // Initialize SDL2
         sdl2_util::Window window{
             "Snake",                 // window title
@@ -45,11 +54,11 @@ int main()
         renderer.renderClear("black"); // Clear to black screen
         SDL_Rect food{};
         food.w = CELL_WIDTH;
-        food.h = CELL_HEIGHT;
+        food.h = CELL_LENGTH;
         std::random_device rd;
         std::mt19937_64 mt(rd());
-        std::uniform_int_distribution<> col_dist{0, (WINDOW_WIDTH - CELL_WIDTH - 1) / CELL_WIDTH};
-        std::uniform_int_distribution<> row_dist{0, (WINDOW_HEIGHT - CELL_HEIGHT - 1) / CELL_HEIGHT};
+        std::uniform_int_distribution<> col_dist{0, WINDOW_WIDTH - 1 - CELL_WIDTH};
+        std::uniform_int_distribution<> row_dist{0, WINDOW_HEIGHT - 1 - CELL_LENGTH};
         // Set food randomly
         snake::setFood(food, mt, col_dist, row_dist, snake_instance);
         snake::drawFood(renderer, &food);
@@ -137,14 +146,15 @@ int main()
             }
         }
     }
-
     catch (const std::exception &ex)
     {
         // Quit game
-        std::cerr << ex.what() << std::endl;
+        std::cerr << "Exception: " << ex.what() << std::endl;
+        SDL_Quit();
+        return EXIT_FAILURE;
     }
     // Clean up
     std::cout << "Quit, points: " << point_counter << std::endl;
     SDL_Quit();
-    return 0;
+    return EXIT_SUCCESS;
 }
