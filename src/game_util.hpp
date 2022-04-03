@@ -88,11 +88,6 @@ namespace game
                 window_height = parseInteger(optarg, flag);
                 break;
             case 'n':
-                if (optarg)
-                {
-                    std::cerr << "Use n without argument\n";
-                    exit(EXIT_FAILURE);
-                }
                 vsync = false;
                 break;
             case '?':
