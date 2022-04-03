@@ -43,9 +43,9 @@ namespace snake
         return hit;
     }
 
-    void Snake::growHead()
+    void Snake::growHead(int increment)
     {
-        growSnake(mPieces.front(), mDirection.front(), mDeltaXY);
+        growSnake(mPieces.front(), mDirection.front(), increment);
     }
 
     void Snake::growSnake(SDL_Rect &piece, char direction, int increment)
@@ -70,32 +70,45 @@ namespace snake
             std::terminate();
         }
     };
-    void Snake::shrinkTail()
+    void Snake::shrinkTail(int decrement)
     {
         switch (mDirection.back())
         {
         case 1:
-            mPieces.back().x = mPieces.back().x + mDeltaXY;
-            mPieces.back().w = mPieces.back().w - mDeltaXY;
+            mPieces.back().x = mPieces.back().x + decrement;
+            mPieces.back().w = mPieces.back().w - decrement;
             break;
         case 2:
-            mPieces.back().y = mPieces.back().y + mDeltaXY;
-            mPieces.back().h = mPieces.back().h - mDeltaXY;
+            mPieces.back().y = mPieces.back().y + decrement;
+            mPieces.back().h = mPieces.back().h - decrement;
             break;
         case -1:
-            mPieces.back().w = mPieces.back().w - mDeltaXY;
+            mPieces.back().w = mPieces.back().w - decrement;
             break;
         case -2:
-            mPieces.back().h = mPieces.back().h - mDeltaXY;
+            mPieces.back().h = mPieces.back().h - decrement;
             break;
         default:
             std::terminate();
         }
         if ((mDirectionAbs.back() == 1 && mPieces.back().w <= 0) || (mDirectionAbs.back() == 2 && mPieces.back().h <= 0))
         {
+            int remainder = 0;
+            if (mPieces.back().w < 0)
+            {
+                remainder = (-1) * mPieces.back().w;
+            }
+            else if (mPieces.back().h < 0)
+            {
+                remainder = (-1) * mPieces.back().h;
+            }
             mPieces.pop_back();
             mDirection.pop_back();
             mDirectionAbs.pop_back();
+            if (remainder > 0)
+            {
+                shrinkTail(remainder);
+            }
         }
     };
     void Snake::changeDirection()
@@ -138,14 +151,14 @@ namespace snake
 
     char Snake::move(double deltaT, char new_direction)
     {
-        mDeltaXY = static_cast<int>(deltaT * mSpeed);
-        if (mDeltaXY > mSpeedMax)
+        int deltaXY = static_cast<int>(deltaT * mSpeed);
+        if (deltaXY > mSpeedMax)
         {
-            mDeltaXY = mSpeedMax;
+            deltaXY = mSpeedMax;
         }
-        else if (mDeltaXY == 0)
+        else if (deltaXY == 0)
         {
-            mDeltaXY = 1;
+            deltaXY = 1;
         }
         if (mWaitTurn)
         {
@@ -177,8 +190,8 @@ namespace snake
             mWaitTurn = true;
             mNewDirection = new_direction;
         }
-        growHead();
-        shrinkTail();
+        growHead(deltaXY);
+        shrinkTail(deltaXY);
         char result = checkHeadBoundary();
         if (mPieces.size() > 3 && hasHitSelf())
         {
@@ -251,7 +264,6 @@ namespace snake
 
     void Snake::growTail()
     {
-        std::cout<<"grow tail" << std::endl;
         growSnake(mPieces.back(), (-1) * mDirection.back(), mWidth / 2);
     }
 
@@ -260,8 +272,8 @@ namespace snake
         bool food_hit{};
         do
         {
-            int x = col_dist(mt)  * snake_instance.mWidth;
-            int y = row_dist(mt)  * snake_instance.mHeight;
+            int x = col_dist(mt) * snake_instance.mWidth;
+            int y = row_dist(mt) * snake_instance.mHeight;
             food.x = x;
             food.y = y;
             food_hit = snake_instance.hasHitFood(&food);

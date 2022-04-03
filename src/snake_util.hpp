@@ -19,9 +19,8 @@ namespace snake
         std::deque<char> mDirectionAbs{};
         void growSnake(SDL_Rect &piece, char direction, int increment);
         void growTail();
-        void growHead();
+        void growHead(int increment);
         double mSpeed{};
-        int mDeltaXY{};
         int mWidth{};
         int mHeight{};
         int mWindowHeight{};
@@ -29,7 +28,7 @@ namespace snake
         char mNewDirection{};
         double mSpeedMax{};
         bool mWaitTurn = false;
-        void shrinkTail();
+        void shrinkTail(int decrement);
         char checkHeadBoundary();
         void addPiece();
         char move(double deltaT, char new_direction);
