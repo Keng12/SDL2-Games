@@ -25,7 +25,6 @@ namespace game
         std::cout << space1 << "-h, --window-height" << space2 << "Specify window height\n";
         std::cout << space1 << "-s, --speed" << space2 << "Specify speed as \"0\" (low), \"1\" (medium, default) or \"2\" (high)\n";
         std::cout << space1 << "-f, --fps" << space2 << "Specify FPS\n";
-        std::cout << space1 << "-v, --vsync" << space2 << "Toggle to use VSync\n";
         exit(EXIT_SUCCESS);
     }
     int parseInteger(const std::string &integer, const std::string &flag)
@@ -57,7 +56,6 @@ namespace game
                 {"window-height", required_argument, nullptr, 'y'},
                 {"speed", required_argument, nullptr, 's'},
                 {"fps", required_argument, nullptr, 'f'},
-                {"no-vsync", no_argument, nullptr, 'n'},
                 {"help", no_argument, nullptr, 'h'}};
             c = getopt_long(argc, argv, "x:y:s:f:nh",
                             long_options, &option_index);
@@ -70,7 +68,6 @@ namespace game
             {
             case 'h':
                 printHelp();
-                exit(EXIT_SUCCESS);
             case 'x':
                 flag = "width";
                 window_width = parseInteger(optarg, flag);
@@ -86,9 +83,6 @@ namespace game
             case 'f':
                 flag = "FPS";
                 window_height = parseInteger(optarg, flag);
-                break;
-            case 'n':
-                vsync = false;
                 break;
             case '?':
                 printHelp();
