@@ -28,7 +28,7 @@ namespace game
         std::cout << space1 << "-v, --vsync" << space2 << "Toggle to use VSync\n";
         exit(EXIT_SUCCESS);
     }
-    int parseInteger(const std::string &integer)
+    int parseInteger(const std::string &integer, const std::string &flag)
     {
         int w = std::stoi(integer);
         if (w <= 0)
@@ -73,25 +73,23 @@ namespace game
                 exit(EXIT_SUCCESS);
             case 'x':
                 flag = "width";
-                window_width = parseInteger(optarg);
+                window_width = parseInteger(optarg, flag);
                 break;
             case 'y':
-                            flag = "height";
-
-                window_height = parseInteger(optarg);
+                flag = "height";
+                window_height = parseInteger(optarg, flag);
                 break;
             case 's':
-                            flag = "speed";
-
-                speed = parseInteger(optarg);
+                flag = "speed";
+                speed = parseInteger(optarg, flag);
                 break;
             case 'f':
-                            flag = "FPS";
-
-                window_height = parseInteger(optarg);
+                flag = "FPS";
+                window_height = parseInteger(optarg, flag);
                 break;
             case 'n':
-                if (optarg){
+                if (optarg)
+                {
                     std::cerr << "Use n without argument\n";
                     exit(EXIT_FAILURE);
                 }
@@ -104,13 +102,6 @@ namespace game
                 printHelp();
                 exit(EXIT_FAILURE);
             }
-        }
-        if (optind < argc)
-        {
-            printf("non-option ARGV-elements: ");
-            while (optind < argc)
-                printf("%s ", argv[optind++]);
-            printf("\n");
         }
         return {1, 2, 2, 60, true};
     }
