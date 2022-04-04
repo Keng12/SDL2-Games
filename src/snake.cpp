@@ -4,7 +4,7 @@
 #include <thread>
 #include <random>
 #include <getopt.h>
-
+#include <cassert>
 #include "SDL.h"
 
 #include "sdl2_util/video.hpp"
@@ -22,6 +22,7 @@ int main()
         constexpr int WINDOW_WIDTH = 500;
         constexpr int WINDOW_HEIGHT = WINDOW_WIDTH;
         constexpr int_least8_t SCALE_FACTOR = 25;
+        assert(WINDOW_WIDTH % SCALE_FACTOR == 0 && WINDOW_HEIGHT % SCALE_FACTOR == 0);
         constexpr int CELL_LENGTH = WINDOW_HEIGHT / SCALE_FACTOR;
         constexpr double FPS = 60.0;
         constexpr std::chrono::duration<double> TARGET_DELAY = std::chrono::duration<double>{1 / FPS};
