@@ -10,9 +10,9 @@
 
 namespace snake
 {
-    char Snake::checkHeadBoundary() const
+    int Snake::checkHeadBoundary() const
     {
-        char hit = 0;
+        int hit = 0;
         switch (mDirection.front())
         {
         case 1:
@@ -43,7 +43,7 @@ namespace snake
         return hit;
     }
 
-    void Snake::growHead(int increment)
+    void Snake::growHead(const int increment)
     {
         growSnake(mPieces.front(), mDirection.front(), increment);
     }
@@ -120,7 +120,7 @@ namespace snake
     void Snake::addPiece()
     {
         // Call BEFORE setting new direction
-        SDL_Rect new_piece{.w = mLength, .h = mLength};
+        SDL_Rect new_piece{.x = 0, .y = 0, .w = mLength, .h = mLength};
         switch (mDirection.front())
         {
         case 1: // Moving right currently
@@ -196,7 +196,7 @@ namespace snake
         }
         growHead(deltaXY);
         shrinkTail(deltaXY);
-        char result = checkHeadBoundary();
+        int result = checkHeadBoundary();
         if (mPieces.size() > 3 && hasHitSelf())
         {
             result = 2;

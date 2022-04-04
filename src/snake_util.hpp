@@ -13,26 +13,28 @@ namespace snake
 {
     class Snake
     {
+        const int mLength{};
+        const int mWindowWidth{};
+        const int mWindowHeight{};
+        const double mSpeedFactor{};
+        const unsigned int mSpeedMax{};
+
+        int mNewDirection{};
+        bool mWaitTurn = false;
+        int mTarget{};
+
         std::deque<SDL_Rect> mPieces{};
-        std::deque<int_least8_t> mDirection{};
-        std::deque<int_least8_t> mDirectionAbs{};
+        std::deque<int> mDirection{};
+        std::deque<int> mDirectionAbs{};
+
         void growSnake(SDL_Rect &piece, const int direction, const int increment);
         void growTail();
-        void growHead(int increment);
-        const double mSpeedFactor{};
-        const int mLength{};
-        const int mWindowHeight{};
-        const int mWindowWidth{};
-        int mNewDirection{};
-        const unsigned int mSpeedMax{};
-        bool mWaitTurn = false;
+        void growHead(const int increment);
         void shrinkTail(const int decrement);
-        char checkHeadBoundary() const;
         void addPiece();
-        bool mCheckThirdLast{};
-        int getMovingBound() const;
-        int mTarget{};
         void changeDirection();
+        int checkHeadBoundary() const;
+        int getMovingBound() const;
 
     public:
         Snake(const int &length, int direction, int window_width, int window_height, double speed_factor);
