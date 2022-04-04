@@ -3,36 +3,35 @@
 #include <chrono>
 #include <thread>
 #include <random>
-#include <forward_list>
-#include <future>
-
+#include <getopt.h>
 #include "SDL.h"
+
 #include "sdl2_util/video.hpp"
 #include "snake_util.hpp"
-#include "game_util.hpp"
+
 using namespace std::chrono_literals;
 
 int main()
 {
-    constexpr int INIT_SNAKE_LENGTH = 3;
-    size_t point_counter = 0;
+    unsigned int point_counter = 0;
     try
     {
-        constexpr double FPS = 60;
+        // Set constants
+        constexpr int WINDOW_WIDTH = 500;
+        constexpr int WINDOW_HEIGHT = WINDOW_WIDTH;
+        static_assert(WINDOW_WIDTH > 0 && WINDOW_HEIGHT > 0);
+        constexpr int_least8_t SCALE_FACTOR = 25;
+        static_assert(WINDOW_WIDTH % SCALE_FACTOR == 0 && WINDOW_HEIGHT % SCALE_FACTOR == 0);
+
+        constexpr int CELL_LENGTH = WINDOW_HEIGHT / SCALE_FACTOR;
+        constexpr double FPS = 60.0;
+        static_assert(FPS > 0);
         constexpr std::chrono::duration<double> TARGET_DELAY = std::chrono::duration<double>{1 / FPS};
-        constexpr double defDeltaT = TARGET_DELAY.count();
-        constexpr int WINDOW_HEIGHT = 750;
-        constexpr int y = WINDOW_HEIGHT / 2;
-        constexpr int SCALE_FACTOR = 75;
-        constexpr int CELL_HEIGHT = WINDOW_HEIGHT / SCALE_FACTOR;
-        constexpr int WINDOW_WIDTH = 750;
-        constexpr int x = WINDOW_WIDTH / 2;
-        constexpr int CELL_WIDTH = CELL_HEIGHT;
-        constexpr char INIT_DIRECTION = -1;
-        constexpr double SPEED = 20000;
-        constexpr int SPEED_MAX = CELL_WIDTH;
-        std::cout << "CELL HEIGHT: " << CELL_HEIGHT << std::endl;
-        snake::Snake snake_instance = snake::Snake{x, y, CELL_WIDTH, CELL_HEIGHT, INIT_DIRECTION, WINDOW_WIDTH, WINDOW_HEIGHT, SPEED, SPEED_MAX};
+        constexpr int INIT_DIRECTION = -1;
+        static_assert(std::abs(INIT_DIRECTION) <= 2 && std::abs(INIT_DIRECTION) >= 0);
+        constexpr double SPEED_FACTOR = 15000;
+        static_assert(SPEED_FACTOR > 0);
+        // Prepare SDL2
         SDL_Init(SDL_INIT_VIDEO); // Initialize SDL2
         sdl2_util::Window window{
             "Snake",                 // window title
@@ -42,25 +41,27 @@ int main()
             WINDOW_HEIGHT,           // height, in pixels
             SDL_WINDOW_RESIZABLE};   // Declare a pointer
         sdl2_util::Renderer renderer{window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED};
-        renderer.renderClear("black"); // Clear to black screen
-        SDL_Rect food{};
-        food.w = CELL_WIDTH;
-        food.h = CELL_HEIGHT;
+        // Initialize snake
+        snake::Snake snake_instance = snake::Snake{CELL_LENGTH, INIT_DIRECTION, WINDOW_WIDTH, WINDOW_HEIGHT, SPEED_FACTOR};
+        // Create random distributions
         std::random_device rd;
         std::mt19937_64 mt(rd());
-        std::uniform_int_distribution<> col_dist{0, WINDOW_WIDTH - 1 - CELL_WIDTH};
-        std::uniform_int_distribution<> row_dist{0, WINDOW_HEIGHT - 1 - CELL_HEIGHT};
+        std::uniform_int_distribution<> col_dist{0, WINDOW_WIDTH - 1 - CELL_LENGTH};
+        std::uniform_int_distribution<> row_dist{0, WINDOW_HEIGHT - 1 - CELL_LENGTH};
         // Set food randomly
+        SDL_Rect food{.x = 0, .y = 0, .w = CELL_LENGTH, .h = CELL_LENGTH};
         snake::setFood(food, mt, col_dist, row_dist, snake_instance);
-        snake::drawFood(renderer, &food);
+        // Render objects
+        renderer.renderClear("black"); // Clear to black screen
         snake::drawSnake(renderer, snake_instance);
+        snake::drawFood(renderer, &food);
         renderer.present("black");
-        SDL_Log("Finished init");
+        // Prepare main loop
         bool quit{};
         const unsigned char *keystate = SDL_GetKeyboardState(nullptr);
         SDL_Event event{};
         std::chrono::duration<double> elapsed = TARGET_DELAY;
-
+        // Main game loop
         while (!quit)
         {
             auto start = std::chrono::steady_clock::now();
@@ -71,13 +72,13 @@ int main()
                 quit = true;
                 break;
             case SDL_KEYDOWN:
-                SDL_FlushEvents(SDL_TEXTINPUT, SDL_MOUSEWHEEL);
-                break;
             case SDL_KEYUP:
+            case SDL_MOUSEBUTTONDOWN:
+            case SDL_MOUSEBUTTONUP:
                 SDL_FlushEvents(SDL_TEXTINPUT, SDL_MOUSEWHEEL);
                 break;
             }
-            char new_direction{};
+            int new_direction{};
             if (keystate[SDL_SCANCODE_LEFT])
             {
                 new_direction = -1;
@@ -94,17 +95,17 @@ int main()
             {
                 new_direction = 2;
             }
-            char hit_boundary = snake_instance.move(elapsed.count(), new_direction);
+            int game_over = snake_instance.move(elapsed.count(), new_direction);
             snake::drawSnake(renderer, snake_instance);
-            if (hit_boundary > 0)
+            if (game_over > 0)
             {
                 snake::drawFood(renderer, &food);
                 renderer.present("black");
-                if (hit_boundary == 1)
+                if (game_over == 1)
                 {
                     std::cout << "Hit boundary" << std::endl;
                 }
-                else if (hit_boundary == 2)
+                else if (game_over == 2)
                 {
                     std::cout << "Hit self" << std::endl;
                 }
@@ -124,7 +125,6 @@ int main()
             if (hit_food)
             {
                 point_counter++;
-                std::cout << "Hit food" << std::endl;
                 snake::setFood(food, mt, col_dist, row_dist, snake_instance);
             }
             snake::drawFood(renderer, &food);
@@ -138,14 +138,12 @@ int main()
             }
         }
     }
-
-    catch (const std::exception &ex)
+    catch (std::exception &e)
     {
-        // Quit game
-        std::cerr << ex.what() << std::endl;
+        std::cerr << "Exception: " << e.what() << std::endl;
     }
     // Clean up
     std::cout << "Quit, points: " << point_counter << std::endl;
     SDL_Quit();
-    return 0;
+    return EXIT_SUCCESS;
 }
