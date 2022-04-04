@@ -25,7 +25,7 @@ int main()
         assert(WINDOW_WIDTH % N_COLUMNS == 0);
         constexpr std::array<std::array<SDL_Rect, N_COLUMNS>, N_ROWS> rect_array = gol::init_rect<N_ROWS, N_COLUMNS>(CELL_WIDTH, CELL_HEIGHT);
 
-        constexpr double FPS = 60.0;
+        constexpr double FPS = 15.0;
         constexpr std::chrono::duration<double> TARGET_DELAY = std::chrono::duration<double>{1 / FPS};
 
         SDL_Init(SDL_INIT_VIDEO); // Initialize SDL2
@@ -63,15 +63,29 @@ int main()
         bool quit = false;
         while (!quit)
         {
+            auto start = std::chrono::steady_clock::now();
             SDL_PollEvent(&event);
             switch (event.type)
             {
             case SDL_QUIT:
                 quit = true;
+                break;
+            case SDL_KEYDOWN:
+                SDL_FlushEvents(SDL_TEXTINPUT, SDL_MOUSEWHEEL);
+                break;
+            case SDL_KEYUP:
+                SDL_FlushEvents(SDL_TEXTINPUT, SDL_MOUSEWHEEL);
+                break;
             }
             cell_state = gol::next_state<N_ROWS, N_COLUMNS>(cell_state, renderer, rect_array);
             renderer.present("black");
-            SDL_Delay(100);
+            auto end = std::chrono::steady_clock::now();
+            auto elapsed = end - start;
+            if (TARGET_DELAY > elapsed)
+            {
+                auto delay = TARGET_DELAY - elapsed;
+                std::this_thread::sleep_for(delay);
+            }
         }
     }
     catch (std::exception &e)

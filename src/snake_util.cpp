@@ -69,7 +69,8 @@ namespace snake
         default:
             throw std::runtime_error{"Unknown direction in growSnake"};
         }
-    };
+    }
+
     void Snake::shrinkTail(int decrement)
     {
         switch (mDirection.back())
@@ -110,7 +111,8 @@ namespace snake
                 shrinkTail(remainder);
             }
         }
-    };
+    }
+    
     void Snake::changeDirection()
     {
         addPiece();
