@@ -2,13 +2,9 @@
 
 To practice C++, I developed Conway's Game of Life [1] and Snake with C++ [2].
 
-Requires SDL2 and C++17 to compile. SDL2 can be installed on Ubuntu via:
+Requires SDL2 and C++17 to compile. SDL2 can be installed on Ubuntu via`sudo apt install libsdl2-dev`.
 
-`sudo apt install libsdl2-dev`
-
-Run via:
-
-`./snake` or `./game-of-life` after compiling.
+Run via: `./snake` or `./game-of-life` after compiling.
 
 [1] https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
 
