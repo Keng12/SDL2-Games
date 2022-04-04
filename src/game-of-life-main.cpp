@@ -70,9 +70,9 @@ int main()
                 quit = true;
                 break;
             case SDL_KEYDOWN:
-                SDL_FlushEvents(SDL_TEXTINPUT, SDL_MOUSEWHEEL);
-                break;
             case SDL_KEYUP:
+            case SDL_MOUSEBUTTONDOWN:
+            case SDL_MOUSEBUTTONUP:
                 SDL_FlushEvents(SDL_TEXTINPUT, SDL_MOUSEWHEEL);
                 break;
             }
