@@ -11,36 +11,39 @@
 
 namespace snake
 {
-    struct Snake
+    class Snake
     {
         std::deque<SDL_Rect> mPieces{};
-        std::deque<char> mDirection{};
-        std::deque<char> mDirectionAbs{};
-        void growSnake(SDL_Rect &piece, char direction, int increment);
+        std::deque<int_least8_t> mDirection{};
+        std::deque<int_least8_t> mDirectionAbs{};
+        void growSnake(SDL_Rect &piece, const int direction, const int increment);
         void growTail();
         void growHead(int increment);
-        double mSpeed{};
-        int mWidth{};
-        int mHeight{};
-        int mWindowHeight{};
-        int mWindowWidth{};
-        char mNewDirection{};
-        double mSpeedMax{};
+        const double mSpeedFactor{};
+        const int mLength{};
+        const int mWindowHeight{};
+        const int mWindowWidth{};
+        int mNewDirection{};
+        const unsigned int mSpeedMax{};
         bool mWaitTurn = false;
-        void shrinkTail(int decrement);
-        char checkHeadBoundary();
+        void shrinkTail(const int decrement);
+        char checkHeadBoundary() const;
         void addPiece();
-        char move(double deltaT, char new_direction);
-        Snake(const int x, const int y, const int width, const int height, const char direction, const int window_width, const int window_height, const double speed, const double speedMax);
-        bool hasHitSelf();
-        bool hasHitFood(SDL_Rect *food);
         bool mCheckThirdLast{};
-        int getMovingBound();
+        int getMovingBound() const;
         int mTarget{};
         void changeDirection();
+
+    public:
+        Snake(const int &length, int direction, int window_width, int window_height, double speed_factor);
+        int move(double deltaT, int new_direction);
+        bool hasHitSelf() const;
+        bool hasHitFood(const SDL_Rect *food);
+        std::deque<SDL_Rect> getPieces() const { return mPieces; };
+        bool foodCheck(const SDL_Rect *food) const;
     };
-    void setFood(SDL_Rect &food, std::mt19937_64 &mt, std::uniform_int_distribution<> &col_dist, std::uniform_int_distribution<> &row_dist, snake::Snake snake);
-    void drawSnake(sdl2_util::Renderer &renderer, Snake snake_instance);
+    void setFood(SDL_Rect &food, std::mt19937_64 &mt, std::uniform_int_distribution<> &col_dist, std::uniform_int_distribution<> &row_dist, const snake::Snake &snake);
+    void drawSnake(sdl2_util::Renderer &renderer, const Snake &snake_instance);
     void drawFood(sdl2_util::Renderer &renderer, SDL_Rect *food);
 }
 #endif

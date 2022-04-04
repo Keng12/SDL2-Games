@@ -8,11 +8,9 @@
 #include "snake_util.hpp"
 #include "sdl2_util/video.hpp"
 
-
-
 namespace snake
 {
-    char Snake::checkHeadBoundary()
+    char Snake::checkHeadBoundary() const
     {
         char hit = 0;
         switch (mDirection.front())
@@ -50,7 +48,7 @@ namespace snake
         growSnake(mPieces.front(), mDirection.front(), increment);
     }
 
-    void Snake::growSnake(SDL_Rect &piece, char direction, int increment)
+    void Snake::growSnake(SDL_Rect &piece, int direction, int increment)
     {
         switch (direction)
         {
@@ -122,30 +120,30 @@ namespace snake
     void Snake::addPiece()
     {
         // Call BEFORE setting new direction
-        SDL_Rect new_piece{.w = mWidth, .h = mHeight};
+        SDL_Rect new_piece{.w = mLength, .h = mLength};
         switch (mDirection.front())
         {
         case 1: // Moving right currently
-            new_piece.x = mPieces.front().x + mPieces.front().w - mWidth;
+            new_piece.x = mPieces.front().x + mPieces.front().w - mLength;
             new_piece.y = mPieces.front().y;
-            mPieces.front().w = mPieces.front().w - mWidth;
+            mPieces.front().w = mPieces.front().w - mLength;
             break;
         case 2: // Moving down currently
             new_piece.x = mPieces.front().x;
-            new_piece.y = mPieces.front().y + mPieces.front().h - mHeight;
-            mPieces.front().h = mPieces.front().h - mHeight;
+            new_piece.y = mPieces.front().y + mPieces.front().h - mLength;
+            mPieces.front().h = mPieces.front().h - mLength;
             break;
         case -1:
             new_piece.x = mPieces.front().x;
             new_piece.y = mPieces.front().y;
-            mPieces.front().x = mPieces.front().x + mWidth;
-            mPieces.front().w = mPieces.front().w - mWidth;
+            mPieces.front().x = mPieces.front().x + mLength;
+            mPieces.front().w = mPieces.front().w - mLength;
             break;
         case -2:
             new_piece.x = mPieces.front().x;
             new_piece.y = mPieces.front().y;
-            mPieces.front().y = mPieces.front().y + mHeight;
-            mPieces.front().h = mPieces.front().h - mHeight;
+            mPieces.front().y = mPieces.front().y + mLength;
+            mPieces.front().h = mPieces.front().h - mLength;
             break;
         default:
             throw std::runtime_error{"Unknown direction in addPiece"};
@@ -153,9 +151,9 @@ namespace snake
         mPieces.push_front(new_piece);
     }
 
-    char Snake::move(double deltaT, char new_direction)
+    int Snake::move(double deltaT, int new_direction)
     {
-        int deltaXY = static_cast<int>(deltaT * mSpeed);
+        unsigned int deltaXY = static_cast<unsigned int>(deltaT * mSpeedFactor);
         if (deltaXY > mSpeedMax)
         {
             deltaXY = mSpeedMax;
@@ -179,16 +177,16 @@ namespace snake
             switch (mDirection.front())
             {
             case 1: // Moving right currently
-                mTarget = bound + mWidth;
+                mTarget = bound + mLength;
                 break;
             case 2: // Moving down currently
-                mTarget = bound + mHeight;
+                mTarget = bound + mLength;
                 break;
             case -1:
-                mTarget = bound - mWidth;
+                mTarget = bound - mLength;
                 break;
             case -2:
-                mTarget = bound - mHeight;
+                mTarget = bound - mLength;
                 break;
             default:
                 throw std::runtime_error{"Unknown direction in move"};
@@ -206,9 +204,9 @@ namespace snake
         return result;
     }
 
-    int Snake::getMovingBound()
+    int Snake::getMovingBound() const
     {
-        unsigned int movingBound{};
+        int movingBound{};
         switch (mDirection.front())
         {
         case 1: // Moving right currently
@@ -229,15 +227,15 @@ namespace snake
         return movingBound;
     }
 
-    Snake::Snake(const int x, const int y, const int width, const int height, const char direction, const int window_width, const int window_height, const double speed, const double speedMax)
-        : mHeight{height}, mWidth{width}, mWindowWidth{window_width}, mWindowHeight{window_height}, mSpeed{speed}, mSpeedMax{speedMax}
+    Snake::Snake(const int &length, int direction, int window_width, int window_height, double speed_factor)
+        : mLength{length}, mWindowWidth{std::move(window_width)}, mWindowHeight{std::move(window_height)}, mSpeedFactor{std::move(speed_factor)}, mSpeedMax{static_cast<unsigned int>(length)}
     {
-        SDL_Rect init_piece{.x = x, .y = y, .w = mWidth, .h = mHeight};
+        SDL_Rect init_piece{.x = window_width / 2, .y = window_height / 2, .w = mLength, .h = mLength};
         mDirection.push_front(direction);
         mDirectionAbs.push_front(std::abs(direction));
         mPieces.push_front(init_piece);
     }
-    bool Snake::hasHitSelf()
+    bool Snake::hasHitSelf() const
     {
         bool result{};
         std::for_each_n(std::execution::unseq, mPieces.crbegin(), mPieces.size() - 3, [&](const SDL_Rect piece)
@@ -253,7 +251,16 @@ namespace snake
         );
         return result;
     }
-    bool Snake::hasHitFood(SDL_Rect *food)
+    bool Snake::hasHitFood(const SDL_Rect *food)
+    {
+        bool result = foodCheck(food);
+        if (result)
+        {
+            growTail();
+        }
+        return result;
+    }
+    bool Snake::foodCheck(const SDL_Rect *food) const
     {
         bool result = std::any_of(std::execution::unseq, mPieces.crbegin(), mPieces.crend(), [&](SDL_Rect piece)
                                   // clang-format off
@@ -263,19 +270,14 @@ namespace snake
                                 }
                                   // clang-format on
         );
-        if (result)
-        {
-            growTail();
-        }
         return result;
     }
-
     void Snake::growTail()
     {
-        growSnake(mPieces.back(), (-1) * mDirection.back(), mWidth / 2);
+        growSnake(mPieces.back(), (-1) * mDirection.back(), mLength / 2);
     }
 
-    void setFood(SDL_Rect &food, std::mt19937_64 &mt, std::uniform_int_distribution<> &col_dist, std::uniform_int_distribution<> &row_dist, Snake snake_instance)
+    void setFood(SDL_Rect &food, std::mt19937_64 &mt, std::uniform_int_distribution<> &col_dist, std::uniform_int_distribution<> &row_dist, const Snake &snake_instance)
     {
         bool food_hit{};
         do
@@ -284,13 +286,14 @@ namespace snake
             int y = row_dist(mt);
             food.x = x;
             food.y = y;
-            food_hit = snake_instance.hasHitFood(&food);
+            food_hit = snake_instance.foodCheck(&food);
         } while (food_hit);
     }
-    void drawSnake(sdl2_util::Renderer &renderer, Snake snake_instance)
+    void drawSnake(sdl2_util::Renderer &renderer, const Snake &snake_instance)
     {
         renderer.setLiveColor();
-        std::for_each(std::execution::unseq, snake_instance.mPieces.crbegin(), snake_instance.mPieces.crend(), [&](SDL_Rect rect)
+        const std::deque<SDL_Rect> pieces = snake_instance.getPieces();
+        std::for_each(std::execution::unseq, pieces.crbegin(), pieces.crend(), [&](SDL_Rect rect)
                       { renderer.fillRect(&rect); });
     }
     void drawFood(sdl2_util::Renderer &renderer, SDL_Rect *food)
