@@ -4,11 +4,9 @@
 #include <thread>
 #include <random>
 #include "SDL.h"
-#include <cassert>
 
 #include "sdl2_util/video.hpp"
 #include "gol_util.hpp"
-#include "game_util.hpp"
 
 int main()
 {
@@ -17,12 +15,12 @@ int main()
         constexpr int WINDOW_HEIGHT = 720;
         constexpr int N_ROWS = 72;
         constexpr int CELL_HEIGHT = WINDOW_HEIGHT / N_ROWS;
-        assert(WINDOW_HEIGHT % N_ROWS == 0);
+        static_assert(WINDOW_HEIGHT % N_ROWS == 0);
 
         constexpr int WINDOW_WIDTH = 1280;
         constexpr int N_COLUMNS = 128;
         constexpr int CELL_WIDTH = WINDOW_WIDTH / N_COLUMNS;
-        assert(WINDOW_WIDTH % N_COLUMNS == 0);
+        static_assert(WINDOW_WIDTH % N_COLUMNS == 0);
         constexpr std::array<std::array<SDL_Rect, N_COLUMNS>, N_ROWS> rect_array = gol::init_rect<N_ROWS, N_COLUMNS>(CELL_WIDTH, CELL_HEIGHT);
 
         constexpr double FPS = 15.0;
