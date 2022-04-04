@@ -36,7 +36,7 @@ namespace snake
 
     public:
         Snake(const int &length, int direction, int window_width, int window_height, double speed_factor);
-        int move(double deltaT, int new_direction);
+        int move(const double deltaT, const int new_direction);
         bool hasHitSelf() const;
         bool hasHitFood(const SDL_Rect *food);
         std::deque<SDL_Rect> getPieces() const { return mPieces; };
