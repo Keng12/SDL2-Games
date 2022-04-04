@@ -19,13 +19,18 @@ int main()
         // Set constants
         constexpr int WINDOW_WIDTH = 500;
         constexpr int WINDOW_HEIGHT = WINDOW_WIDTH;
+        static_assert(WINDOW_WIDTH > 0 && WINDOW_HEIGHT > 0);
         constexpr int_least8_t SCALE_FACTOR = 25;
         static_assert(WINDOW_WIDTH % SCALE_FACTOR == 0 && WINDOW_HEIGHT % SCALE_FACTOR == 0);
+
         constexpr int CELL_LENGTH = WINDOW_HEIGHT / SCALE_FACTOR;
         constexpr double FPS = 60.0;
+        static_assert(FPS > 0);
         constexpr std::chrono::duration<double> TARGET_DELAY = std::chrono::duration<double>{1 / FPS};
         constexpr int INIT_DIRECTION = -1;
+        static_assert(std::abs(INIT_DIRECTION) <= 2 && std::abs(INIT_DIRECTION) >= 0);
         constexpr double SPEED_FACTOR = 15000;
+        static_assert(SPEED_FACTOR > 0);
         // Prepare SDL2
         SDL_Init(SDL_INIT_VIDEO); // Initialize SDL2
         sdl2_util::Window window{
