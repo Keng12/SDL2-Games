@@ -296,7 +296,7 @@ namespace snake
         std::for_each(std::execution::unseq, pieces.crbegin(), pieces.crend(), [&](SDL_Rect rect)
                       { renderer.fillRect(&rect); });
     }
-    void drawFood(sdl2_util::Renderer &renderer, SDL_Rect *food)
+    void drawFood(sdl2_util::Renderer &renderer, const SDL_Rect *food)
     {
         renderer.setRenderDrawColor("green");
         renderer.fillRect(food);
