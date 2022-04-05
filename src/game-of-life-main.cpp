@@ -18,54 +18,65 @@ static_assert(WINDOW_HEIGHT % N_ROWS == 0 && WINDOW_WIDTH % N_COLUMNS == 0);
 static constexpr int CELL_HEIGHT = WINDOW_HEIGHT / N_ROWS;
 static constexpr int CELL_WIDTH = WINDOW_WIDTH / N_COLUMNS;
 static constexpr std::array<std::array<SDL_Rect, N_COLUMNS>, N_ROWS> rect_array = gol::init_rect<N_ROWS, N_COLUMNS>(CELL_WIDTH, CELL_HEIGHT);
-
 static constexpr double FPS = 10.0;
 static_assert(FPS > 0);
 static constexpr std::chrono::duration<double> TARGET_DELAY = std::chrono::duration<double>{1 / FPS};
-static std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> window{nullptr, SDL_DestroyWindow};
+static SDL_Window *window = nullptr;
+static SDL_Renderer *renderer = nullptr;
+
+static std::random_device rd{};
+static std::mt19937_64 mt(rd());
+static std::uniform_int_distribution<> dist(0, 1);
+static std::array<std::array<int, N_COLUMNS>, N_ROWS> cell_array{};
+
+static int result{};
+static bool quit = false;
+
+static std::chrono::time_point<std::chrono::steady_clock> start{};
+static std::chrono::time_point<std::chrono::steady_clock> end{};
+static std::chrono::duration<double> elapsed{};
+static std::chrono::duration<double> delay{};
+
 void terminateHandler()
 {
-    if (window){
-        SDL_DestroyWindow(window.get());
-    }
+    sdl2_util::quitSDL(window, renderer);
+    #ifdef __GNUC__
+        __gnu_cxx::__verbose_terminate_handler();
+    #endif
 }
 
 int main()
 {
+    std::set_terminate(terminateHandler);
     SDL_Init(SDL_INIT_VIDEO); // Initialize SDL2
-    window{
+    window = sdl2_util::createWindow(
         "Game of Life",          // window title
         SDL_WINDOWPOS_UNDEFINED, // initial x position
         SDL_WINDOWPOS_UNDEFINED, // initial y position
         WINDOW_WIDTH,            // width, in pixels
         WINDOW_HEIGHT,           // height, in pixels
-        SDL_WINDOW_RESIZABLE};   // Declare a pointer
-    sdl2_util::Renderer renderer{window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED};
-    renderer.renderClear("black"); // Clear to black screen
-    renderer.setLiveColor();       // Set color to white
-    std::random_device rd{};
-    std::mt19937_64 mt(rd());
-    std::uniform_int_distribution<> dist(0, 1);
-    std::array<std::array<int, N_COLUMNS>, N_ROWS> cell_state{};
+        SDL_WINDOW_RESIZABLE);   // Declare a pointer
+    renderer = sdl2_util::createRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
+    sdl2_util::renderClear(renderer, "black"); // Clear to black screen
+    sdl2_util::setLiveColor(renderer);         // Set color to white
 
     for (std::size_t row = 0; row < N_ROWS; row++)
     {
         for (std::size_t col = 0; col < N_COLUMNS; col++)
         {
-            int result = dist(mt);
+            result = dist(mt);
             if (1 == result)
             {
-                cell_state.at(row).at(col) = 1;
-                renderer.fillRect(&rect_array.at(row).at(col)); // Fill rectangle with white color
+                cell_array.at(row).at(col) = 1;
+                sdl2_util::fillRect(renderer, &rect_array.at(row).at(col)); // Fill rectangle with white color
             }
         }
     }
     SDL_Event event{};
-    renderer.present("black");
-    bool quit = false;
+    sdl2_util::present(renderer, "black");
     while (!quit)
     {
-        static auto start = std::chrono::steady_clock::now();
+        start = std::chrono::steady_clock::now();
         SDL_PollEvent(&event);
         switch (event.type)
         {
@@ -79,17 +90,17 @@ int main()
             SDL_FlushEvents(SDL_TEXTINPUT, SDL_MOUSEWHEEL);
             break;
         }
-        cell_state = gol::next_state<N_ROWS, N_COLUMNS>(cell_state, renderer, rect_array);
-        renderer.present("black");
-        static auto end = std::chrono::steady_clock::now();
-        static auto elapsed = end - start;
+        cell_array = gol::next_state<N_ROWS, N_COLUMNS>(cell_array, renderer, rect_array);
+        sdl2_util::present(renderer, "black");
+        end = std::chrono::steady_clock::now();
+        elapsed = end - start;
         if (TARGET_DELAY > elapsed)
         {
-            static auto delay = TARGET_DELAY - elapsed;
+            delay = TARGET_DELAY - elapsed;
             std::this_thread::sleep_for(delay);
         }
     }
     // Clean up
-    SDL_Quit();
+    sdl2_util::quitSDL(window, renderer);
     return EXIT_SUCCESS;
 }
