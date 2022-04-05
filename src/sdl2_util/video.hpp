@@ -5,6 +5,7 @@
 
 namespace sdl2_util
 {
+    void initSDL(const uint32_t flags);
     SDL_Rect initRect(int x, int y, int width, int height);
     SDL_Window *createWindow(const std::string &title, const int x, const int y, const int w, const int h, const uint32_t flags);
     void destroyWindow(SDL_Window *window);

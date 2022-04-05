@@ -4,7 +4,7 @@ project(game-of-life LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "-Ofast -Wall -Wextra -Wpedantic -Werror -fno-exceptions -Wshadow")
+set(CMAKE_CXX_FLAGS "-Ofast -Wall -Wextra -Wpedantic -Werror -fno-exceptions -Wshadow=global")
 find_package(SDL2 REQUIRED)
 
 add_executable(game-of-life src/game-of-life-main.cpp)
