@@ -5,6 +5,15 @@
 
 namespace sdl2_util
 {
+    SDL_Rect initRect(int x, int y, int width, int height)
+    {
+        SDL_Rect rect{};
+        rect.x = x;
+        rect.y = y;
+        rect.w = width;
+        rect.h = height;
+        return rect;
+    }
     Window::Window(const std::string &title, const int x, const int y, const int w, const int h, const unsigned long flags)
     {
         mWindow = SDL_CreateWindow(title.c_str(),

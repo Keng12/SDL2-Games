@@ -17,19 +17,19 @@ int main()
     try
     {
         // Set constants
-        constexpr int WINDOW_WIDTH = 500;
-        constexpr int WINDOW_HEIGHT = WINDOW_WIDTH;
+        static constexpr int WINDOW_WIDTH = 500;
+        static constexpr int WINDOW_HEIGHT = WINDOW_WIDTH;
         static_assert(WINDOW_WIDTH > 0 && WINDOW_HEIGHT > 0);
-        constexpr int_least8_t SCALE_FACTOR = 25;
+        static constexpr int_least8_t SCALE_FACTOR = 25;
         static_assert(WINDOW_WIDTH % SCALE_FACTOR == 0 && WINDOW_HEIGHT % SCALE_FACTOR == 0);
 
-        constexpr int CELL_LENGTH = WINDOW_HEIGHT / SCALE_FACTOR;
-        constexpr double FPS = 60.0;
+        static constexpr int CELL_LENGTH = WINDOW_HEIGHT / SCALE_FACTOR;
+        static constexpr double FPS = 60.0;
         static_assert(FPS > 0);
-        constexpr std::chrono::duration<double> TARGET_DELAY = std::chrono::duration<double>{1 / FPS};
-        constexpr int INIT_DIRECTION = -1;
+        static constexpr std::chrono::duration<double> TARGET_DELAY = std::chrono::duration<double>{1 / FPS};
+        static constexpr int INIT_DIRECTION = -1;
         static_assert(std::abs(INIT_DIRECTION) <= 2 && std::abs(INIT_DIRECTION) >= 0);
-        constexpr double SPEED_FACTOR = 15000;
+        static constexpr double SPEED_FACTOR = 15000;
         static_assert(SPEED_FACTOR > 0);
         // Prepare SDL2
         SDL_Init(SDL_INIT_VIDEO); // Initialize SDL2
@@ -49,7 +49,7 @@ int main()
         std::uniform_int_distribution<> col_dist{0, WINDOW_WIDTH - 1 - CELL_LENGTH};
         std::uniform_int_distribution<> row_dist{0, WINDOW_HEIGHT - 1 - CELL_LENGTH};
         // Set food randomly
-        SDL_Rect food{.x = 0, .y = 0, .w = CELL_LENGTH, .h = CELL_LENGTH};
+        SDL_Rect food = sdl2_util::initRect(0, 0, CELL_LENGTH, CELL_LENGTH);
         snake::setFood(food, mt, col_dist, row_dist, snake_instance);
         // Render objects
         renderer.renderClear("black"); // Clear to black screen

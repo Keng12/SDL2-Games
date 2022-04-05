@@ -5,6 +5,7 @@
 
 namespace sdl2_util
 {
+    SDL_Rect initRect(int x, int y, int width, int height);
     class Window
     {
         SDL_Window *mWindow{};

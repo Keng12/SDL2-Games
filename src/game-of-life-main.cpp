@@ -12,20 +12,20 @@ int main()
 {
     try
     {
-        constexpr int WINDOW_HEIGHT = 720;
-        constexpr int WINDOW_WIDTH = 1280;
+        static constexpr int WINDOW_HEIGHT = 720;
+        static constexpr int WINDOW_WIDTH = 1280;
         static_assert(WINDOW_HEIGHT > 0 && WINDOW_WIDTH > 0);
-        constexpr int N_ROWS = 72;
-        constexpr int N_COLUMNS = 128;
+        static constexpr int N_ROWS = 72;
+        static constexpr int N_COLUMNS = 128;
         static_assert(N_ROWS > 0 && N_COLUMNS > 0);
         static_assert(WINDOW_HEIGHT % N_ROWS == 0 && WINDOW_WIDTH % N_COLUMNS == 0);
-        constexpr int CELL_HEIGHT = WINDOW_HEIGHT / N_ROWS;
-        constexpr int CELL_WIDTH = WINDOW_WIDTH / N_COLUMNS;
-        constexpr std::array<std::array<SDL_Rect, N_COLUMNS>, N_ROWS> rect_array = gol::init_rect<N_ROWS, N_COLUMNS>(CELL_WIDTH, CELL_HEIGHT);
+        static constexpr int CELL_HEIGHT = WINDOW_HEIGHT / N_ROWS;
+        static constexpr int CELL_WIDTH = WINDOW_WIDTH / N_COLUMNS;
+        static constexpr std::array<std::array<SDL_Rect, N_COLUMNS>, N_ROWS> rect_array = gol::init_rect<N_ROWS, N_COLUMNS>(CELL_WIDTH, CELL_HEIGHT);
 
-        constexpr double FPS = 15.0;
+        static constexpr double FPS = 15.0;
         static_assert(FPS > 0);
-        constexpr std::chrono::duration<double> TARGET_DELAY = std::chrono::duration<double>{1 / FPS};
+        static constexpr std::chrono::duration<double> TARGET_DELAY = std::chrono::duration<double>{1 / FPS};
 
         SDL_Init(SDL_INIT_VIDEO); // Initialize SDL2
 

@@ -122,7 +122,7 @@ namespace snake
     void Snake::addPiece()
     {
         // Call BEFORE setting new direction
-        SDL_Rect new_piece{.x = 0, .y = 0, .w = mLength, .h = mLength};
+        SDL_Rect new_piece=sdl2_util::initRect(0, 0, mLength, mLength);
         switch (mDirection.front())
         {
         case 1: // Moving right currently
@@ -232,7 +232,7 @@ namespace snake
     Snake::Snake(const int &length, int direction, int window_width, int window_height, double speed_factor)
         : mLength{length}, mWindowWidth{std::move(window_width)}, mWindowHeight{std::move(window_height)}, mSpeedFactor{std::move(speed_factor)}, mSpeedMax{static_cast<unsigned int>(length)}
     {
-        SDL_Rect init_piece{.x = window_width / 2, .y = window_height / 2, .w = mLength, .h = mLength};
+        SDL_Rect init_piece = sdl2_util::initRect(window_width / 2, window_height / 2, mLength, mLength);
         mDirection.push_front(direction);
         mDirectionAbs.push_front(std::abs(direction));
         mPieces.push_front(init_piece);
