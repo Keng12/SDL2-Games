@@ -1,11 +1,11 @@
 #include <string>
-#include <stdexcept>
+#include <iostream>
 
 #include "video.hpp"
 
 namespace sdl2_util
 {
-    SDL_Rect initRect(int x, int y, int width, int height)
+    SDL_Rect initRect(const int x, const int y, const int width, const int height)
     {
         SDL_Rect rect{};
         rect.x = x;
@@ -21,10 +21,15 @@ namespace sdl2_util
                                    h, flags);
         if (nullptr == mWindow)
         {
-            throw std::runtime_error("Creating window failed with error: " + std::string{SDL_GetError()});
+            std::cerr << "Creating window failed with error: " << SDL_GetError() << '\n';
+            std::terminate();
         }
     }
     Window::~Window()
+    {
+        DestroyWindow();
+    }
+    void Window::DestroyWindow()
     {
         if (mWindow != nullptr)
         {
@@ -37,30 +42,19 @@ namespace sdl2_util
         mRenderer = SDL_CreateRenderer(window, index, flags);
         if (nullptr == mRenderer)
         {
-            throw std::runtime_error("Creating renderer failed with error: " + std::string{SDL_GetError()});
+            std::cerr << "Creating renderer failed with error: " << SDL_GetError() << '\n';
+            std::terminate();
         }
     }
     Renderer::~Renderer()
     {
+        DestroyRenderer();
+    }
+    void Renderer::DestroyRenderer()
+    {
         if (mRenderer != nullptr)
         {
             SDL_DestroyRenderer(mRenderer);
-        }
-    }
-    void Renderer::setRenderTarget(SDL_Texture *texture)
-    {
-        int result = SDL_SetRenderTarget(mRenderer, texture);
-        if (result != 0)
-        {
-            throw std::runtime_error("Failure setting render target: " + std::string{SDL_GetError()});
-        }
-    }
-    void Renderer::renderCopy(SDL_Texture *texture)
-    {
-        int result = SDL_RenderCopy(mRenderer, texture, nullptr, nullptr);
-        if (result != 0)
-        {
-            throw std::runtime_error("Failure copying texture: " + std::string{SDL_GetError()});
         }
     }
     void Renderer::renderClear(const std::string &color)
@@ -69,7 +63,8 @@ namespace sdl2_util
         int result = SDL_RenderClear(mRenderer); // Clear to black screen
         if (result != 0)
         {
-            throw std::runtime_error("Failure clearing render: " + std::string{SDL_GetError()});
+            std::cerr << "Failure clearing render: " << SDL_GetError() << '\n';
+            std::terminate();
         }
     }
     void Renderer::present(const std::string &color)
@@ -94,7 +89,8 @@ namespace sdl2_util
         }
         if (result != 0)
         {
-            throw std::runtime_error("Failure setting render color: " + std::string{SDL_GetError()});
+            std::cerr << "Failure setting render color: " << SDL_GetError() << '\n';
+            std::terminate();
         }
     }
     void Renderer::fillRect(const SDL_Rect *rect)
@@ -102,27 +98,8 @@ namespace sdl2_util
         int result = SDL_RenderFillRect(mRenderer, rect);
         if (result != 0)
         {
-            throw std::runtime_error("Failure filling rectangle: " + std::string{SDL_GetError()});
-        }
-    }
-
-    Texture::Texture(SDL_Renderer *renderer,
-                     const unsigned long format,
-                     const int access, const int width,
-                     const int height)
-    {
-        mTexture = SDL_CreateTexture(renderer, format, access, width,
-                                     height);
-        if (nullptr == mTexture)
-        {
-            throw std::runtime_error("Creating texture failed with error: " + std::string{SDL_GetError()});
-        }
-    }
-    Texture::~Texture()
-    {
-        if (mTexture != nullptr)
-        {
-            SDL_DestroyTexture(mTexture);
+            std::cerr << "Failure filling rectangle: " << SDL_GetError() << '\n';
+            std::terminate();
         }
     }
 }
