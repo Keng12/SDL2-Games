@@ -25,14 +25,14 @@ namespace gol
     std::array<std::array<SDL_Rect, n_col>, n_row> constexpr init_rect(const int cell_width, const int cell_height)
     {
         std::array<std::array<SDL_Rect, n_col>, n_row> rect_array{};
-        for (uint_fast64_t init_row = 0; init_row < n_row; init_row++)
+        for (uint_fast64_t initRowLoop = 0; initRowLoop < n_row; initRowLoop++)
         {
-            for (uint_fast64_t init_col = 0; init_col < n_col; init_col++)
+            for (uint_fast64_t initColLoop = 0; initColLoop < n_col; initColLoop++)
             {
-                rect_array.at(init_row).at(init_col).w = cell_width;
-                rect_array.at(init_row).at(init_col).h = cell_height;
-                rect_array.at(init_row).at(init_col).x = init_col * cell_width;
-                rect_array.at(init_row).at(init_col).y = init_row * cell_height;
+                rect_array.at(initRowLoop).at(initColLoop).w = cell_width;
+                rect_array.at(initRowLoop).at(initColLoop).h = cell_height;
+                rect_array.at(initRowLoop).at(initColLoop).x = initColLoop * cell_width;
+                rect_array.at(initRowLoop).at(initColLoop).y = initRowLoop * cell_height;
             }
         }
         return rect_array;
