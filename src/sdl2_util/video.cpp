@@ -85,7 +85,7 @@ namespace sdl2_util
             result = SDL_SetRenderDrawColor(renderer, 0, 255, 0, 0);
         }
         else{
-            std::cerr<<"Error in setRenderDrawColor: Color " << color << " unknown \n";
+            std::cerr<<"Unknown color for setRenderDrawColor: " << color << " unknown \n";
             std::terminate();
         }
         if (0 != result)
