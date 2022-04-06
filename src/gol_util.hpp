@@ -29,20 +29,28 @@ namespace gol
     template <class T, size_t n_row, size_t n_col>
     uint_fast8_t getLiveNeighbours(const std::array<std::array<T, n_col>, n_row> &state, size_t row, size_t col)
     {
-        size_t prev_row_idx = row - 1;
-        if (row == 0 || prev_row_idx < 0)
+        size_t prev_row_idx{};
+        if (0 == row)
         {
             prev_row_idx = n_row - 1;
         }
+        else
+        {
+            prev_row_idx = row - 1;
+        }
         size_t next_row_idx = row + 1;
-        if (row == SIZE_MAX || next_row_idx == n_row)
+        if (SIZE_MAX == row || next_row_idx == n_row)
         {
             next_row_idx = 0;
         }
-        size_t prev_col_idx = col - 1;
-        if (col == 0 || prev_col_idx < 0)
+        size_t prev_col_idx{};
+        if (col == 0)
         {
             prev_col_idx = n_col - 1;
+        }
+        else
+        {
+            prev_col_idx = col - 1;
         }
         size_t next_col_idx = col + 1;
         if (col == SIZE_MAX || next_col_idx == n_col)
