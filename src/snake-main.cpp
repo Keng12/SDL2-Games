@@ -151,6 +151,5 @@ int main()
     // Clean up
     sdl2_util::quitSDL(window, renderer);
     std::cout << "Quit, points: " << point_counter << std::endl;
-    SDL_Quit();
     return EXIT_SUCCESS;
 }

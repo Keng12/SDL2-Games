@@ -39,7 +39,7 @@ namespace gol
             prev_row_idx = row - 1;
         }
         size_t next_row_idx = row + 1;
-        if (SIZE_MAX == row || next_row_idx == n_row)
+        if (next_row_idx == n_row || SIZE_MAX == row)
         {
             next_row_idx = 0;
         }
@@ -53,7 +53,7 @@ namespace gol
             prev_col_idx = col - 1;
         }
         size_t next_col_idx = col + 1;
-        if (col == SIZE_MAX || next_col_idx == n_col)
+        if (next_col_idx == n_col || col == SIZE_MAX)
         {
             next_col_idx = 0;
         }
