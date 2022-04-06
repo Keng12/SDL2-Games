@@ -53,7 +53,7 @@ namespace gol
             prev_col_idx = col - 1;
         }
         size_t next_col_idx = col + 1;
-        if (next_col_idx == n_col || col == SIZE_MAX)
+        if (next_col_idx == n_col || SIZE_MAX == col)
         {
             next_col_idx = 0;
         }
