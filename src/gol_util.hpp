@@ -6,21 +6,21 @@
 
 #include "sdl2_util/video.hpp"
 
-static int prev_col_idx{};
-static int next_col_idx{};
-static int prev_row_idx{};
-static int next_row_idx{};
-
-static uint_fast8_t live_neighbours{};
-static uint_fast8_t cell_state{};
-
-static bool cell_survives{};
-static bool cell_born{};
-
-static uint_fast64_t row{};
-static uint_fast64_t col{};
 namespace gol
 {
+    static int prev_col_idx{};
+    static int next_col_idx{};
+    static int prev_row_idx{};
+    static int next_row_idx{};
+
+    static uint_fast8_t live_neighbours{};
+    static uint_fast8_t cell_state{};
+
+    static bool cell_survives{};
+    static bool cell_born{};
+
+    static uint_fast64_t row{};
+    static uint_fast64_t col{};
     template <size_t n_row, size_t n_col>
     std::array<std::array<SDL_Rect, n_col>, n_row> constexpr init_rect(const int cell_width, const int cell_height)
     {
@@ -38,24 +38,24 @@ namespace gol
         return rect_array;
     }
     template <class T, size_t n_row, size_t n_col>
-    uint_fast8_t getLiveNeighbours(const std::array<std::array<T, n_col>, n_row> &state, size_t row, size_t col)
+    uint_fast8_t getLiveNeighbours(const std::array<std::array<T, n_col>, n_row> &state, size_t row_i, size_t col_i)
     {
-        prev_row_idx = row - 1;
+        prev_row_idx = row_i - 1;
         if (prev_row_idx < 0)
         {
             prev_row_idx = n_row - 1;
         }
-        next_row_idx = row + 1;
+        next_row_idx = row_i + 1;
         if (next_row_idx == n_row)
         {
             next_row_idx = 0;
         }
-        prev_col_idx = col - 1;
+        prev_col_idx = col_i - 1;
         if (prev_col_idx < 0)
         {
             prev_col_idx = n_col - 1;
         }
-        next_col_idx = col + 1;
+        next_col_idx = col_i + 1;
         if (next_col_idx == n_col)
         {
             next_col_idx = 0;
