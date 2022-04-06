@@ -5,7 +5,7 @@
 #include <random>
 #include "SDL.h"
 
-#include "sdl2_util/video.hpp"
+#include "sdl2_util.hpp"
 #include "gol_util.hpp"
 
 static constexpr int WINDOW_HEIGHT = 720;

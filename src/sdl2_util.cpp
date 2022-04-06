@@ -1,7 +1,7 @@
 #include <string>
 #include <iostream>
 
-#include "video.hpp"
+#include "sdl2_util.hpp"
 
 static int result{};
 
@@ -10,7 +10,8 @@ namespace sdl2_util
     void initSDL(const uint32_t flags)
     {
         result = SDL_Init(flags); // Initialize SDL2
-        if (0 != result){
+        if (0 != result)
+        {
             std::cerr << "Error initialising SDL2: " << SDL_GetError() << '\n';
             std::terminate();
         }
@@ -46,10 +47,10 @@ namespace sdl2_util
             SDL_DestroyWindow(window);
         }
     }
-    SDL_Renderer *createRenderer(SDL_Window *window,
-                                 const int index, const uint32_t flags)
+    SDL_Renderer *createRenderer(SDL_Window *window, const int index, const uint32_t flags)
     {
-        SDL_Renderer *renderer = SDL_CreateRenderer(window, index, flags);
+
+        SDL_Renderer * renderer = SDL_CreateRenderer(window, index, flags);
         if (nullptr == renderer)
         {
             std::cerr << "Creating renderer failed with error: " << SDL_GetError() << '\n';
@@ -57,14 +58,14 @@ namespace sdl2_util
         }
         return renderer;
     }
-    void destroyRenderer(SDL_Renderer *renderer)
+    void destroyRenderer(SDL_Renderer * renderer)
     {
         if (renderer)
         {
             SDL_DestroyRenderer(renderer);
         }
     }
-    void renderClear(SDL_Renderer *renderer, const std::string &color)
+    void renderClear(SDL_Renderer * renderer, const std::string &color)
     {
         setRenderDrawColor(renderer, color);
         result = SDL_RenderClear(renderer); // Clear to black screen
@@ -74,12 +75,12 @@ namespace sdl2_util
             std::terminate();
         }
     }
-    void present(SDL_Renderer *renderer, const std::string &color)
+    void present(SDL_Renderer * renderer, const std::string &color)
     {
         SDL_RenderPresent(renderer);
         renderClear(renderer, color);
     }
-    void setRenderDrawColor(SDL_Renderer *renderer, const std::string &color)
+    void setRenderDrawColor(SDL_Renderer * renderer, const std::string &color)
     {
         if (color == "white")
         {
@@ -113,7 +114,7 @@ namespace sdl2_util
             std::terminate();
         }
     }
-    void quitSDL(SDL_Window *window, SDL_Renderer *renderer)
+    void quitSDL(SDL_Window *window, SDL_Renderer * renderer)
     {
         destroyRenderer(renderer);
         destroyWindow(window);

@@ -6,7 +6,7 @@
 
 #include "SDL.h"
 
-#include "sdl2_util/video.hpp"
+#include "sdl2_util.hpp"
 
 namespace gol
 {
