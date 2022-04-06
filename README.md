@@ -6,7 +6,7 @@ Requires SDL2 and C++17 to compile. SDL2 can be installed on Ubuntu via`sudo apt
 
 Run via: `./snake` or `./game-of-life` after compiling. Snake is played with the arrow keys.
 
-Tested with Ubuntu and GCC. Extensive use of `static` variables was done for performance.
+Tested with Ubuntu and GCC.
 
 [1] https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
 
