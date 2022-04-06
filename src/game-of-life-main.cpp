@@ -60,7 +60,7 @@ int main()
     {
         for (size_t col = 0; col < N_COLUMNS; col++)
         {
-            int_fast8_t result = dist(mt);
+            uint_fast8_t result = dist(mt);
             if (1 == result)
             {
                 cell_array.at(row).at(col) = 1;
