@@ -53,7 +53,7 @@ int main()
 
     std::random_device rd{};
     std::mt19937_64 mt(rd());
-    std::uniform_int_distribution<> dist(0, 1);
+    std::uniform_int_distribution<uint_fast8_t> dist(0, 1);
 
     std::array<std::array<uint_fast8_t, N_COLUMNS>, N_ROWS> cell_array{};
     for (size_t row = 0; row < N_ROWS; row++)
