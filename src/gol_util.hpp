@@ -14,9 +14,9 @@ namespace gol
     std::array<std::array<SDL_Rect, n_col>, n_row> constexpr init_rect(const int cell_width, const int cell_height)
     {
         std::array<std::array<SDL_Rect, n_col>, n_row> rect_array{};
-        for (uint_fast64_t initRowLoop = 0; initRowLoop < n_row; initRowLoop++)
+        for (size_t initRowLoop = 0; initRowLoop < n_row; initRowLoop++)
         {
-            for (uint_fast64_t initColLoop = 0; initColLoop < n_col; initColLoop++)
+            for (size_t initColLoop = 0; initColLoop < n_col; initColLoop++)
             {
                 rect_array.at(initRowLoop).at(initColLoop).w = cell_width;
                 rect_array.at(initRowLoop).at(initColLoop).h = cell_height;
@@ -29,24 +29,23 @@ namespace gol
     template <class T, size_t n_row, size_t n_col>
     uint_fast8_t getLiveNeighbours(const std::array<std::array<T, n_col>, n_row> &state, size_t row, size_t col)
     {
-        assert(row <= std::numeric_limits<long long>::max());
-        long long prev_row_idx = row - 1;
-        if (prev_row_idx < 0)
+        size_t prev_row_idx = row - 1;
+        if (row == 0 || prev_row_idx < 0)
         {
             prev_row_idx = n_row - 1;
         }
-        uint_fast64_t next_row_idx = row + 1;
-        if (next_row_idx == n_row)
+        size_t next_row_idx = row + 1;
+        if (row == SIZE_MAX || next_row_idx == n_row)
         {
             next_row_idx = 0;
         }
-        int_fast64_t prev_col_idx = col - 1;
-        if (prev_col_idx < 0)
+        size_t prev_col_idx = col - 1;
+        if (col == 0 || prev_col_idx < 0)
         {
             prev_col_idx = n_col - 1;
         }
-        uint_fast64_t next_col_idx = col + 1;
-        if (next_col_idx == n_col)
+        size_t next_col_idx = col + 1;
+        if (col == SIZE_MAX || next_col_idx == n_col)
         {
             next_col_idx = 0;
         }
@@ -63,7 +62,7 @@ namespace gol
             for (size_t col = 0; col < n_col; col++)
             {
                 uint_fast8_t live_neighbours = getLiveNeighbours(old_state, row, col);
-                uint_fast8_t cell_state = old_state.at(row).at(col);
+                T cell_state = old_state.at(row).at(col);
                 bool cell_survives = cell_state == 1 && (live_neighbours == 2 || live_neighbours == 3);
                 bool cell_born = cell_state == 0 && (live_neighbours == 3);
                 if (cell_survives || cell_born)
