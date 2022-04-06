@@ -47,7 +47,7 @@ int main()
         SDL_WINDOWPOS_UNDEFINED,
         WINDOW_WIDTH,
         WINDOW_HEIGHT,
-        SDL_WINDOW_RESIZABLE);
+        0);
     renderer = sdl2_util::createRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
     sdl2_util::renderClear(renderer, "black"); // Clear to black screen
 
