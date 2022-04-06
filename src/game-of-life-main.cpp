@@ -25,8 +25,8 @@ static constexpr double FPS = 10.0;
 static_assert(FPS > 0);
 static constexpr std::chrono::duration<double> TARGET_DELAY = std::chrono::duration<double>{1 / FPS};
 
-static SDL_Window *window{}; 
-static SDL_Renderer * renderer{};
+static SDL_Window *window{};
+static SDL_Renderer *renderer{};
 
 void terminateHandler()
 {
@@ -38,11 +38,6 @@ void terminateHandler()
 
 int main()
 {
-    static std::array<std::array<uint_fast8_t, N_COLUMNS>, N_ROWS> cell_array{};
-static std::random_device rd{};
-static std::mt19937_64 mt(rd());
-static std::uniform_int_distribution<> dist(0, 1);
-
     std::set_terminate(terminateHandler);
     sdl2_util::initSDL(SDL_INIT_VIDEO); // Initialize SDL2
     window = sdl2_util::createWindow(
@@ -56,9 +51,14 @@ static std::uniform_int_distribution<> dist(0, 1);
     sdl2_util::renderClear(renderer, "black"); // Clear to black screen
     sdl2_util::setLiveColor(renderer);         // Set color to white
 
-    for (uint_fast64_t row = 0; row < N_ROWS; row++)
+    std::random_device rd{};
+    std::mt19937_64 mt(rd());
+    std::uniform_int_distribution<> dist(0, 1);
+
+    std::array<std::array<uint_fast8_t, N_COLUMNS>, N_ROWS> cell_array{};
+    for (size_t row = 0; row < N_ROWS; row++)
     {
-        for (uint_fast64_t col = 0; col < N_COLUMNS; col++)
+        for (size_t col = 0; col < N_COLUMNS; col++)
         {
             int_fast8_t result = dist(mt);
             if (1 == result)
@@ -71,6 +71,7 @@ static std::uniform_int_distribution<> dist(0, 1);
     sdl2_util::present(renderer, "black");
     SDL_Event event{};
     bool quit = false;
+
     while (!quit)
     {
         std::chrono::time_point<std::chrono::steady_clock> start = std::chrono::steady_clock::now();
