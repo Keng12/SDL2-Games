@@ -12,7 +12,7 @@ namespace snake
 {
     int Snake::checkHeadBoundary() const
     {
-        int hit = 0;
+        int hit{};
         switch (mDirection.front())
         {
         case 1:
