@@ -61,31 +61,29 @@ namespace gol
         return live_neighbours;
     }
     template <class T, size_t n_row, size_t n_col>
-    std::array<std::array<T, n_col>, n_row> next_state(const std::array<std::array<T, n_col>, n_row> &old_state, const std::array<std::array<SDL_Rect, n_col>, n_row> &rect_array)
+    std::array<std::array<T, n_col>, n_row> next_state(const std::array<std::array<T, n_col>, n_row> &old_state, const std::array<std::array<SDL_Rect, n_col>, n_row> &rect_array, const std::array<size_t, n_row> &row_iterator, const std::array<size_t, n_col> &col_iterator)
     {
         sdl2_util::setLiveColor();
         std::array<std::array<T, n_col>, n_row> new_state{};
-        for (size_t row = 0; row < n_row; row++)
-        {
-            for (size_t col = 0; col < n_col; col++)
-            {
-                uint_fast8_t live_neighbours = getLiveNeighbours(old_state, row, col);
-                T cell_state = old_state.at(row).at(col);
-                bool cell_survives = cell_state == 1 && (live_neighbours == 2 || live_neighbours == 3);
-                bool cell_born = cell_state == 0 && (live_neighbours == 3);
-                if (cell_survives || cell_born)
-                {
-                    // Cell survives, rectangle filled as white
-                    new_state.at(row).at(col) = 1;
-                    sdl2_util::fillRect(&rect_array.at(row).at(col));
-                }
-                else
-                {
-                    // Cell dies, do not fill rectangle as it clears to black later
-                    new_state.at(row).at(col) = 0;
-                }
-            }
-        }
+        std::for_each(std::execution::unseq, row_iterator.cbegin(), row_iterator.cend(), [&](const size_t row)
+                      { std::for_each(std::execution::unseq, col_iterator.cbegin(), col_iterator.end(), [&](const size_t col)
+                                      {
+                                          uint_fast8_t live_neighbours = getLiveNeighbours(old_state, row, col);
+                                          T cell_state = old_state.at(row).at(col);
+                                          bool cell_survives = cell_state == 1 && (live_neighbours == 2 || live_neighbours == 3);
+                                          bool cell_born = cell_state == 0 && (live_neighbours == 3);
+                                          if (cell_survives || cell_born)
+                                          {
+                                              // Cell survives, rectangle filled as white
+                                              new_state.at(row).at(col) = 1;
+                                              sdl2_util::fillRect(&rect_array.at(row).at(col));
+                                          }
+                                          else
+                                          {
+                                              // Cell dies, do not fill rectangle as it clears to black later
+                                              new_state.at(row).at(col) = 0;
+                                          }
+                                      }); });
         return new_state;
     }
 }
