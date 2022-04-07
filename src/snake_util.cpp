@@ -287,7 +287,7 @@ namespace snake
     }
     void Snake::growTail()
     {
-        growSnake(mPieces.back(), (-1) * mDirection.back(), mLength);
+        growSnake(mPieces.back(), (-1) * mDirection.back(), mLength / 2);
     }
 
     void setFood(SDL_Rect &food, std::mt19937_64 &mt, std::uniform_int_distribution<> &col_dist, std::uniform_int_distribution<> &row_dist, const Snake &snake_instance)
