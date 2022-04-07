@@ -61,9 +61,9 @@ namespace gol
         return live_neighbours;
     }
     template <class T, size_t n_row, size_t n_col>
-    std::array<std::array<T, n_col>, n_row> next_state(const std::array<std::array<T, n_col>, n_row> &old_state, SDL_Renderer *renderer, const std::array<std::array<SDL_Rect, n_col>, n_row> &rect_array)
+    std::array<std::array<T, n_col>, n_row> next_state(const std::array<std::array<T, n_col>, n_row> &old_state, const std::array<std::array<SDL_Rect, n_col>, n_row> &rect_array)
     {
-        sdl2_util::setLiveColor(renderer);
+        sdl2_util::setLiveColor();
         std::array<std::array<T, n_col>, n_row> new_state{};
         for (size_t row = 0; row < n_row; row++)
         {
@@ -77,7 +77,7 @@ namespace gol
                 {
                     // Cell survives, rectangle filled as white
                     new_state.at(row).at(col) = 1;
-                    sdl2_util::fillRect(renderer, &rect_array.at(row).at(col));
+                    sdl2_util::fillRect(&rect_array.at(row).at(col));
                 }
                 else
                 {

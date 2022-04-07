@@ -7,6 +7,10 @@ static int result{};
 
 namespace sdl2_util
 {
+    static SDL_Window *window{};
+    static SDL_Renderer *renderer{};
+    static bool sdl_initialized = false;
+
     void initSDL(const uint32_t flags)
     {
         result = SDL_Init(flags); // Initialize SDL2
@@ -15,6 +19,7 @@ namespace sdl2_util
             std::cerr << "Error initialising SDL2: " << SDL_GetError() << '\n';
             std::terminate();
         }
+        sdl_initialized = true;
     }
 
     SDL_Rect initRect(const int x, const int y, const int width, const int height)
@@ -27,47 +32,50 @@ namespace sdl2_util
         return rect;
     }
 
-    SDL_Window *createWindow(const std::string &title, const int x, const int y, const int w, const int h, const uint32_t flags)
+    void createWindow(const std::string &title, const int x, const int y, const int w, const int h, const uint32_t flags)
     {
-        SDL_Window *window = SDL_CreateWindow(title.c_str(),
-                                              x, y, w,
-                                              h, flags);
+        if (!window)
+        {
+            window = SDL_CreateWindow(title.c_str(),
+                                      x, y, w,
+                                      h, flags);
+        }
         if (!window)
         {
             std::cerr << "Creating window failed with error: " << SDL_GetError() << '\n';
             std::terminate();
         }
-        return window;
     }
 
-    void destroyWindow(SDL_Window *window)
+    void destroyWindow()
     {
         if (window)
         {
             SDL_DestroyWindow(window);
         }
     }
-    SDL_Renderer *createRenderer(SDL_Window *window, const int index, const uint32_t flags)
+    void createRenderer(const int index, const uint32_t flags)
     {
-
-        SDL_Renderer * renderer = SDL_CreateRenderer(window, index, flags);
-        if (nullptr == renderer)
+        if (!renderer && sdl_initialized)
+        {
+            renderer = SDL_CreateRenderer(window, index, flags);
+        }
+        if (!renderer)
         {
             std::cerr << "Creating renderer failed with error: " << SDL_GetError() << '\n';
             std::terminate();
         }
-        return renderer;
     }
-    void destroyRenderer(SDL_Renderer * renderer)
+    void destroyRenderer()
     {
         if (renderer)
         {
             SDL_DestroyRenderer(renderer);
         }
     }
-    void renderClear(SDL_Renderer * renderer, const std::string &color)
+    void renderClear(const std::string &color)
     {
-        setRenderDrawColor(renderer, color);
+        setRenderDrawColor(color);
         result = SDL_RenderClear(renderer); // Clear to black screen
         if (0 != result)
         {
@@ -75,12 +83,12 @@ namespace sdl2_util
             std::terminate();
         }
     }
-    void present(SDL_Renderer * renderer, const std::string &color)
+    void present(const std::string &color)
     {
         SDL_RenderPresent(renderer);
-        renderClear(renderer, color);
+        renderClear(color);
     }
-    void setRenderDrawColor(SDL_Renderer * renderer, const std::string &color)
+    void setRenderDrawColor(const std::string &color)
     {
         if (color == "white")
         {
@@ -105,7 +113,7 @@ namespace sdl2_util
             std::terminate();
         }
     }
-    void fillRect(SDL_Renderer *renderer, const SDL_Rect *rect)
+    void fillRect(const SDL_Rect *rect)
     {
         result = SDL_RenderFillRect(renderer, rect);
         if (0 != result)
@@ -114,10 +122,13 @@ namespace sdl2_util
             std::terminate();
         }
     }
-    void quitSDL(SDL_Window *window, SDL_Renderer * renderer)
+    void quitSDL()
     {
-        destroyRenderer(renderer);
-        destroyWindow(window);
-        SDL_Quit();
+        destroyRenderer();
+        destroyWindow();
+        if (sdl_initialized)
+        {
+            SDL_Quit();
+        }
     }
 }

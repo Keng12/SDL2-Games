@@ -25,12 +25,10 @@ static constexpr double FPS = 10.0;
 static_assert(FPS > 0);
 static constexpr std::chrono::duration<double> TARGET_DELAY = std::chrono::duration<double>{1 / FPS};
 
-static SDL_Window *window{};
-static SDL_Renderer *renderer{};
 
 void terminateHandler()
 {
-    sdl2_util::quitSDL(window, renderer);
+    sdl2_util::quitSDL();
 #ifdef __GNUC__
     __gnu_cxx::__verbose_terminate_handler();
 #endif
@@ -40,16 +38,16 @@ int main()
 {
     std::set_terminate(terminateHandler);
     sdl2_util::initSDL(SDL_INIT_VIDEO); // Initialize SDL2
-    window = sdl2_util::createWindow(
+    sdl2_util::createWindow(
         "Game of Life",
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
         WINDOW_WIDTH,
         WINDOW_HEIGHT,
         0);
-    renderer = sdl2_util::createRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
-    sdl2_util::renderClear(renderer, "black"); // Clear to black screen
-    sdl2_util::setLiveColor(renderer);         // Set color to white
+    sdl2_util::createRenderer(-1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
+    sdl2_util::renderClear("black"); // Clear to black screen
+    sdl2_util::setLiveColor();         // Set color to white
 
     std::random_device rd{};
     std::mt19937_64 mt(rd());
@@ -64,11 +62,11 @@ int main()
             if (1 == result)
             {
                 cell_array.at(row).at(col) = 1;
-                sdl2_util::fillRect(renderer, &rect_array.at(row).at(col)); // Fill rectangle with white color
+                sdl2_util::fillRect(&rect_array.at(row).at(col)); // Fill rectangle with white color
             }
         }
     }
-    sdl2_util::present(renderer, "black");
+    sdl2_util::present("black");
     SDL_Event event{};
     bool quit = false;
 
@@ -88,8 +86,8 @@ int main()
             SDL_FlushEvents(SDL_TEXTINPUT, SDL_MOUSEWHEEL);
             break;
         }
-        cell_array = gol::next_state(cell_array, renderer, rect_array);
-        sdl2_util::present(renderer, "black");
+        cell_array = gol::next_state(cell_array, rect_array);
+        sdl2_util::present("black");
         std::chrono::time_point<std::chrono::steady_clock> end = std::chrono::steady_clock::now();
         std::chrono::duration<double> elapsed = end - start;
         if (TARGET_DELAY > elapsed)
@@ -99,6 +97,6 @@ int main()
         }
     }
     // Clean up
-    sdl2_util::quitSDL(window, renderer);
+    sdl2_util::quitSDL();
     return EXIT_SUCCESS;
 }
