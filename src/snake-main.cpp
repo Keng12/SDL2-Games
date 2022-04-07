@@ -26,12 +26,10 @@ static_assert(std::abs(INIT_DIRECTION) <= 2 && std::abs(INIT_DIRECTION) >= 0);
 static constexpr double SPEED_FACTOR = 15000;
 static_assert(SPEED_FACTOR > 0);
 
-static SDL_Window *window{};
-static SDL_Renderer *renderer{};
 
 void terminateHandler()
 {
-    sdl2_util::quitSDL(window, renderer);
+    sdl2_util::quitSDL();
 #ifdef __GNUC__
     __gnu_cxx::__verbose_terminate_handler();
 #endif
@@ -41,15 +39,15 @@ int main()
 {
     std::set_terminate(terminateHandler);
     sdl2_util::initSDL(SDL_INIT_VIDEO); // Initialize SDL2
-    window = sdl2_util::createWindow(
+    sdl2_util::createWindow(
         "Snake",
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
         WINDOW_WIDTH,
         WINDOW_HEIGHT,
         0);
-    renderer = sdl2_util::createRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
-    sdl2_util::renderClear(renderer, "black"); // Clear to black screen
+    sdl2_util::createRenderer(-1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
+    sdl2_util::renderClear("black"); // Clear to black screen
 
     uint_fast64_t point_counter = 0;
     // Prepare SDL2
@@ -64,9 +62,9 @@ int main()
     SDL_Rect food = sdl2_util::initRect(0, 0, CELL_LENGTH, CELL_LENGTH);
     snake::setFood(food, mt, col_dist, row_dist, snake_instance);
     // Render objects
-    snake::drawSnake(renderer, snake_instance);
-    snake::drawFood(renderer, &food);
-    sdl2_util::present(renderer, "black");
+    snake::drawSnake(snake_instance);
+    snake::drawFood(&food);
+    sdl2_util::present("black");
     // Prepare main loop
     bool quit{};
     const unsigned char *keystate = SDL_GetKeyboardState(nullptr);
@@ -107,11 +105,11 @@ int main()
             new_direction = 2;
         }
         uint_fast8_t game_over = snake_instance.move(elapsed.count(), new_direction);
-        snake::drawSnake(renderer, snake_instance);
+        snake::drawSnake(snake_instance);
         if (game_over > 0)
         {
-            snake::drawFood(renderer, &food);
-            sdl2_util::present(renderer, "black");
+            snake::drawFood(&food);
+            sdl2_util::present("black");
             if (1 == game_over)
             {
                 std::cout << "Hit boundary" << std::endl;
@@ -138,8 +136,8 @@ int main()
             point_counter++;
             snake::setFood(food, mt, col_dist, row_dist, snake_instance);
         }
-        snake::drawFood(renderer, &food);
-        sdl2_util::present(renderer, "black");
+        snake::drawFood(&food);
+        sdl2_util::present("black");
         auto end = std::chrono::steady_clock::now();
         elapsed = end - start;
         if (TARGET_DELAY > elapsed)
@@ -149,7 +147,7 @@ int main()
         }
     }
     // Clean up
-    sdl2_util::quitSDL(window, renderer);
+    sdl2_util::quitSDL();
     std::cout << "Quit, points: " << point_counter << std::endl;
     return EXIT_SUCCESS;
 }

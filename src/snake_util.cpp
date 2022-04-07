@@ -4,9 +4,10 @@
 #include <iostream>
 #include <deque>
 #include <iostream>
-
+#include <limits>
 #include "snake_util.hpp"
 #include "sdl2_util.hpp"
+#include <assert.h>
 
 namespace snake
 {
@@ -158,14 +159,19 @@ namespace snake
 
     int Snake::move(double deltaT, int new_direction)
     {
-        unsigned int deltaXY = static_cast<unsigned int>(deltaT * mSpeedFactor);
-        if (deltaXY > mSpeedMax)
+        double current_speed = deltaT * mSpeedFactor;
+        int deltaXY{};
+        if (current_speed > mSpeedMax || current_speed > std::numeric_limits<int>::max())
         {
             deltaXY = mSpeedMax;
         }
-        else if (deltaXY == 0)
+        else
         {
-            deltaXY = 1;
+            deltaXY = static_cast<int>(current_speed);
+            if (deltaXY == 0)
+            {
+                deltaXY = 1;
+            }
         }
         if (mWaitTurn)
         {
@@ -235,7 +241,7 @@ namespace snake
     }
 
     Snake::Snake(const int &length, int direction, int window_width, int window_height, double speed_factor)
-        : mLength{length}, mWindowWidth{std::move(window_width)}, mWindowHeight{std::move(window_height)}, mSpeedFactor{std::move(speed_factor)}, mSpeedMax{static_cast<unsigned int>(length)}
+        : mLength{length}, mWindowWidth{std::move(window_width)}, mWindowHeight{std::move(window_height)}, mSpeedFactor{std::move(speed_factor)}, mSpeedMax{length}
     {
         SDL_Rect init_piece = sdl2_util::initRect(window_width / 2, window_height / 2, mLength, mLength);
         mDirection.push_front(direction);
@@ -281,7 +287,7 @@ namespace snake
     }
     void Snake::growTail()
     {
-        growSnake(mPieces.back(), (-1) * mDirection.back(), mLength / 2);
+        growSnake(mPieces.back(), (-1) * mDirection.back(), mLength);
     }
 
     void setFood(SDL_Rect &food, std::mt19937_64 &mt, std::uniform_int_distribution<> &col_dist, std::uniform_int_distribution<> &row_dist, const Snake &snake_instance)
@@ -296,16 +302,16 @@ namespace snake
             food_hit = snake_instance.foodCheck(&food);
         } while (food_hit);
     }
-    void drawSnake(SDL_Renderer *renderer, const Snake &snake_instance)
+    void drawSnake(const Snake &snake_instance)
     {
-        sdl2_util::setLiveColor(renderer);
+        sdl2_util::setLiveColor();
         const std::deque<SDL_Rect> pieces = snake_instance.getPieces();
         std::for_each(std::execution::unseq, pieces.cbegin(), pieces.cend(), [&](SDL_Rect rect)
-                      { sdl2_util::fillRect(renderer, &rect); });
+                      { sdl2_util::fillRect(&rect); });
     }
-    void drawFood(SDL_Renderer *renderer, const SDL_Rect *food)
+    void drawFood(const SDL_Rect *food)
     {
-        sdl2_util::setRenderDrawColor(renderer, "green");
-        sdl2_util::fillRect(renderer, food);
+        sdl2_util::setRenderDrawColor("green");
+        sdl2_util::fillRect(food);
     }
 }
