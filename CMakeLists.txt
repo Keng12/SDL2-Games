@@ -16,3 +16,33 @@ add_executable(snake src/snake-main.cpp)
 target_link_libraries(snake SDL2) 
 target_include_directories(snake PRIVATE ${SDL2_INCLUDE_DIRS})
 target_sources(snake PRIVATE src/sdl2_util.cpp src/snake_util.cpp)
+
+find_program(CMAKE_CXX_CPPCHECK NAMES cppcheck)
+if (CMAKE_CXX_CPPCHECK)
+    message(STATUS "Enable cppcheck")
+    list(APPEND CMAKE_CXX_CPPCHECK 
+            "--enable=all"
+            "--error-exitcode=1" 
+            "--inconclusive"
+            "--force" 
+            "--inline-suppr"
+            "--std=c++17"
+            "--suppressions-list=${CMAKE_SOURCE_DIR}/CppCheckSuppressions.txt"
+    )
+endif()
+
+find_program(CMAKE_CXX_INCLUDE_WHAT_YOU_USE NAMES iwyu)
+if (CMAKE_CXX_INCLUDE_WHAT_YOU_USE)
+    list(APPEND CMAKE_CXX_INCLUDE_WHAT_YOU_USE
+    "--cxx17ns"
+    )
+    message(STATUS "Enable iwyu")
+endif()
+
+find_program(CMAKE_CXX_CLANG_TIDY NAMES clang-tidy)
+if (CMAKE_CXX_CLANG_TIDY)
+    message(STATUS "Enable clang-tidy")
+endif()
+
+option(LINK_WHAT_YOU_USE "Enable lwyu" ON)
+message(STATUS "Enable lwyu")
