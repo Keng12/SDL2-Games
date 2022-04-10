@@ -9,7 +9,6 @@ namespace sdl2_util
 {
     static SDL_Window *window{};
     static SDL_Renderer *renderer{};
-    static bool sdl_initialized = false;
 
     void initSDL(const uint32_t flags)
     {
@@ -19,7 +18,6 @@ namespace sdl2_util
             std::cerr << "Error initialising SDL2: " << SDL_GetError() << '\n';
             std::terminate();
         }
-        sdl_initialized = true;
     }
 
     SDL_Rect initRect(const int x, const int y, const int width, const int height)
@@ -56,7 +54,7 @@ namespace sdl2_util
     }
     void createRenderer(const int index, const uint32_t flags)
     {
-        if (!renderer && sdl_initialized)
+        if (!renderer)
         {
             renderer = SDL_CreateRenderer(window, index, flags);
         }
@@ -126,9 +124,7 @@ namespace sdl2_util
     {
         destroyRenderer();
         destroyWindow();
-        if (sdl_initialized)
-        {
-            SDL_Quit();
-        }
+        SDL_Quit();
+        
     }
 }
