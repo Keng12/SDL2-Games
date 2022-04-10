@@ -39,10 +39,5 @@ if (CMAKE_CXX_INCLUDE_WHAT_YOU_USE)
     message(STATUS "Enable iwyu")
 endif()
 
-find_program(CMAKE_CXX_CLANG_TIDY NAMES clang-tidy)
-if (CMAKE_CXX_CLANG_TIDY)
-    message(STATUS "Enable clang-tidy")
-endif()
-
 option(LINK_WHAT_YOU_USE "Enable lwyu" ON)
 message(STATUS "Enable lwyu")
