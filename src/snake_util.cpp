@@ -4,15 +4,16 @@
 #include <iostream>
 #include <deque>
 #include <iostream>
-
+#include <limits>
 #include "snake_util.hpp"
-#include "sdl2_util/video.hpp"
+#include "sdl2_util.hpp"
+#include <assert.h>
 
 namespace snake
 {
     int Snake::checkHeadBoundary() const
     {
-        int hit = 0;
+        int hit{};
         switch (mDirection.front())
         {
         case 1:
@@ -67,7 +68,8 @@ namespace snake
             piece.h = piece.h + increment;
             break;
         default:
-            throw std::runtime_error{"Unknown direction in growSnake"};
+            std::cerr << "Unknown direction in growSnake \n";
+            std::terminate();
         }
     }
 
@@ -90,7 +92,8 @@ namespace snake
             mPieces.back().h = mPieces.back().h - decrement;
             break;
         default:
-            throw std::runtime_error{"Unknown direction in shrinkTail"};
+            std::cerr << "Unknown direction in shrinkTail \n";
+            std::terminate();
         }
         if ((mDirectionAbs.back() == 1 && mPieces.back().w <= 0) || (mDirectionAbs.back() == 2 && mPieces.back().h <= 0))
         {
@@ -112,7 +115,7 @@ namespace snake
             }
         }
     }
-    
+
     void Snake::changeDirection()
     {
         addPiece();
@@ -122,7 +125,7 @@ namespace snake
     void Snake::addPiece()
     {
         // Call BEFORE setting new direction
-        SDL_Rect new_piece{.x = 0, .y = 0, .w = mLength, .h = mLength};
+        SDL_Rect new_piece = sdl2_util::initRect(0, 0, mLength, mLength);
         switch (mDirection.front())
         {
         case 1: // Moving right currently
@@ -148,21 +151,27 @@ namespace snake
             mPieces.front().h = mPieces.front().h - mLength;
             break;
         default:
-            throw std::runtime_error{"Unknown direction in addPiece"};
+            std::cerr << "Unknown direction in addPiece \n";
+            std::terminate();
         }
         mPieces.push_front(new_piece);
     }
 
     int Snake::move(double deltaT, int new_direction)
     {
-        unsigned int deltaXY = static_cast<unsigned int>(deltaT * mSpeedFactor);
-        if (deltaXY > mSpeedMax)
+        double current_speed = deltaT * mSpeedFactor;
+        int deltaXY{};
+        if (current_speed > mSpeedMax || current_speed > std::numeric_limits<int>::max())
         {
             deltaXY = mSpeedMax;
         }
-        else if (deltaXY == 0)
+        else
         {
-            deltaXY = 1;
+            deltaXY = static_cast<int>(current_speed);
+            if (deltaXY == 0)
+            {
+                deltaXY = 1;
+            }
         }
         if (mWaitTurn)
         {
@@ -191,7 +200,8 @@ namespace snake
                 mTarget = bound - mLength;
                 break;
             default:
-                throw std::runtime_error{"Unknown direction in move"};
+                std::cerr << "Unknown direction in move \n";
+                std::terminate();
             }
             mWaitTurn = true;
             mNewDirection = new_direction;
@@ -224,15 +234,16 @@ namespace snake
             movingBound = mPieces.front().y;
             break;
         default:
-            throw std::runtime_error{"Unknown direction in movingBound"};
+            std::cerr << "Unknown direction in movingBound \n";
+            std::terminate();
         }
         return movingBound;
     }
 
     Snake::Snake(const int &length, int direction, int window_width, int window_height, double speed_factor)
-        : mLength{length}, mWindowWidth{std::move(window_width)}, mWindowHeight{std::move(window_height)}, mSpeedFactor{std::move(speed_factor)}, mSpeedMax{static_cast<unsigned int>(length)}
+        : mLength{length}, mWindowWidth{std::move(window_width)}, mWindowHeight{std::move(window_height)}, mSpeedFactor{std::move(speed_factor)}, mSpeedMax{length}
     {
-        SDL_Rect init_piece{.x = window_width / 2, .y = window_height / 2, .w = mLength, .h = mLength};
+        SDL_Rect init_piece = sdl2_util::initRect(window_width / 2, window_height / 2, mLength, mLength);
         mDirection.push_front(direction);
         mDirectionAbs.push_front(std::abs(direction));
         mPieces.push_front(init_piece);
@@ -267,8 +278,8 @@ namespace snake
         bool result = std::any_of(std::execution::unseq, mPieces.crbegin(), mPieces.crend(), [&](SDL_Rect piece)
                                   // clang-format off
                                 {
-                                    bool result = SDL_HasIntersection(&piece, food) == SDL_TRUE;
-                                    return result; 
+                                    bool result_i = SDL_HasIntersection(&piece, food) == SDL_TRUE;
+                                    return result_i; 
                                 }
                                   // clang-format on
         );
@@ -291,16 +302,16 @@ namespace snake
             food_hit = snake_instance.foodCheck(&food);
         } while (food_hit);
     }
-    void drawSnake(sdl2_util::Renderer &renderer, const Snake &snake_instance)
+    void drawSnake(const Snake &snake_instance)
     {
-        renderer.setLiveColor();
+        sdl2_util::setLiveColor();
         const std::deque<SDL_Rect> pieces = snake_instance.getPieces();
-        std::for_each(std::execution::unseq, pieces.crbegin(), pieces.crend(), [&](SDL_Rect rect)
-                      { renderer.fillRect(&rect); });
+        std::for_each(std::execution::unseq, pieces.cbegin(), pieces.cend(), [&](SDL_Rect rect)
+                      { sdl2_util::fillRect(&rect); });
     }
-    void drawFood(sdl2_util::Renderer &renderer, const SDL_Rect *food)
+    void drawFood(const SDL_Rect *food)
     {
-        renderer.setRenderDrawColor("green");
-        renderer.fillRect(food);
+        sdl2_util::setRenderDrawColor("green");
+        sdl2_util::fillRect(food);
     }
 }

@@ -2,9 +2,11 @@
 #define GOL_UTIL_HPP
 
 #include <array>
+#include <assert.h>
+
 #include "SDL.h"
 
-#include "sdl2_util/video.hpp"
+#include "sdl2_util.hpp"
 
 namespace gol
 {
@@ -12,73 +14,77 @@ namespace gol
     std::array<std::array<SDL_Rect, n_col>, n_row> constexpr init_rect(const int cell_width, const int cell_height)
     {
         std::array<std::array<SDL_Rect, n_col>, n_row> rect_array{};
-        for (size_t row = 0; row < n_row; row++)
+        for (size_t initRowLoop = 0; initRowLoop < n_row; initRowLoop++)
         {
-            for (size_t col = 0; col < n_col; col++)
+            for (size_t initColLoop = 0; initColLoop < n_col; initColLoop++)
             {
-                rect_array.at(row).at(col).w = cell_width;
-                rect_array.at(row).at(col).h = cell_height;
-                rect_array.at(row).at(col).x = col * cell_width;
-                rect_array.at(row).at(col).y = row * cell_height;
+                rect_array.at(initRowLoop).at(initColLoop).w = cell_width;
+                rect_array.at(initRowLoop).at(initColLoop).h = cell_height;
+                rect_array.at(initRowLoop).at(initColLoop).x = initColLoop * cell_width;
+                rect_array.at(initRowLoop).at(initColLoop).y = initRowLoop * cell_height;
             }
         }
         return rect_array;
     }
-    template <size_t n_row, size_t n_col>
-    int getLiveNeighbours(const std::array<std::array<int, n_col>, n_row> &state, size_t row, size_t col)
+    template <class T, size_t n_row, size_t n_col>
+    uint_fast8_t getLiveNeighbours(const std::array<std::array<T, n_col>, n_row> &state, size_t row, size_t col)
     {
-        int prev_row_idx = row - 1;
-        if (prev_row_idx < 0)
+        size_t prev_row_idx{};
+        if (0 == row)
         {
             prev_row_idx = n_row - 1;
         }
+        else
+        {
+            prev_row_idx = row - 1;
+        }
         size_t next_row_idx = row + 1;
-        if (next_row_idx == n_row)
+        if (next_row_idx == n_row || SIZE_MAX == row)
         {
             next_row_idx = 0;
         }
-        int prev_col_idx = col - 1;
-        if (prev_col_idx < 0)
+        size_t prev_col_idx{};
+        if (col == 0)
         {
             prev_col_idx = n_col - 1;
         }
+        else
+        {
+            prev_col_idx = col - 1;
+        }
         size_t next_col_idx = col + 1;
-        if (next_col_idx == n_col)
+        if (next_col_idx == n_col || SIZE_MAX == col)
         {
             next_col_idx = 0;
         }
-        int live_neighbours = state.at(prev_row_idx).at(prev_col_idx) + state.at(row).at(prev_col_idx) + state.at(next_row_idx).at(prev_col_idx) + state.at(next_row_idx).at(col) + state.at(next_row_idx).at(next_col_idx) + state.at(row).at(next_col_idx) + state.at(prev_row_idx).at(next_col_idx) + state.at(prev_row_idx).at(col);
+        uint_fast8_t live_neighbours = state.at(prev_row_idx).at(prev_col_idx) + state.at(row).at(prev_col_idx) + state.at(next_row_idx).at(prev_col_idx) + state.at(next_row_idx).at(col) + state.at(next_row_idx).at(next_col_idx) + state.at(row).at(next_col_idx) + state.at(prev_row_idx).at(next_col_idx) + state.at(prev_row_idx).at(col);
         return live_neighbours;
     }
-    template <size_t n_row, size_t n_col>
-    std::array<std::array<int, n_col>, n_row> next_state(const std::array<std::array<int, n_col>, n_row> &old_state, sdl2_util::Renderer &renderer, const std::array<std::array<SDL_Rect, n_col>, n_row> &rect_array)
+    template <class T, size_t n_row, size_t n_col>
+    std::array<std::array<T, n_col>, n_row> next_state(const std::array<std::array<T, n_col>, n_row> &old_state, const std::array<std::array<SDL_Rect, n_col>, n_row> &rect_array, const std::array<size_t, n_row> &row_iterator, const std::array<size_t, n_col> &col_iterator)
     {
-        renderer.setLiveColor();
-
-        std::array<std::array<int, n_col>, n_row> new_state{};
-        for (size_t row = 0; row < n_row; row++)
-        {
-            for (size_t col = 0; col < n_col; col++)
-            {
-                int live_neighbours = getLiveNeighbours<n_row, n_col>(old_state, row, col);
-                int cell_state = old_state.at(row).at(col);
-                bool cell_survives = cell_state == 1 && (live_neighbours == 2 || live_neighbours == 3);
-                bool cell_born = cell_state == 0 && (live_neighbours == 3);
-                if (cell_survives || cell_born)
-                {
-                    // Cell survives, rerendered as it is cleared after each frame
-                    new_state.at(row).at(col) = 1;
-                    renderer.fillRect(&rect_array.at(row).at(col)); // Fill rectangle with white color
-                }
-                else
-                {
-                    // Cell dies
-                    new_state.at(row).at(col) = 0;
-                }
-            }
-        }
+        sdl2_util::setLiveColor();
+        std::array<std::array<T, n_col>, n_row> new_state{};
+        std::for_each(std::execution::unseq, row_iterator.cbegin(), row_iterator.cend(), [&](const size_t row)
+                      { std::for_each(std::execution::unseq, col_iterator.cbegin(), col_iterator.end(), [&](const size_t col)
+                                      {
+                                          uint_fast8_t live_neighbours = getLiveNeighbours(old_state, row, col);
+                                          T cell_state = old_state.at(row).at(col);
+                                          bool cell_survives = cell_state == 1 && (live_neighbours == 2 || live_neighbours == 3);
+                                          bool cell_born = cell_state == 0 && (live_neighbours == 3);
+                                          if (cell_survives || cell_born)
+                                          {
+                                              // Cell survives, rectangle filled as white
+                                              new_state.at(row).at(col) = 1;
+                                              sdl2_util::fillRect(&rect_array.at(row).at(col));
+                                          }
+                                          else
+                                          {
+                                              // Cell dies, do not fill rectangle as it clears to black later
+                                              new_state.at(row).at(col) = 0;
+                                          }
+                                      }); });
         return new_state;
     }
 }
-
 #endif

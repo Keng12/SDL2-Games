@@ -7,7 +7,7 @@
 
 #include "SDL.h"
 
-#include "sdl2_util/video.hpp"
+#include "sdl2_util.hpp"
 
 namespace snake
 {
@@ -17,7 +17,7 @@ namespace snake
         const int mWindowWidth{};
         const int mWindowHeight{};
         const double mSpeedFactor{};
-        const unsigned int mSpeedMax{};
+        const int mSpeedMax{};
 
         int mNewDirection{};
         bool mWaitTurn = false;
@@ -45,7 +45,7 @@ namespace snake
         bool foodCheck(const SDL_Rect *food) const;
     };
     void setFood(SDL_Rect &food, std::mt19937_64 &mt, std::uniform_int_distribution<> &col_dist, std::uniform_int_distribution<> &row_dist, const snake::Snake &snake);
-    void drawSnake(sdl2_util::Renderer &renderer, const Snake &snake_instance);
-    void drawFood(sdl2_util::Renderer &renderer, const SDL_Rect *food);
+    void drawSnake(const Snake &snake_instance);
+    void drawFood(const SDL_Rect *food);
 }
 #endif
