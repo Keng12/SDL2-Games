@@ -1,6 +1,6 @@
 # Game-of-Life and Snake
 
-To practice C++, I developed Conway's Game of Life [1] and Snake [2] with C++.
+This repository contains implementations of Conway's Game of Life [1] and Snake [2] developed with C++.
 
 Requires SDL2 and C++17 to compile. SDL2 can be installed on Ubuntu via`sudo apt install libsdl2-dev`.
 

@@ -65,7 +65,7 @@ int main()
                         uint_fast8_t result = dist(mt);
             if (1 == result)
             {
-                cell_array.at(row).at(col) = 1;
+                cell_array.at(row).at(col) = true;
                 sdl2_util::fillRect(&rect_array.at(row).at(col)); // Fill rectangle with white color
             }
         }
