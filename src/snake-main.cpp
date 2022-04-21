@@ -43,13 +43,48 @@ static_assert(std::abs(INIT_DIRECTION) <= 2 && std::abs(INIT_DIRECTION) >= 0);
 static constexpr double SPEED_FACTOR = 15000;
 static_assert(SPEED_FACTOR > 0);
 
-
 void terminateHandler()
 {
     sdl2_util::quitSDL();
 #ifdef __GNUC__
     __gnu_cxx::__verbose_terminate_handler();
 #endif
+}
+
+std::tuple<bool, int> handle_event(SDL_Event &event)
+{
+    bool quit{};
+    int new_direction{};
+    while (SDL_PollEvent(&event))
+    {
+        if (event.type == SDL_QUIT)
+        {
+            quit = true;
+        }
+        else if (event.type == SDL_KEYDOWN)
+        { 
+            switch( event.key.keysym.sym ){
+                case SDLK_LEFT:
+                                new_direction = -1;
+
+                break;
+                                case SDLK_RIGHT:
+                                                new_direction = 1;
+
+                break;
+                case SDLK_UP:
+                                new_direction = -2;
+
+                break;
+                case SDLK_DOWN:
+                                new_direction = 2;
+
+                break;
+
+            }
+        }
+    }
+    return {quit, new_direction};
 }
 
 int main()
@@ -84,43 +119,17 @@ int main()
     sdl2_util::present("black");
     // Prepare main loop
     bool quit{};
-    const unsigned char *keystate = SDL_GetKeyboardState(nullptr);
+  //  const unsigned char *keystate = SDL_GetKeyboardState(nullptr);
     SDL_Event event{};
     std::chrono::duration<double> elapsed = TARGET_DELAY;
+    int new_direction{};
+
     // Main game loop
     while (!quit)
     {
+
         auto start = std::chrono::steady_clock::now();
-        SDL_PollEvent(&event);
-        switch (event.type)
-        {
-        case SDL_QUIT:
-            quit = true;
-            break;
-        case SDL_KEYDOWN:
-        case SDL_KEYUP:
-        case SDL_MOUSEBUTTONDOWN:
-        case SDL_MOUSEBUTTONUP:
-            SDL_FlushEvents(SDL_TEXTINPUT, SDL_MOUSEWHEEL);
-            break;
-        }
-        int new_direction{};
-        if (keystate[SDL_SCANCODE_LEFT])
-        {
-            new_direction = -1;
-        }
-        else if (keystate[SDL_SCANCODE_RIGHT])
-        {
-            new_direction = 1;
-        }
-        else if (keystate[SDL_SCANCODE_UP])
-        {
-            new_direction = -2;
-        }
-        else if (keystate[SDL_SCANCODE_DOWN])
-        {
-            new_direction = 2;
-        }
+        std::tie(quit, new_direction) = handle_event(event);
         uint_fast8_t game_over = snake_instance.move(elapsed.count(), new_direction);
         snake::drawSnake(snake_instance);
         if (game_over > 0)
@@ -135,15 +144,13 @@ int main()
             {
                 std::cout << "Hit self" << std::endl;
             }
-            SDL_FlushEvents(SDL_TEXTINPUT, SDL_MOUSEWHEEL);
+            SDL_FlushEvents(SDL_FIRSTEVENT, SDL_LASTEVENT);
             while (!quit)
             {
                 SDL_WaitEvent(&event);
-                switch (event.type)
+                if (event.type == SDL_QUIT || event.type == SDL_KEYUP)
                 {
-                case SDL_KEYUP:
                     quit = true;
-                    break;
                 }
             }
         }

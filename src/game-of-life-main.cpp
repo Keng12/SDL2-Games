@@ -52,6 +52,20 @@ void terminateHandler()
 #endif
 }
 
+bool handle_event(SDL_Event& event){
+    bool quit{};
+    while (SDL_PollEvent(&event))
+    {
+        switch (event.type)
+        {
+        case SDL_QUIT:
+            quit = true;
+            break;
+        }
+    }
+    return quit;
+}
+
 int main()
 {
     std::set_terminate(terminateHandler);
@@ -92,23 +106,10 @@ int main()
     sdl2_util::present("black");
     SDL_Event event{};
     bool quit = false;
-
     while (!quit)
     {
         std::chrono::time_point<std::chrono::steady_clock> start = std::chrono::steady_clock::now();
-        SDL_PollEvent(&event);
-        switch (event.type)
-        {
-        case SDL_QUIT:
-            quit = true;
-            break;
-        case SDL_KEYDOWN:
-        case SDL_KEYUP:
-        case SDL_MOUSEBUTTONDOWN:
-        case SDL_MOUSEBUTTONUP:
-            SDL_FlushEvents(SDL_TEXTINPUT, SDL_MOUSEWHEEL);
-            break;
-        }
+        quit = handle_event(event);
         cell_array = gol::next_state(cell_array, rect_array, row_iterator, col_iterator);
         sdl2_util::present("black");
         std::chrono::time_point<std::chrono::steady_clock> end = std::chrono::steady_clock::now();
