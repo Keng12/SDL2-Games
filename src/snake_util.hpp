@@ -28,6 +28,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace snake
 {
+
+    static constexpr int RIGHT = 1;
+    static constexpr int DOWN = 2;
+    static constexpr int UP = -2;
+    static constexpr int LEFT = -1;
+
     class Snake
     {
         const int mLength{};

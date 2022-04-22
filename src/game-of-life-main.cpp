@@ -78,8 +78,8 @@ int main()
         WINDOW_HEIGHT,
         0);
     sdl2_util::createRenderer(-1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
-    sdl2_util::renderClear("black"); // Clear to black screen
-    sdl2_util::setLiveColor();       // Set color to white
+    sdl2_util::renderClear(sdl2_util::RenderColor::black); // Clear to black screen
+    sdl2_util::setRenderDrawColor(sdl2_util::RenderColor::white);       // Set color to white
 
     std::random_device rd{};
     std::mt19937_64 mt(rd());
@@ -103,7 +103,7 @@ int main()
         );
     }
     );  
-    sdl2_util::present("black");
+    sdl2_util::present(sdl2_util::RenderColor::black);
     SDL_Event event{};
     bool quit = false;
     while (!quit)
@@ -111,7 +111,7 @@ int main()
         std::chrono::time_point<std::chrono::steady_clock> start = std::chrono::steady_clock::now();
         quit = handle_event(event);
         cell_array = gol::next_state(cell_array, rect_array, row_iterator, col_iterator);
-        sdl2_util::present("black");
+        sdl2_util::present(sdl2_util::RenderColor::black);
         std::chrono::time_point<std::chrono::steady_clock> end = std::chrono::steady_clock::now();
         std::chrono::duration<double> elapsed = end - start;
         if (TARGET_DELAY > elapsed)

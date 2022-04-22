@@ -26,7 +26,6 @@ namespace sdl2_util
 {
     static SDL_Window *window{};
     static SDL_Renderer *renderer{};
-
     void initSDL(const uint32_t flags)
     {
         result = SDL_Init(flags); // Initialize SDL2
@@ -88,7 +87,7 @@ namespace sdl2_util
             SDL_DestroyRenderer(renderer);
         }
     }
-    void renderClear(const std::string &color)
+    void renderClear(const RenderColor color)
     {
         setRenderDrawColor(color);
         result = SDL_RenderClear(renderer); // Clear to black screen
@@ -98,28 +97,28 @@ namespace sdl2_util
             std::terminate();
         }
     }
-    void present(const std::string &color)
+    void present(const RenderColor color)
     {
         SDL_RenderPresent(renderer);
         renderClear(color);
     }
-    void setRenderDrawColor(const std::string &color)
+    void setRenderDrawColor(const RenderColor color)
     {
-        if (color == "white")
+        if (color == RenderColor::white)
         {
             result = SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
         }
-        else if (color == "black")
+        else if (color == RenderColor::black)
         {
             result = SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
         }
-        else if (color == "green")
+        else if (color == RenderColor::green)
         {
             result = SDL_SetRenderDrawColor(renderer, 0, 255, 0, 0);
         }
         else
         {
-            std::cerr << "Unknown color for setRenderDrawColor: " << color << " unknown \n";
+            std::cerr << "Unknown color for setRenderDrawColor\n";
             std::terminate();
         }
         if (0 != result)

@@ -80,7 +80,7 @@ namespace gol
     template <class T, size_t n_row, size_t n_col>
     std::array<std::array<T, n_col>, n_row> next_state(const std::array<std::array<T, n_col>, n_row> &old_state, const std::array<std::array<SDL_Rect, n_col>, n_row> &rect_array, const std::array<size_t, n_row> &row_iterator, const std::array<size_t, n_col> &col_iterator)
     {
-        sdl2_util::setLiveColor();
+        sdl2_util::setRenderDrawColor(sdl2_util::RenderColor::white);
         std::array<std::array<T, n_col>, n_row> new_state{};
         std::for_each(std::execution::unseq, row_iterator.cbegin(), row_iterator.cend(), [&](const size_t row)
                       { std::for_each(std::execution::unseq, col_iterator.cbegin(), col_iterator.end(), [&](const size_t col)

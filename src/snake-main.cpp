@@ -38,8 +38,7 @@ static constexpr double FPS = 60.0;
 static_assert(FPS > 0);
 static constexpr std::chrono::duration<double> TARGET_DELAY = std::chrono::duration<double>{1 / FPS};
 
-static constexpr int INIT_DIRECTION = -1;
-static_assert(std::abs(INIT_DIRECTION) <= 2 && std::abs(INIT_DIRECTION) >= 0);
+static constexpr int INIT_DIRECTION = snake::LEFT;
 static constexpr double SPEED_FACTOR = 15000;
 static_assert(SPEED_FACTOR > 0);
 
@@ -62,25 +61,21 @@ std::tuple<bool, int> handle_event(SDL_Event &event)
             quit = true;
         }
         else if (event.type == SDL_KEYDOWN)
-        { 
-            switch( event.key.keysym.sym ){
-                case SDLK_LEFT:
-                                new_direction = -1;
-
+        {
+            switch (event.key.keysym.sym)
+            {
+            case SDLK_LEFT:
+                new_direction = snake::LEFT;
                 break;
-                                case SDLK_RIGHT:
-                                                new_direction = 1;
-
+            case SDLK_RIGHT:
+                new_direction = snake::RIGHT;
                 break;
-                case SDLK_UP:
-                                new_direction = -2;
-
+            case SDLK_UP:
+                new_direction = snake::UP;
                 break;
-                case SDLK_DOWN:
-                                new_direction = 2;
-
+            case SDLK_DOWN:
+                new_direction = snake::DOWN;
                 break;
-
             }
         }
     }
@@ -99,7 +94,7 @@ int main()
         WINDOW_HEIGHT,
         0);
     sdl2_util::createRenderer(-1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
-    sdl2_util::renderClear("black"); // Clear to black screen
+    sdl2_util::renderClear(sdl2_util::RenderColor::black); // Clear to black screen
 
     uint_fast64_t point_counter = 0;
     // Prepare SDL2
@@ -116,14 +111,13 @@ int main()
     // Render objects
     snake::drawSnake(snake_instance);
     snake::drawFood(&food);
-    sdl2_util::present("black");
+    sdl2_util::present(sdl2_util::RenderColor::black);
     // Prepare main loop
     bool quit{};
-  //  const unsigned char *keystate = SDL_GetKeyboardState(nullptr);
+    //  const unsigned char *keystate = SDL_GetKeyboardState(nullptr);
     SDL_Event event{};
     std::chrono::duration<double> elapsed = TARGET_DELAY;
     int new_direction{};
-
     // Main game loop
     while (!quit)
     {
@@ -135,7 +129,7 @@ int main()
         if (game_over > 0)
         {
             snake::drawFood(&food);
-            sdl2_util::present("black");
+            sdl2_util::present(sdl2_util::RenderColor::black);
             if (1 == game_over)
             {
                 std::cout << "Hit boundary" << std::endl;
@@ -144,7 +138,6 @@ int main()
             {
                 std::cout << "Hit self" << std::endl;
             }
-            SDL_FlushEvents(SDL_FIRSTEVENT, SDL_LASTEVENT);
             while (!quit)
             {
                 SDL_WaitEvent(&event);
@@ -161,7 +154,7 @@ int main()
             snake::setFood(food, mt, col_dist, row_dist, snake_instance);
         }
         snake::drawFood(&food);
-        sdl2_util::present("black");
+        sdl2_util::present(sdl2_util::RenderColor::black);
         auto end = std::chrono::steady_clock::now();
         elapsed = end - start;
         if (TARGET_DELAY > elapsed)

@@ -70,17 +70,17 @@ namespace snake
     {
         switch (direction)
         {
-        case 1:
+        case RIGHT:
             piece.w = piece.w + increment;
             break;
-        case 2:
+        case DOWN:
             piece.h = piece.h + increment;
             break;
-        case -1:
+        case LEFT:
             piece.x = piece.x - increment;
             piece.w = piece.w + increment;
             break;
-        case -2:
+        case UP:
             piece.y = piece.y - increment;
             piece.h = piece.h + increment;
             break;
@@ -94,18 +94,18 @@ namespace snake
     {
         switch (mDirection.back())
         {
-        case 1:
+        case RIGHT:
             mPieces.back().x = mPieces.back().x + decrement;
             mPieces.back().w = mPieces.back().w - decrement;
             break;
-        case 2:
+        case DOWN:
             mPieces.back().y = mPieces.back().y + decrement;
             mPieces.back().h = mPieces.back().h - decrement;
             break;
-        case -1:
+        case LEFT:
             mPieces.back().w = mPieces.back().w - decrement;
             break;
-        case -2:
+        case UP:
             mPieces.back().h = mPieces.back().h - decrement;
             break;
         default:
@@ -145,23 +145,23 @@ namespace snake
         SDL_Rect new_piece = sdl2_util::initRect(0, 0, mLength, mLength);
         switch (mDirection.front())
         {
-        case 1: // Moving right currently
+        case RIGHT: // Moving right currently
             new_piece.x = mPieces.front().x + mPieces.front().w - mLength;
             new_piece.y = mPieces.front().y;
             mPieces.front().w = mPieces.front().w - mLength;
             break;
-        case 2: // Moving down currently
+        case DOWN: // Moving down currently
             new_piece.x = mPieces.front().x;
             new_piece.y = mPieces.front().y + mPieces.front().h - mLength;
             mPieces.front().h = mPieces.front().h - mLength;
             break;
-        case -1:
+        case LEFT:
             new_piece.x = mPieces.front().x;
             new_piece.y = mPieces.front().y;
             mPieces.front().x = mPieces.front().x + mLength;
             mPieces.front().w = mPieces.front().w - mLength;
             break;
-        case -2:
+        case UP:
             new_piece.x = mPieces.front().x;
             new_piece.y = mPieces.front().y;
             mPieces.front().y = mPieces.front().y + mLength;
@@ -204,16 +204,16 @@ namespace snake
             int bound = getMovingBound();
             switch (mDirection.front())
             {
-            case 1: // Moving right currently
+            case RIGHT: // Moving right currently
                 mTarget = bound + mLength;
                 break;
-            case 2: // Moving down currently
+            case DOWN: // Moving down currently
                 mTarget = bound + mLength;
                 break;
-            case -1:
+            case LEFT:
                 mTarget = bound - mLength;
                 break;
-            case -2:
+            case UP:
                 mTarget = bound - mLength;
                 break;
             default:
@@ -238,16 +238,16 @@ namespace snake
         int movingBound{};
         switch (mDirection.front())
         {
-        case 1: // Moving right currently
+        case RIGHT: // Moving right currently
             movingBound = mPieces.front().x + mPieces.front().w;
             break;
-        case 2: // Moving down currently
+        case DOWN: // Moving down currently
             movingBound = mPieces.front().y + mPieces.front().h;
             break;
-        case -1:
+        case LEFT:
             movingBound = mPieces.front().x;
             break;
-        case -2:
+        case UP:
             movingBound = mPieces.front().y;
             break;
         default:
@@ -321,14 +321,14 @@ namespace snake
     }
     void drawSnake(const Snake &snake_instance)
     {
-        sdl2_util::setLiveColor();
+        sdl2_util::setRenderDrawColor(sdl2_util::RenderColor::white);
         const std::deque<SDL_Rect> pieces = snake_instance.getPieces();
         std::for_each(std::execution::unseq, pieces.cbegin(), pieces.cend(), [&](SDL_Rect rect)
                       { sdl2_util::fillRect(&rect); });
     }
     void drawFood(const SDL_Rect *food)
     {
-        sdl2_util::setRenderDrawColor("green");
+        sdl2_util::setRenderDrawColor(sdl2_util::RenderColor::green);
         sdl2_util::fillRect(food);
     }
 }
