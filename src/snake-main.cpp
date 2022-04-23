@@ -94,6 +94,9 @@ int main()
         WINDOW_HEIGHT,
         0);
     sdl2_util::createRenderer(-1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
+    sdl2_util::createTexture(SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, WINDOW_WIDTH, WINDOW_HEIGHT);
+    sdl2_util::setRenderTexture();
+
     sdl2_util::renderClear(sdl2_util::RenderColor::black); // Clear to black screen
 
     uint_fast64_t point_counter = 0;

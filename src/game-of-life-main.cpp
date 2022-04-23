@@ -52,7 +52,8 @@ void terminateHandler()
 #endif
 }
 
-bool handle_event(SDL_Event& event){
+bool handle_event(SDL_Event &event)
+{
     bool quit{};
     while (SDL_PollEvent(&event))
     {
@@ -78,8 +79,10 @@ int main()
         WINDOW_HEIGHT,
         0);
     sdl2_util::createRenderer(-1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
-    sdl2_util::renderClear(sdl2_util::RenderColor::black); // Clear to black screen
-    sdl2_util::setRenderDrawColor(sdl2_util::RenderColor::white);       // Set color to white
+    sdl2_util::createTexture(SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, WINDOW_WIDTH, WINDOW_HEIGHT);
+    sdl2_util::setRenderTexture();
+    sdl2_util::renderClear(sdl2_util::RenderColor::black);        // Clear to black screen
+    sdl2_util::setRenderDrawColor(sdl2_util::RenderColor::white); // Set color to white
 
     std::random_device rd{};
     std::mt19937_64 mt(rd());
@@ -90,19 +93,17 @@ int main()
     std::iota(col_iterator.begin(), col_iterator.end(), 0);
     std::array<size_t, N_ROWS> row_iterator{};
     std::iota(row_iterator.begin(), row_iterator.end(), 0);
-    std::for_each(std::execution::unseq, row_iterator.cbegin(), row_iterator.cend(), [&](const size_t row){
-        std::for_each(std::execution::unseq, col_iterator.cbegin(), col_iterator.cend(),
-        [&](const size_t col){
-                        uint_fast8_t result = dist(mt);
-            if (1 == result)
-            {
-                cell_array.at(row).at(col) = true;
-                sdl2_util::fillRect(&rect_array.at(row).at(col)); // Fill rectangle with white color
-            }
-        }
-        );
-    }
-    );  
+    std::for_each(std::execution::unseq, row_iterator.cbegin(), row_iterator.cend(), [&](const size_t row)
+                  { std::for_each(std::execution::unseq, col_iterator.cbegin(), col_iterator.cend(),
+                                  [&](const size_t col)
+                                  {
+                                      uint_fast8_t result = dist(mt);
+                                      if (1 == result)
+                                      {
+                                          cell_array.at(row).at(col) = true;
+                                          sdl2_util::fillRect(&rect_array.at(row).at(col)); // Fill rectangle with white color
+                                      }
+                                  }); });
     sdl2_util::present(sdl2_util::RenderColor::black);
     SDL_Event event{};
     bool quit = false;

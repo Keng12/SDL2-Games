@@ -20,12 +20,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "sdl2_util.hpp"
 
-static int result{};
-
 namespace sdl2_util
 {
     static SDL_Window *window{};
     static SDL_Renderer *renderer{};
+    static SDL_Texture *texture{};
+    static int result{};
+
     void initSDL(const uint32_t flags)
     {
         result = SDL_Init(flags); // Initialize SDL2
@@ -87,6 +88,25 @@ namespace sdl2_util
             SDL_DestroyRenderer(renderer);
         }
     }
+
+    void createTexture(const uint32_t format, const int access, const int w, const int h)
+    {
+        texture = SDL_CreateTexture(renderer, format, access, w, h);
+        if (!texture)
+        {
+            std::cerr << "Creating texture failed with error: " << SDL_GetError() << '\n';
+            std::terminate();
+        }
+    }
+
+    void destroyTexture()
+    {
+        if (texture)
+        {
+            SDL_DestroyTexture(texture);
+        }
+    }
+
     void renderClear(const RenderColor color)
     {
         setRenderDrawColor(color);
@@ -99,7 +119,16 @@ namespace sdl2_util
     }
     void present(const RenderColor color)
     {
+
+        setRenderTarget(nullptr);
+        result = SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+        if (0 != result)
+        {
+            std::cerr << "Failure copying texture : " << SDL_GetError() << '\n';
+            std::terminate();
+        }
         SDL_RenderPresent(renderer);
+        setRenderTarget(texture);
         renderClear(color);
     }
     void setRenderDrawColor(const RenderColor color)
@@ -136,11 +165,27 @@ namespace sdl2_util
             std::terminate();
         }
     }
+
+    void setRenderTarget(SDL_Texture *l_texture)
+    {
+        result = SDL_SetRenderTarget(renderer, l_texture);
+        if (0 != result)
+        {
+            std::cerr << "Failure setting render target: " << SDL_GetError() << '\n';
+            std::terminate();
+        }
+    }
+
+    void setRenderTexture()
+    {
+        setRenderTarget(texture);
+    }
+
     void quitSDL()
     {
         destroyRenderer();
         destroyWindow();
+        destroyTexture();
         SDL_Quit();
-        
     }
 }
