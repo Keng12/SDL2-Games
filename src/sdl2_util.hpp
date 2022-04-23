@@ -33,6 +33,7 @@ namespace sdl2_util
     void createWindow(const std::string &title, const int x, const int y, const int w, const int h, const uint32_t flags);
     void destroyWindow();
     void quitSDL();
+    void renderCopy();
     void createRenderer(const int index, const uint32_t flags);
     void destroyRenderer();
     void createTexture(const uint32_t format, const int access, const int w, const int h);

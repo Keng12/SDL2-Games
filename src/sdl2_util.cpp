@@ -121,15 +121,19 @@ namespace sdl2_util
     {
 
         setRenderTarget(nullptr);
+        renderCopy();
+        SDL_RenderPresent(renderer);
+        setRenderTarget(texture);
+        renderClear(color);
+    }
+
+    void renderCopy(){
         result = SDL_RenderCopy(renderer, texture, nullptr, nullptr);
         if (0 != result)
         {
             std::cerr << "Failure copying texture : " << SDL_GetError() << '\n';
             std::terminate();
         }
-        SDL_RenderPresent(renderer);
-        setRenderTarget(texture);
-        renderClear(color);
     }
     void setRenderDrawColor(const RenderColor color)
     {
